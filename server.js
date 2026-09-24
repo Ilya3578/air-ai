@@ -1,12 +1,27 @@
 import express from "express";
-
+import { readFile } from "node:fs/promises";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static("."));
 
-app.get("/", (req, res) => {
-  res.sendFile(process.cwd() + "/Air-AI_version7_local_AI.html");
+app.get("/", async (req, res) => {
+  try {
+    const html = await readFile(
+      process.cwd() + "/Air-AI_version7_local_AI.html",
+      "utf8"
+    );
+
+    const updatedHtml = html.replace(
+      /<\/body>/i,
+      '<script src="/integrate-search.js"></script></body>'
+    );
+
+    res.send(updatedHtml);
+  } catch (error) {
+    console.error("Не удалось открыть главную страницу:", error);
+    res.status(500).send("Ошибка загрузки Air-AI");
+  }
 });
 
 // Города → аэропорты назначения.
