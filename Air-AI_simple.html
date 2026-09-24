@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Air-AI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f5f7;
+      color: #18202a;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 25px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      color: #68727d;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 17px;
+      border: 1px solid #ccd3da;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #555;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 14px;
+      border: 0;
+      border-radius: 10px;
+      background: #18202a;
+      color: white;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    #result {
+      margin-top: 22px;
+    }
+
+    .flight-card {
+      background: #f3f5f7;
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .route {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+
+    .row {
+      padding: 8px 0;
+      border-bottom: 1px solid #dfe3e7;
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .error {
+      color: #a21d1d;
+    }
+
+    .loading {
+      color: #68727d;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card">
+
+    <h1>✈️ Air-AI</h1>
+
+    <div class="subtitle">
+      Поиск рейса из Пулково
+    </div>
+
+    <label for="city">
+      Туда
+    </label>
+
+    <input
+      id="city"
+      type="text"
+      placeholder="Москва / Moscow"
+      autocomplete="off"
+    >
+
+    <button id="searchButton">
+      Найти рейс
+    </button>
+
+    <div id="result">
+      Введите город назначения.
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const cityInput = document.getElementById("city");
+const searchButton = document.getElementById("searchButton");
+const result = document.getElementById("result");
+
+
+function formatDateTime(value) {
+
+  if (!value) {
+    return "—";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("ru-RU", {
+    timeZone: "Europe/Moscow",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+}
+
+
+function formatStatus(status) {
+
+  const statuses = {
+
+    scheduled: "Запланирован",
+
+    active: "В полёте",
+
+    landed: "Приземлился",
+
+    cancelled: "Отменён",
+
+    incident: "Инцидент",
+
+    diverted: "Перенаправлен"
+
+  };
+
+  return statuses[status] || status || "—";
+
+}
+
+
+async function searchFlight() {
+
+  const city = cityInput.value.trim();
+
+  if (!city) {
+
+    result.innerHTML =
+      '<div class="error">Введите город назначения.</div>';
+
+    return;
+
+  }
+
+
+  searchButton.disabled = true;
+
+  result.innerHTML =
+    '<div class="loading">🔎 Ищу рейс...</div>';
+
+
+  try {
+
+    const url =
+      "/api/flight?city=" +
+      encodeURIComponent(city);
+
+
+    const response =
+      await fetch(url);
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error || "Ошибка сервера"
+      );
+
+    }
+
+
+    if (!data.flight) {
+
+      result.innerHTML = `
+        <div class="flight-card">
+          <div class="error">
+            ✈️ Рейс не найден
+          </div>
+
+          <p>
+            ${data.note || "Попробуйте другой город."}
+          </p>
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    const flight = data.flight;
+
+
+    result.innerHTML = `
+
+      <div class="flight-card">
+
+        <div class="route">
+          Пулково (LED) →
+          ${flight.arrival.iata || city}
+        </div>
+
+
+        <div class="row">
+          ✈️ <strong>Рейс:</strong>
+          ${flight.flightNumber || "—"}
+        </div>
+
+
+        <div class="row">
+          🏢 <strong>Авиакомпания:</strong>
+          ${flight.airline || "—"}
+        </div>
+
+
+        <div class="row">
+          🛫 <strong>Вылет:</strong>
+          ${formatDateTime(
+            flight.departure.scheduled ||
+            flight.departure.estimated
+          )}
+        </div>
+
+
+        <div class="row">
+          🛬 <strong>Прилёт:</strong>
+          ${formatDateTime(
+            flight.arrival.scheduled ||
+            flight.arrival.estimated
+          )}
+        </div>
+
+
+        <div class="row">
+          📍 <strong>Аэропорт:</strong>
+          ${flight.arrival.airport || "—"}
+          (${flight.arrival.iata || "—"})
+        </div>
+
+
+        <div class="row">
+          📋 <strong>Статус:</strong>
+          ${formatStatus(flight.status)}
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+  catch (error) {
+
+    result.innerHTML = `
+
+      <div class="flight-card">
+
+        <div class="error">
+          ❌ Ошибка
+        </div>
+
+        <p>
+          ${error.message}
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+  finally {
+
+    searchButton.disabled = false;
+
+  }
+
+}
+
+
+searchButton.addEventListener(
+  "click",
+  searchFlight
+);
+
+
+cityInput.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (event.key === "Enter") {
+      searchFlight();
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
