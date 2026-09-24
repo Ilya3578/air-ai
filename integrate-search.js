@@ -84,17 +84,29 @@
       result.append(title);
 
       const rows = [
-        ["Рейс", f.flightNumber],
-        ["Авиакомпания", f.airline],
-        ["Вылет", formatTime(
-          f.departure.scheduled || f.departure.estimated
-        )],
-        ["Прилёт", formatTime(
-          f.arrival.scheduled || f.arrival.estimated
-        )],
-        ["Аэропорт прибытия", f.arrival.airport],
-        ["Статус", statuses[f.status] || f.status]
-      ];
+  ["Рейс", f.flightNumber],
+  ["Авиакомпания", f.airline],
+
+  ["Вылет", formatTime(
+    f.departure.scheduled || f.departure.estimated
+  )],
+
+  ["Прилёт", formatTime(
+    f.arrival.scheduled || f.arrival.estimated
+  )],
+
+  ["Аэропорт прибытия", f.arrival.airport],
+
+  ["Терминал", f.departure.terminal || "Пока нет информации о терминале"],
+
+  ["Стойка регистрации",
+    f.departure.checkInCounter || "Пока нет информации о стойке"],
+
+  ["Гейт",
+    f.departure.gate || "Пока нет информации о гейте"],
+
+  ["Статус", statuses[f.status] || f.status]
+];
 
       for (const [label, value] of rows) {
         const p = document.createElement("p");
