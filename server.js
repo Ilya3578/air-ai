@@ -1,231 +1,199 @@
-// Air-AI flight lookup backend
-// Aviationstack API — API key is stored in Render Environment Variables.
-
-import express from 'express';
+import express from "express";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const API_KEY = process.env.AVIATIONSTACK_API_KEY;
 
-app.use(express.static('.'));
+app.use(express.static("."));
 
-app.get('/', (_req, res) => {
-  res.sendFile(
-    new URL('./Air-AI_version7_local_AI.html', import.meta.url).pathname
-  );
+app.get("/", (req, res) => {
+  res.sendFile(process.cwd() + "/Air-AI_version7_local_AI.html");
 });
 
-function first(...values) {
-  return values.find(
-    value =>
-      value !== undefined &&
-      value !== null &&
-      String(value).trim() !== ''
-  ) ?? null;
-}
-
-function normalize(value) {
-  return String(value ?? '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/ё/g, 'е')
-    .replace(/[^a-zа-я0-9]/g, '');
-}
-
-const cityAliases = {
-  москва: ['moscow', 'svo', 'dme', 'vko'],
-  санктпетербург: ['saintpetersburg', 'stpetersburg', 'pulkovo', 'led'],
-  сочи: ['sochi', 'aer'],
-  казань: ['kazan', 'kzn'],
-  екатеринбург: ['yekaterinburg', 'ekaterinburg', 'svx'],
-  калининград: ['kaliningrad', 'kgd'],
-  минск: ['minsk', 'msq'],
-  ереван: ['yerevan', 'evn'],
-  дубай: ['dubai', 'dxb'],
-  анталья: ['antalya', 'ayt'],
-  ташкент: ['tashkent', 'tas'],
-  баку: ['baku', 'gyd'],
-  тбилиси: ['tbilisi', 'tbs'],
-  новосибирск: ['novosibirsk', 'ovb'],
-  самара: ['samara', 'kuf'],
-  уфа: ['ufa', 'ufa'],
-  пермь: ['perm', 'pee'],
-  нижнийновгород: ['nizhny', 'nizhniy', 'goj'],
-  ростовнадону: ['rostov', 'rov']
+// Города → аэропорты назначения.
+// Пулково всегда является аэропортом отправления: LED.
+const DESTINATIONS = {
+  "москва": ["SVO", "DME", "VKO", "ZIA"],
+  "санкт-петербург": ["LED"],
+  "сочи": ["AER"],
+  "екатеринбург": ["SVX"],
+  "казань": ["KZN"],
+  "новосибирск": ["OVB"],
+  "краснодар": ["KRR"],
+  "ростов": ["ROV"],
+  "ростов-на-дону": ["ROV"],
+  "самара": ["KUF"],
+  "уфа": ["UFA"],
+  "минеральные воды": ["MRV"],
+  "калининград": ["KGD"],
+  "мурманск": ["MMK"],
+  "архангельск": ["ARH"],
+  "махачкала": ["MCX"],
+  "владикавказ": ["OGZ"],
+  "тюмень": ["TJM"],
+  "омск": ["OMS"],
+  "иркутск": ["IKT"],
+  "владивосток": ["VVO"],
+  "хабаровск": ["KHV"],
+  "баку": ["GYD"],
+  "ташкент": ["TAS"],
+  "дубай": ["DXB"],
+  "стамбул": ["IST", "SAW"],
+  "ереван": ["EVN"],
+  "минск": ["MSQ"],
+  "астана": ["NQZ"],
+  "алматы": ["ALA"],
+  "париж": ["CDG", "ORY"],
+  "лондон": ["LHR", "LGW", "STN"],
+  "берлин": ["BER"],
+  "рим": ["FCO"],
+  "милан": ["MXP", "LIN"],
+  "барселона": ["BCN"],
+  "прага": ["PRG"],
+  "вена": ["VIE"]
 };
 
-function matchesCity(input, flight) {
-  const wanted = normalize(input);
-
-  const destinations = [
-    flight?.arrival?.airport,
-    flight?.arrival?.airport?.name,
-    flight?.arrival?.airport?.iata,
-    flight?.arrival?.airport?.icao,
-    flight?.arrival?.timezone
-  ]
-    .filter(Boolean)
-    .map(normalize);
-
-  if (destinations.some(value => value === wanted || value.includes(wanted))) {
-    return true;
-  }
-
-  for (const [city, aliases] of Object.entries(cityAliases)) {
-    const all = [city, ...aliases].map(normalize);
-
-    if (
-      all.includes(wanted) &&
-      destinations.some(destination =>
-        all.some(alias => destination.includes(alias))
-      )
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+function normalizeCity(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/ё/g, "е");
 }
 
 function formatFlight(flight) {
   return {
-    flightNumber: first(
-      flight?.flight?.iata,
-      flight?.flight?.number,
-      flight?.flight?.icao
-    ),
+    flightNumber:
+      flight?.flight?.iata ||
+      flight?.flight?.icao ||
+      null,
 
-    airline: first(
-      flight?.airline?.name,
-      flight?.airline?.iata,
-      flight?.airline?.icao
-    ),
+    airline:
+      flight?.airline?.name ||
+      flight?.airline?.iata ||
+      null,
 
-    departureAirport: first(
-      flight?.departure?.airport,
-      flight?.departure?.iata,
-      flight?.departure?.icao
-    ),
+    departure: {
+      airport: flight?.departure?.airport || null,
+      iata: flight?.departure?.iata || null,
+      scheduled: flight?.departure?.scheduled || null,
+      estimated: flight?.departure?.estimated || null,
+      actual: flight?.departure?.actual || null
+    },
 
-    departureIata: first(
-      flight?.departure?.iata
-    ),
+    arrival: {
+      airport: flight?.arrival?.airport || null,
+      iata: flight?.arrival?.iata || null,
+      scheduled: flight?.arrival?.scheduled || null,
+      estimated: flight?.arrival?.estimated || null,
+      actual: flight?.arrival?.actual || null
+    },
 
-    destination: first(
-      flight?.arrival?.airport,
-      flight?.arrival?.iata,
-      flight?.arrival?.icao
-    ),
-
-    destinationIata: first(
-      flight?.arrival?.iata
-    ),
-
-    departureTime: first(
-      flight?.departure?.estimated,
-      flight?.departure?.scheduled,
-      flight?.departure?.actual
-    ),
-
-    arrivalTime: first(
-      flight?.arrival?.estimated,
-      flight?.arrival?.scheduled,
-      flight?.arrival?.actual
-    ),
-
-    status: first(
-      flight?.flight_status,
-      flight?.status
-    ),
-
-    aircraft: first(
-      flight?.aircraft?.registration,
-      flight?.aircraft?.iata,
-      flight?.aircraft?.icao
-    ),
-
-    terminal: first(
-      flight?.departure?.terminal
-    ),
-
-    gate: first(
-      flight?.departure?.gate
-    )
+    status: flight?.flight_status || null
   };
 }
 
-app.get('/api/flight', async (req, res) => {
-  const city = String(req.query.city || '').trim();
-
-  if (!city) {
-    return res.status(400).json({
-      error: 'Укажите город / Enter destination city'
-    });
-  }
-
-  if (!API_KEY) {
-    return res.status(500).json({
-      error: 'AVIATIONSTACK_API_KEY is not configured on Render'
-    });
-  }
-
+app.get("/api/flight", async (req, res) => {
   try {
-    const url =
-      `https://api.aviationstack.com/v1/flights` +
-      `?access_key=${encodeURIComponent(API_KEY)}` +
-      `&limit=100`;
+    const apiKey = process.env.AVIATIONSTACK_API_KEY;
 
-    const response = await fetch(url);
-
-    const data = await response.json();
-
-    if (!response.ok || data?.error) {
-      return res.status(502).json({
-        error: 'Aviationstack API error',
-        details: data?.error || `HTTP ${response.status}`
+    if (!apiKey) {
+      return res.status(500).json({
+        flight: null,
+        source: "Aviationstack",
+        error: "AVIATIONSTACK_API_KEY is not configured on Render."
       });
     }
 
-    const flights = Array.isArray(data?.data)
-      ? data.data
-      : [];
+    const cityInput = req.query.city;
+    const city = normalizeCity(cityInput);
 
-    const matching = flights.filter(flight =>
-      matchesCity(city, flight)
-    );
+    if (!city) {
+      return res.status(400).json({
+        flight: null,
+        source: "Aviationstack",
+        error: "Destination city is required."
+      });
+    }
 
-    if (!matching.length) {
+    const destinationAirports = DESTINATIONS[city];
+
+    if (!destinationAirports) {
+      return res.status(404).json({
+        flight: null,
+        source: "Aviationstack",
+        searchedCity: cityInput,
+        error:
+          "City is not in the destination database yet.",
+        availableCities: Object.keys(DESTINATIONS)
+      });
+    }
+
+    const results = [];
+
+    // Пулково всегда LED.
+    // Делаем отдельный запрос для каждого аэропорта назначения.
+    for (const arrIata of destinationAirports) {
+      const url = new URL("https://api.aviationstack.com/v1/flights");
+
+      url.searchParams.set("access_key", apiKey);
+      url.searchParams.set("dep_iata", "LED");
+      url.searchParams.set("arr_iata", arrIata);
+      url.searchParams.set("limit", "100");
+
+      const response = await fetch(url);
+
+      const data = await response.json();
+
+      if (!response.ok || data?.error) {
+        return res.status(502).json({
+          flight: null,
+          source: "Aviationstack",
+          searchedCity: cityInput,
+          destinationAirport: arrIata,
+          error: data?.error || `HTTP ${response.status}`
+        });
+      }
+
+      if (Array.isArray(data?.data)) {
+        results.push(...data.data);
+      }
+    }
+
+    if (results.length === 0) {
       return res.json({
         flight: null,
-        source: 'Aviationstack',
-        searchedCity: city,
-        totalFlightsReceived: flights.length,
-        note: 'No matching flight found in the current Aviationstack response.'
+        source: "Aviationstack",
+        searchedCity: cityInput,
+        from: "LED",
+        destinationAirports,
+        totalFlightsReceived: 0,
+        note:
+          "No current flight found from Pulkovo (LED) to the selected destination."
       });
     }
 
-    const flight = formatFlight(matching[0]);
+    // Берём первый найденный рейс.
+    const flight = results[0];
 
     return res.json({
-      flight,
-      source: 'Aviationstack',
-      searchedCity: city,
-      checkedAt: new Date().toISOString()
+      flight: formatFlight(flight),
+      source: "Aviationstack",
+      searchedCity: cityInput,
+      from: "LED",
+      destinationAirports,
+      totalFlightsReceived: results.length
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Flight API error:", error);
 
     return res.status(500).json({
-      error: 'Flight search failed',
-      details: error.message
+      flight: null,
+      source: "Aviationstack",
+      error: error.message
     });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(
-    `Air-AI Aviationstack API listening on :${PORT}`
-  );
+  console.log(`Air-AI Aviationstack API listening on :${PORT}`);
 });
