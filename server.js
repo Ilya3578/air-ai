@@ -87,12 +87,20 @@ function formatFlight(flight) {
       null,
 
     departure: {
-      airport: flight?.departure?.airport || null,
-      iata: flight?.departure?.iata || null,
-      scheduled: flight?.departure?.scheduled || null,
-      estimated: flight?.departure?.estimated || null,
-      actual: flight?.departure?.actual || null
-    },
+  airport: flight?.departure?.airport || null,
+  iata: flight?.departure?.iata || null,
+  scheduled: flight?.departure?.scheduled || null,
+  estimated: flight?.departure?.estimated || null,
+  actual: flight?.departure?.actual || null,
+
+  terminal: flight?.departure?.terminal || null,
+  gate: flight?.departure?.gate || null,
+
+  checkInCounter:
+    flight?.departure?.check_in_counter ||
+    flight?.departure?.checkin_counter ||
+    null
+},
 
     arrival: {
       airport: flight?.arrival?.airport || null,
