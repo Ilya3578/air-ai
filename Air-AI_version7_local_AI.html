@@ -695,7 +695,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
 <main id="subscriptions" class="page">
   <section>
     <div class="container">
-      <button class="back-btn" onclick="showPage('subscription')">← <span data-i18n="backSubscription">Моя подписка</span></button>
+      <button class="back-btn" onclick="backFromSubscriptions()">← <span id="subscriptionsBackText" data-i18n="backSubscription">Моя подписка</span></button>
       <div class="page-title" data-i18n="subscriptionsTitle">Подписки</div>
       <div class="detailed-sub-grid">
 
@@ -825,7 +825,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
       </div>
       <div class="wallet-actions">
         <button class="wallet-action" type="button" onclick="openAutopayPayment()" data-i18n="walletAutopay">Подключить автоплатёж</button>
-        <button class="wallet-action" type="button" onclick="showPage('subscriptions')" data-i18n="walletChangePlan">Сменить тарифный план</button>
+        <button class="wallet-action" type="button" onclick="openSubscriptions('wallet')" data-i18n="walletChangePlan">Сменить тарифный план</button>
         <button class="wallet-action" type="button" onclick="openBenefitsModal()" data-i18n="walletBenefits">Льготные категории пассажиров</button>
         <button class="wallet-action" type="button" onclick="openPromoModal()" data-i18n="walletPromo">Ввести промокод</button>
       </div>
@@ -1355,6 +1355,7 @@ function applyLanguage(){
     const key=el.getAttribute('data-i18n-placeholder');
     if(t[key]!==undefined) el.placeholder=t[key];
   });
+  updateSubscriptionsBackButton();
 }
 
 function toast(message){
@@ -1369,6 +1370,29 @@ function setActiveNav(btn){
   document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
   if(btn) btn.classList.add('active');
 }
+let subscriptionsReturnPage = "subscription";
+
+function openSubscriptions(from = "subscription"){
+  subscriptionsReturnPage = from;
+  showPage("subscriptions");
+  updateSubscriptionsBackButton();
+}
+
+function backFromSubscriptions(){
+  showPage(subscriptionsReturnPage);
+}
+
+function updateSubscriptionsBackButton(){
+  const el = document.getElementById("subscriptionsBackText");
+  if(!el) return;
+  const fromWallet = subscriptionsReturnPage === "wallet";
+  if(currentLanguage === "en"){
+    el.textContent = fromWallet ? "Back to Wallet" : "My subscription";
+  } else {
+    el.textContent = fromWallet ? "Вернуться в Кошелёк" : "Моя подписка";
+  }
+}
+
 function showPage(id, fromHistory=false){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const page=document.getElementById(id);
