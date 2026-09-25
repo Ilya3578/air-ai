@@ -1,4 +1,4 @@
-
+```javascript
 (() => {
   const cityInput = [...document.querySelectorAll("input")]
     .find(el =>
@@ -14,35 +14,89 @@
   }
 
   const result = document.createElement("div");
+
   result.style.cssText =
     "margin-top:20px;padding:18px;border-radius:12px;background:#f3f5f7;";
 
   searchButton.insertAdjacentElement("afterend", result);
 
+  function isEnglish() {
+    return document.documentElement.lang.toLowerCase() === "en";
+  }
+
+  function getText(ru, en) {
+    return isEnglish() ? en : ru;
+  }
+
+  function unknown() {
+    return getText(
+      "Пока нет информации",
+      "Information not available yet"
+    );
+  }
+
   function formatTime(value) {
-    if (!value) return "Пока неизвестно";
+    if (!value) return unknown();
 
     const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
 
-    return date.toLocaleString("ru-RU", {
-      timeZone: "Europe/Moscow",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return date.toLocaleString(
+      isEnglish() ? "en-GB" : "ru-RU",
+      {
+        timeZone: "Europe/Moscow",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    );
   }
 
   const statuses = {
-    scheduled: "Запланирован",
-    active: "В полёте",
-    landed: "Приземлился",
-    cancelled: "Отменён",
-    diverted: "Перенаправлен",
-    incident: "Инцидент"
+    scheduled: {
+      ru: "Запланирован",
+      en: "Scheduled"
+    },
+    active: {
+      ru: "В полёте",
+      en: "In flight"
+    },
+    landed: {
+      ru: "Приземлился",
+      en: "Landed"
+    },
+    cancelled: {
+      ru: "Отменён",
+      en: "Cancelled"
+    },
+    diverted: {
+      ru: "Перенаправлен",
+      en: "Diverted"
+    },
+    incident: {
+      ru: "Инцидент",
+      en: "Incident"
+    }
   };
+
+  function formatStatus(status) {
+    if (!status) return unknown();
+
+    const item = statuses[String(status).toLowerCase()];
+
+    if (!item) return status;
+
+    return getText(item.ru, item.en);
+  }
+
+  function renderMessage(ru, en) {
+    result.textContent = getText(ru, en);
+  }
 
   searchButton.addEventListener("click", async event => {
     event.preventDefault();
@@ -51,12 +105,19 @@
     const city = cityInput.value.trim();
 
     if (!city) {
-      result.textContent = "Введите город прилёта.";
+      renderMessage(
+        "Введите город прилёта.",
+        "Enter the arrival city."
+      );
       return;
     }
 
     searchButton.disabled = true;
-    result.textContent = "Ищем рейс из Пулково…";
+
+    renderMessage(
+      "Ищем рейс из Пулково…",
+      "Searching for a flight from Pulkovo…"
+    );
 
     try {
       const response = await fetch(
@@ -66,12 +127,20 @@
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Ошибка поиска");
+        throw new Error(
+          data.error ||
+          getText("Ошибка поиска", "Search error")
+        );
       }
 
       if (!data.flight) {
         result.textContent =
-          data.note || "Рейс не найден. Попробуйте другой город.";
+          data.note ||
+          getText(
+            "Рейс не найден. Попробуйте другой город.",
+            "Flight not found. Try another city."
+          );
+
         return;
       }
 
@@ -80,52 +149,110 @@
       result.replaceChildren();
 
       const title = document.createElement("h3");
+
       title.textContent =
-        `✈️ Пулково (LED) → ${f.arrival.iata || city}`;
+        `✈️ ${getText("Пулково", "Pulkovo")} (LED) → ${
+          f.arrival.iata || city
+        }`;
+
       result.append(title);
 
       const rows = [
-        ["Рейс", f.flightNumber],
-        ["Авиакомпания", f.airline],
+        [
+          getText("Рейс", "Flight"),
+          f.flightNumber || unknown()
+        ],
 
-        ["Вылет", formatTime(
-          f.departure.scheduled || f.departure.estimated
-        )],
+        [
+          getText("Авиакомпания", "Airline"),
+          f.airline || unknown()
+        ],
 
-        ["Прилёт", formatTime(
-          f.arrival.scheduled || f.arrival.estimated
-        )],
+        [
+          getText("Вылет", "Departure"),
+          formatTime(
+            f.departure.scheduled ||
+            f.departure.estimated
+          )
+        ],
 
-        ["Аэропорт прибытия", f.arrival.airport],
+        [
+          getText("Прилёт", "Arrival"),
+          formatTime(
+            f.arrival.scheduled ||
+            f.arrival.estimated
+          )
+        ],
 
-        ["Терминал",
-          f.departure.terminal || "Пока нет информации о терминале"],
+        [
+          getText(
+            "Аэропорт прибытия",
+            "Arrival airport"
+          ),
+          f.arrival.airport || unknown()
+        ],
 
-        ["Стойка регистрации",
-          f.departure.checkInCounter || "Пока нет информации о стойке"],
+        [
+          getText("Терминал", "Terminal"),
+          f.departure.terminal || unknown()
+        ],
 
-        ["Гейт",
-          f.departure.gate || "Пока нет информации о гейте"],
+        [
+          getText(
+            "Стойка регистрации",
+            "Check-in counter"
+          ),
+          f.departure.checkInCounter || unknown()
+        ],
 
-        ["Статус", statuses[f.status] || f.status],
+        [
+          getText("Гейт", "Gate"),
+          f.departure.gate || unknown()
+        ],
 
-        ["Тип воздушного судна",
+        [
+          getText("Статус", "Status"),
+          formatStatus(f.status)
+        ],
+
+        [
+          getText(
+            "Тип воздушного судна",
+            "Aircraft type"
+          ),
           f.aircraft?.iata ||
           f.aircraft?.icao ||
-          "Пока нет информации о самолёте"]
+          unknown()
+        ]
       ];
 
       for (const [label, value] of rows) {
         const p = document.createElement("p");
+
         const strong = document.createElement("strong");
+
         strong.textContent = label + ": ";
-        p.append(strong, document.createTextNode(value || "Пока неизвестно"));
+
+        p.append(
+          strong,
+          document.createTextNode(
+            value || unknown()
+          )
+        );
+
         result.append(p);
       }
+
     } catch (error) {
-      result.textContent = "Ошибка поиска: " + error.message;
+      result.textContent =
+        getText(
+          "Ошибка поиска: ",
+          "Search error: "
+        ) + error.message;
+
     } finally {
       searchButton.disabled = false;
     }
   }, true);
 })();
+```
