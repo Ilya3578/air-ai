@@ -19,6 +19,18 @@
 
   searchButton.insertAdjacentElement("afterend", result);
 
+  function isEnglish() {
+    return document.documentElement.lang
+      .toLowerCase()
+      .startsWith("en");
+  }
+
+  function getLimitMessage() {
+    return isEnglish()
+      ? "Upgrade to the Smart, Family, Pro, or First Class plan"
+      : "Перейдите на тариф Smart, Family, Pro или First Class";
+  }
+
   function formatTime(value) {
     if (!value) return "Пока неизвестно";
 
@@ -51,12 +63,16 @@
     const city = cityInput.value.trim();
 
     if (!city) {
-      result.textContent = "Введите город прилёта.";
+      result.textContent = isEnglish()
+        ? "Enter the arrival city."
+        : "Введите город прилёта.";
       return;
     }
 
     searchButton.disabled = true;
-    result.textContent = "Ищем рейс из Пулково…";
+    result.textContent = isEnglish()
+      ? "Searching for your flight…"
+      : "Ищем рейс из Пулково…";
 
     try {
       const response = await fetch(
@@ -65,13 +81,30 @@
 
       const data = await response.json();
 
+      if (
+        data?.error?.code === "usage_limit_reached" ||
+        data?.flight === null &&
+        data?.error?.code === "usage_limit_reached"
+      ) {
+        result.textContent = getLimitMessage();
+        return;
+      }
+
       if (!response.ok) {
-        throw new Error(data.error || "Ошибка поиска");
+        const errorMessage =
+          typeof data.error === "string"
+            ? data.error
+            : data.error?.message || "Ошибка поиска";
+
+        throw new Error(errorMessage);
       }
 
       if (!data.flight) {
         result.textContent =
-          data.note || "Рейс не найден. Попробуйте другой город.";
+          data.note ||
+          (isEnglish()
+            ? "Flight not found. Try another city."
+            : "Рейс не найден. Попробуйте другой город.");
         return;
       }
 
@@ -123,7 +156,9 @@
         result.append(p);
       }
     } catch (error) {
-      result.textContent = "Ошибка поиска: " + error.message;
+      result.textContent = isEnglish()
+        ? "Search error: " + error.message
+        : "Ошибка поиска: " + error.message;
     } finally {
       searchButton.disabled = false;
     }
