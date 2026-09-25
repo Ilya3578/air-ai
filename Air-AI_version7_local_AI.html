@@ -1386,7 +1386,7 @@ function updateSubscriptionsBackButton(){
   const el = document.getElementById("subscriptionsBackText");
   if(!el) return;
   const fromWallet = subscriptionsReturnPage === "wallet";
-  if(currentLanguage === "en"){
+  if(currentLanguage === "EN"){
     el.textContent = fromWallet ? "Back to Wallet" : "My subscription";
   } else {
     el.textContent = fromWallet ? "Вернуться в Кошелёк" : "Моя подписка";
