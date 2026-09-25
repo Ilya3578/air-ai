@@ -280,7 +280,12 @@ function formatFlight(flight) {
       flight?.airline?.name ||
       flight?.airline?.iata ||
       null,
-
+    
+aircraft: {
+  registration: flight?.aircraft?.registration || null,
+  iata: flight?.aircraft?.iata || null,
+  icao: flight?.aircraft?.icao || null
+},
     departure: {
   airport: flight?.departure?.airport || null,
   iata: flight?.departure?.iata || null,
