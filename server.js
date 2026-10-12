@@ -316,7 +316,120 @@ const DESTINATIONS = {
   "касабланка": ["CMN"],
   "casablanca": ["CMN"],
   "монастир": ["MIR"],
-  "monastir": ["MIR"]
+  "monastir": ["MIR"],
+
+  // Дополнительные города: Европа
+  "мадрид": ["MAD"], "madrid": ["MAD"],
+  "лиссабон": ["LIS"], "lisbon": ["LIS"],
+  "манчестер": ["MAN"], "manchester": ["MAN"],
+  "эдinburgh": ["EDI"], "edinburgh": ["EDI"],
+  "дублин": ["DUB"], "dublin": ["DUB"],
+  "франкфурт": ["FRA"], "frankfurt": ["FRA"],
+  "мюнхен": ["MUC"], "munich": ["MUC"],
+  "гамбург": ["HAM"], "hamburg": ["HAM"],
+  "дюссельдорф": ["DUS"], "dusseldorf": ["DUS"],
+  "кёльн": ["CGN"], "колон": ["CGN"], "cologne": ["CGN"],
+  "ницца": ["NCE"], "nice": ["NCE"],
+  "марсель": ["MRS"], "marseille": ["MRS"],
+  "лион": ["LYS"], "lyon": ["LYS"],
+  "флоренция": ["FLR"], "florence": ["FLR"],
+  "неаполь": ["NAP"], "naples": ["NAP"],
+  "венеция": ["VCE"], "venice": ["VCE"],
+  "болонья": ["BLQ"], "bologna": ["BLQ"],
+  "афины": ["ATH"], "athens": ["ATH"],
+  "салоники": ["SKG"], "thessaloniki": ["SKG"],
+  "ларнака": ["LCA"], "larnaca": ["LCA"],
+  "пафос": ["PFO"], "paphos": ["PFO"],
+  "антверпен": ["ANR"], "antwerp": ["ANR"],
+  "люксембург": ["LUX"], "luxembourg": ["LUX"],
+  "рейкьявик": ["KEF"], "reykjavik": ["KEF"],
+  "гётеборг": ["GOT"], "gothenburg": ["GOT"],
+  "берген": ["BGO"], "bergen": ["BGO"],
+  "турку": ["TKU"], "turku": ["TKU"],
+  "тампере": ["TMP"], "tampere": ["TMP"],
+  "краков": ["KRK"], "krakow": ["KRK"],
+  "гданьск": ["GDN"], "gdansk": ["GDN"],
+  "катовице": ["KTW"], "katowice": ["KTW"],
+  "братислава": ["BTS"], "bratislava": ["BTS"],
+  "любляна": ["LJU"], "ljubljana": ["LJU"],
+  "загреб": ["ZAG"], "zagreb": ["ZAG"],
+  "сплит": ["SPU"], "split": ["SPU"],
+  "дубровник": ["DBV"], "dubrovnik": ["DBV"],
+  "сараево": ["SJJ"], "sarajevo": ["SJJ"],
+  "подгорица": ["TGD"], "podgorica": ["TGD"],
+  "тирana": ["TIA"], "tirana": ["TIA"],
+  "софия": ["SOF"], "sofia": ["SOF"],
+  "букурешт": ["OTP"], "bucharest": ["OTP"],
+  "клуж": ["CLJ"], "cluj": ["CLJ"],
+  "кишинёв": ["RMO"], "chisinau": ["RMO"],
+  "одесса": ["ODS"], "odesa": ["ODS"],
+  "львов": ["LWO"], "lviv": ["LWO"],
+  "киев": ["KBP", "IEV"], "kyiv": ["KBP", "IEV"],
+  "стамбул новый аэропорт": ["IST"], "istanbul airport": ["IST"],
+
+  // Дополнительные города: Ближний Восток и Африка
+  "кувейт": ["KWI"], "kuwait": ["KWI"],
+  "манама": ["BAH"], "manama": ["BAH"],
+  "маскат": ["MCT"], "muscat": ["MCT"],
+  "джидда": ["JED"], "jeddah": ["JED"],
+  "медина": ["MED"], "medina": ["MED"],
+  "дубай аль-мактум": ["DWC"],
+  "александрия": ["HBE", "ALY"], "alexandria": ["HBE", "ALY"],
+  "каир": ["CAI"], "cairo": ["CAI"],
+  "найроби": ["NBO"], "nairobi": ["NBO"],
+  "аддис-абеба": ["ADD"], "addis ababa": ["ADD"],
+  "дар-эс-салам": ["DAR"], "dar es salaam": ["DAR"],
+  "зanzibar": ["ZNZ"], "zanzibar": ["ZNZ"],
+  "кейптаун": ["CPT"], "cape town": ["CPT"],
+  "йоханнесбург": ["JNB"], "johannesburg": ["JNB"],
+  "марракеш": ["RAK"], "marrakech": ["RAK"],
+  "агадир": ["AGA"], "agadir": ["AGA"],
+
+  // Дополнительные города: Азия и Океания
+  "осака": ["KIX", "ITM"], "osaka": ["KIX", "ITM"],
+  "нагоя": ["NGO"], "nagoya": ["NGO"],
+  "фукуока": ["FUK"], "fukuoka": ["FUK"],
+  "тайбэй": ["TPE", "TSA"], "taipei": ["TPE", "TSA"],
+  "кларк": ["CRK"], "clark": ["CRK"],
+  "манила": ["MNL"], "manila": ["MNL"],
+  "себу": ["CEB"], "cebu": ["CEB"],
+  "джакарта": ["CGK", "HLP"], "jakarta": ["CGK", "HLP"],
+  "бали": ["DPS"], "bali": ["DPS"], "денпасар": ["DPS"], "denpasar": ["DPS"],
+  "куала-лумпур": ["KUL"], "kuala lumpur": ["KUL"],
+  "сингапур": ["SIN"], "singapore": ["SIN"],
+  "хайдарабад": ["HYD"], "hyderabad": ["HYD"],
+  "бангалор": ["BLR"], "bengaluru": ["BLR"], "bangalore": ["BLR"],
+  "чennai": ["MAA"], "chennai": ["MAA"],
+  "коломбо": ["CMB"], "colombo": ["CMB"],
+  "катманду": ["KTM"], "kathmandu": ["KTM"],
+  "исламабад": ["ISB"], "islamabad": ["ISB"],
+  "лахор": ["LHE"], "lahore": ["LHE"],
+  "карачи": ["KHI"], "karachi": ["KHI"],
+  "перт": ["PER"], "perth": ["PER"],
+  "мельбурн": ["MEL"], "melbourne": ["MEL"],
+  "сидней": ["SYD"], "sydney": ["SYD"],
+  "брисбен": ["BNE"], "brisbane": ["BNE"],
+  "окленд": ["AKL"], "auckland": ["AKL"],
+
+  // Дополнительные города: Америка
+  "нью-йорк": ["JFK", "EWR", "LGA"], "new york": ["JFK", "EWR", "LGA"],
+  "лос-анджелес": ["LAX"], "los angeles": ["LAX"],
+  "сан-франциско": ["SFO"], "san francisco": ["SFO"],
+  "чикаго": ["ORD", "MDW"], "chicago": ["ORD", "MDW"],
+  "майами": ["MIA"], "miami": ["MIA"],
+  "бостон": ["BOS"], "boston": ["BOS"],
+  "вашингтон": ["IAD", "DCA"], "washington": ["IAD", "DCA"],
+  "атланта": ["ATL"], "atlanta": ["ATL"],
+  "даллас": ["DFW", "DAL"], "dallas": ["DFW", "DAL"],
+  "хьюстон": ["IAH", "HOU"], "houston": ["IAH", "HOU"],
+  "торонто": ["YYZ", "YTZ"], "toronto": ["YYZ", "YTZ"],
+  "монреаль": ["YUL"], "montreal": ["YUL"],
+  "ванкувер": ["YVR"], "vancouver": ["YVR"],
+  "мехико": ["MEX"], "mexico city": ["MEX"],
+  "канкун": ["CUN"], "cancun": ["CUN"],
+  "сан-паулу": ["GRU", "CGH"], "sao paulo": ["GRU", "CGH"],
+  "рио-де-жанейро": ["GIG", "SDU"], "rio de janeiro": ["GIG", "SDU"],
+  "буэнос-айрес": ["EZE", "AEP"], "buenos aires": ["EZE", "AEP"]
 };
 
 function normalizeCity(value) {
@@ -335,7 +448,16 @@ function formatFlight(flight) {
     aircraft: flight?.aircraft?.iata || flight?.aircraft?.icao || flight?.aircraft?.registration || null,
     departureTime: flight?.departure?.scheduled || flight?.departure?.estimated || flight?.departure?.actual || null,
     arrivalTime: flight?.arrival?.scheduled || flight?.arrival?.estimated || flight?.arrival?.actual || null,
-    checkIn: flight?.departure?.check_in_counter || flight?.departure?.checkin_counter || null,
+    // Aviation data providers use different names for check-in desk fields.
+    // Keep all known variants, while returning null when the provider has no desk data.
+    checkIn: flight?.departure?.check_in_counter ??
+      flight?.departure?.checkin_counter ??
+      flight?.departure?.check_in ??
+      flight?.departure?.checkin ??
+      flight?.departure?.check_in_desks ??
+      flight?.departure?.checkin_desks ??
+      flight?.departure?.counter ??
+      null,
     gate: flight?.departure?.gate || null,
     status: flight?.flight_status || null
   };
@@ -355,7 +477,7 @@ app.get("/api/flight", async (req, res) => {
 
     const cityInput = req.query.city;
     const city = normalizeCity(cityInput);
-    const flightNumber = String(req.query.flight || "").normalize("NFKC").trim().toUpperCase().replace(/[\s\u2010-\u2015\u2212./]+/g, "");
+    const flightNumber = String(req.query.flight || "").normalize("NFKC").trim().toUpperCase();
     const rawDepartureAirport = String(req.query.from || "").trim();
     const departureAirport = rawDepartureAirport.toUpperCase();
 
@@ -380,11 +502,11 @@ app.get("/api/flight", async (req, res) => {
       });
     }
 
-    if (!/^(?=.{2,10}$)(?=.*[A-Z])(?=.*\d)[A-Z0-9]+$/.test(flightNumber)) {
+    if (!/^.{1,7}$/u.test(flightNumber)) {
       return res.status(400).json({
         flight: null,
         source: "Aviationstack",
-        error: "A valid flight number is required, e.g. SU1548, D2345, TK1980 or U21234. Use Latin letters and digits."
+        error: "Flight code must contain 1 to 7 characters."
       });
     }
 
@@ -445,7 +567,7 @@ app.get("/api/flight", async (req, res) => {
 
       if (Array.isArray(data?.data)) {
         const exactMatches = data.data.filter(item => {
-          const returnedNumber = String(item?.flight?.iata || "").toUpperCase().replace(/[\s-]+/g, "");
+          const returnedNumber = String(item?.flight?.iata || "").normalize("NFKC").trim().toUpperCase();
           return returnedNumber === flightNumber &&
             String(item?.departure?.iata || "").toUpperCase() === departureAirport &&
             String(item?.arrival?.iata || "").toUpperCase() === arrIata;
