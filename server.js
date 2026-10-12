@@ -440,6 +440,32 @@ function normalizeCity(value) {
 }
 
 function formatFlight(flight) {
+  const checkInCounter = [
+    flight?.departure?.check_in_counter,
+    flight?.departure?.checkin_counter,
+    flight?.departure?.check_in,
+    flight?.departure?.checkin,
+    flight?.departure?.check_in_desks,
+    flight?.departure?.checkin_desks,
+    flight?.departure?.check_in_desk,
+    flight?.departure?.checkin_desk,
+    flight?.departure?.check_in_counter_number,
+    flight?.departure?.checkin_counter_number,
+    flight?.departure?.check_in_zone,
+    flight?.departure?.checkin_zone,
+    flight?.departure?.counter,
+    flight?.departure?.counters
+  ].find(value => value !== undefined && value !== null && String(value).trim() !== "") ?? null;
+
+  const gate = [
+    flight?.departure?.gate,
+    flight?.departure?.gate_number,
+    flight?.departure?.boarding_gate,
+    flight?.departure?.gateName,
+    flight?.gate,
+    flight?.boarding?.gate
+  ].find(value => value !== undefined && value !== null && String(value).trim() !== "") ?? null;
+
   return {
     flightNumber: flight?.flight?.iata || flight?.flight?.icao || null,
     airline: flight?.airline?.name || flight?.airline?.iata || null,
@@ -448,32 +474,20 @@ function formatFlight(flight) {
     aircraft: flight?.aircraft?.iata || flight?.aircraft?.icao || flight?.aircraft?.registration || null,
     departureTime: flight?.departure?.scheduled || flight?.departure?.estimated || flight?.departure?.actual || null,
     arrivalTime: flight?.arrival?.scheduled || flight?.arrival?.estimated || flight?.arrival?.actual || null,
+    // Keep both the flat and legacy nested response shapes for compatibility.
+    departure: {
+      airport: flight?.departure?.airport || null,
+      iata: flight?.departure?.iata || null,
+      scheduled: flight?.departure?.scheduled || null,
+      estimated: flight?.departure?.estimated || null,
+      actual: flight?.departure?.actual || null,
+      checkInCounter,
+      gate
+    },
     // Preserve both fields independently. Providers can use different names
     // for check-in desks and boarding gates; empty strings should not block fallbacks.
-    checkIn: [
-      flight?.departure?.check_in_counter,
-      flight?.departure?.checkin_counter,
-      flight?.departure?.check_in,
-      flight?.departure?.checkin,
-      flight?.departure?.check_in_desks,
-      flight?.departure?.checkin_desks,
-      flight?.departure?.check_in_desk,
-      flight?.departure?.checkin_desk,
-      flight?.departure?.check_in_counter_number,
-      flight?.departure?.checkin_counter_number,
-      flight?.departure?.check_in_zone,
-      flight?.departure?.checkin_zone,
-      flight?.departure?.counter,
-      flight?.departure?.counters
-    ].find(value => value !== undefined && value !== null && String(value).trim() !== "") ?? null,
-    gate: [
-      flight?.departure?.gate,
-      flight?.departure?.gate_number,
-      flight?.departure?.boarding_gate,
-      flight?.departure?.gateName,
-      flight?.gate,
-      flight?.boarding?.gate
-    ].find(value => value !== undefined && value !== null && String(value).trim() !== "") ?? null,
+    checkIn: checkInCounter,
+    gate,
     status: flight?.flight_status || null
   };
 }
