@@ -448,17 +448,28 @@ function formatFlight(flight) {
     aircraft: flight?.aircraft?.iata || flight?.aircraft?.icao || flight?.aircraft?.registration || null,
     departureTime: flight?.departure?.scheduled || flight?.departure?.estimated || flight?.departure?.actual || null,
     arrivalTime: flight?.arrival?.scheduled || flight?.arrival?.estimated || flight?.arrival?.actual || null,
-    // Aviation data providers use different names for check-in desk fields.
-    // Keep all known variants, while returning null when the provider has no desk data.
-    checkIn: flight?.departure?.check_in_counter ??
-      flight?.departure?.checkin_counter ??
-      flight?.departure?.check_in ??
-      flight?.departure?.checkin ??
-      flight?.departure?.check_in_desks ??
-      flight?.departure?.checkin_desks ??
-      flight?.departure?.counter ??
-      null,
-    gate: flight?.departure?.gate || null,
+    // Preserve both fields independently. Providers can use different names
+    // for check-in desks and boarding gates; empty strings should not block fallbacks.
+    checkIn: [
+      flight?.departure?.check_in_counter,
+      flight?.departure?.checkin_counter,
+      flight?.departure?.check_in,
+      flight?.departure?.checkin,
+      flight?.departure?.check_in_desks,
+      flight?.departure?.checkin_desks,
+      flight?.departure?.check_in_desk,
+      flight?.departure?.checkin_desk,
+      flight?.departure?.counter,
+      flight?.departure?.counters
+    ].find(value => value !== undefined && value !== null && String(value).trim() !== "") ?? null,
+    gate: [
+      flight?.departure?.gate,
+      flight?.departure?.gate_number,
+      flight?.departure?.boarding_gate,
+      flight?.departure?.gateName,
+      flight?.gate,
+      flight?.boarding?.gate
+    ].find(value => value !== undefined && value !== null && String(value).trim() !== "") ?? null,
     status: flight?.flight_status || null
   };
 }
