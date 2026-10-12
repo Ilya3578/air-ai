@@ -1547,7 +1547,12 @@ async function searchPassportFlight(event){
   result.replaceChildren(); result.classList.add('show');
   const loading=document.createElement('p'); loading.textContent=lang==='EN'?'Searching for this flight…':lang==='ES'?'Buscando este vuelo…':'Ищем указанный рейс…'; result.appendChild(loading);
   try {
-    const departureAirport=String(selectedBoardAirport||'LED').toUpperCase();
+    // Use the airport currently selected for the arrivals/departures board.
+    // Intentionally do not fall back to LED: that could silently search from Pulkovo.
+    const departureAirport=String(selectedBoardAirport||'').trim().toUpperCase();
+    if(!/^[A-Z]{3}$/.test(departureAirport)){
+      throw new Error(lang==='EN'?'Select an airport above the flight board first.':lang==='ES'?'Selecciona primero un aeropuerto en el panel de vuelos.':'Сначала выберите аэропорт в верхнем табло прилётов и вылетов.');
+    }
     const params=new URLSearchParams({flight:flightNumber,city:destination,from:departureAirport});
     const response=await fetch('/api/flight?'+params.toString(),{headers:{'Accept':'application/json'}});
     const data=await response.json();
