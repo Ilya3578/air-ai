@@ -1406,6 +1406,8 @@ function applyLanguage(){
     if(t[key]!==undefined) el.placeholder=t[key];
   });
   updateSubscriptionsBackButton();
+  // Restore the user's selected airport after generic translations reset labels to defaults.
+  try { refreshSelectedBoardAirportLabels(); } catch (err) { /* airport selector may not be initialized yet */ }
 }
 
 function toast(message){
@@ -1669,17 +1671,42 @@ function openSelectedAirportBoard(){
   switchBoard(selectedBoardType);
   showPage('airportBoard');
 }
-function selectBoardAirport(code){
-  const a=boardAirports.find(x=>x.code===code); if(!a)return;
-  selectedBoardAirport=code;
-  const t=translations[String(currentLanguage||'RU').toUpperCase()]||translations.RU;
+function refreshSelectedBoardAirportLabels(){
+  // This helper is also called by applyLanguage(), so safely ignore calls before initialization.
+  let code;
+  try { code = selectedBoardAirport; } catch (err) { return; }
+  const a=boardAirports.find(x=>x.code===code);
+  if(!a)return;
+  const lang=String(currentLanguage||'RU').toUpperCase();
+  const t=translations[lang]||translations.RU;
   const location=document.querySelector('.airport-location-link [data-i18n="airportLocation"]');
   if(location)location.textContent=boardAirportName(a);
   const title=document.querySelector('.airport-board-title');
   const titleText=(t.airportBoardTitle||'Flight board');
-  if(title)title.textContent=titleText.replace(/Pulkovo Airport Flight Board|Табло аэропорта Пулково|Panel de vuelos de Púlkovo/,boardAirportName(a));
+  if(title){
+    const prefixes={RU:'Табло аэропорта ',EN:'Flight board — ',ES:'Panel de vuelos de '};
+    title.textContent=(prefixes[lang]||prefixes.EN)+boardAirportName(a);
+  }
   const source=document.querySelector('.board-source-note');
-  if(source)source.textContent=(String(currentLanguage).toUpperCase()==='EN'?'Live flight board for ':'Онлайн-табло аэропорта ')+boardAirportName(a)+(String(currentLanguage).toUpperCase()==='EN'?' is embedded through the Avionio widget.':' встроено через виджет Avionio.');
+  if(source){
+    const messages={RU:'Онлайн-табло аэропорта ',EN:'Live flight board for ',ES:'El panel de vuelos de '};
+    const endings={RU:' встроено через виджет Avionio.',EN:' is embedded through the Avionio widget.',ES:' está integrado mediante el widget de Avionio.'};
+    source.textContent=(messages[lang]||messages.EN)+boardAirportName(a)+(endings[lang]||endings.EN);
+  }
+  const frame=document.getElementById('airportBoardFrame');
+  if(frame){
+    const isArrival=selectedBoardType==='arrival';
+    const kind=isArrival?'arrivals':'departures';
+    const boardLang=boardLanguage();
+    frame.title=boardAirportName(a)+' — '+(isArrival?(lang==='RU'?'Прилёты':lang==='ES'?'Llegadas':'Arrivals'):(lang==='RU'?'Вылеты':lang==='ES'?'Salidas':'Departures'));
+  }
+  const link=document.getElementById('airportBoardExternal');
+  if(link)link.textContent='Avionio — '+boardAirportName(a);
+}
+function selectBoardAirport(code){
+  const a=boardAirports.find(x=>x.code===code); if(!a)return;
+  selectedBoardAirport=code;
+  refreshSelectedBoardAirportLabels();
   closeBoardAirportPicker();
   switchBoard(selectedBoardType);
 }
