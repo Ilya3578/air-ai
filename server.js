@@ -439,79 +439,42 @@ function normalizeCity(value) {
     .replace(/ё/g, "е");
 }
 
-function firstAvailable(...values) {
-  return values.find(value => {
-    if (value === undefined || value === null) return false;
-    if (typeof value === "string") return value.trim() !== "";
-    if (typeof value === "number") return Number.isFinite(value);
-    if (typeof value === "object") {
-      // API variants may wrap a gate/counter in an object.
-      return Object.keys(value).length > 0;
-    }
-    return true;
-  }) ?? null;
-}
-
-function displayValue(value) {
-  if (value === undefined || value === null || value === "") return null;
-  if (typeof value === "string" || typeof value === "number") return String(value);
-  if (Array.isArray(value)) {
-    const items = value.map(displayValue).filter(Boolean);
-    return items.length ? items.join(", ") : null;
-  }
-  if (typeof value === "object") {
-    // Avoid rendering JavaScript's unhelpful "[object Object]" in the UI.
-    for (const key of ["name", "number", "code", "value", "iata", "label", "counter", "gate"]) {
-      const candidate = displayValue(value[key]);
-      if (candidate) return candidate;
-    }
-    return null;
-  }
-  return String(value);
-}
-
 function formatFlight(flight) {
-  const departure = flight?.departure || {};
-  const boarding = flight?.boarding || {};
-  const checkInRaw = firstAvailable(
-    departure.check_in_counter,
-    departure.checkin_counter,
-    departure.check_in,
-    departure.checkin,
-    departure.check_in_desks,
-    departure.checkin_desks,
-    departure.check_in_desk,
-    departure.checkin_desk,
-    departure.counter,
-    departure.counters,
-    departure.check_in_terminal,
-    flight?.check_in_counter,
-    flight?.checkin_counter,
-    flight?.check_in,
-    flight?.checkin
-  );
-  const gateRaw = firstAvailable(
-    departure.gate,
-    departure.gate_number,
-    departure.boarding_gate,
-    departure.gateName,
-    boarding.gate,
-    boarding.gate_number,
-    flight?.gate,
-    flight?.boarding_gate
-  );
-
   return {
-    flightNumber: displayValue(firstAvailable(flight?.flight?.iata, flight?.flight?.icao)),
-    airline: displayValue(firstAvailable(flight?.airline?.name, flight?.airline?.iata)),
-    departureAirport: displayValue(firstAvailable(departure.airport, departure.iata)),
-    arrivalAirport: displayValue(firstAvailable(flight?.arrival?.airport, flight?.arrival?.iata)),
-    aircraft: displayValue(firstAvailable(flight?.aircraft?.iata, flight?.aircraft?.icao, flight?.aircraft?.registration, flight?.aircraft)),
-    departureTime: firstAvailable(departure.scheduled, departure.estimated, departure.actual),
-    arrivalTime: firstAvailable(flight?.arrival?.scheduled, flight?.arrival?.estimated, flight?.arrival?.actual),
-    checkIn: displayValue(checkInRaw),
-    gate: displayValue(gateRaw),
-    status: displayValue(flight?.flight_status)
+    flightNumber: flight?.flight?.iata || flight?.flight?.icao || null,
+    airline: flight?.airline?.name || flight?.airline?.iata || null,
+    departureAirport: flight?.departure?.airport || flight?.departure?.iata || null,
+    arrivalAirport: flight?.arrival?.airport || flight?.arrival?.iata || null,
+    aircraft: flight?.aircraft?.iata || flight?.aircraft?.icao || flight?.aircraft?.registration || null,
+    departureTime: flight?.departure?.scheduled || flight?.departure?.estimated || flight?.departure?.actual || null,
+    arrivalTime: flight?.arrival?.scheduled || flight?.arrival?.estimated || flight?.arrival?.actual || null,
+    // Preserve both fields independently. Providers can use different names
+    // for check-in desks and boarding gates; empty strings should not block fallbacks.
+    checkIn: [
+      flight?.departure?.check_in_counter,
+      flight?.departure?.checkin_counter,
+      flight?.departure?.check_in,
+      flight?.departure?.checkin,
+      flight?.departure?.check_in_desks,
+      flight?.departure?.checkin_desks,
+      flight?.departure?.check_in_desk,
+      flight?.departure?.checkin_desk,
+      flight?.departure?.check_in_counter_number,
+      flight?.departure?.checkin_counter_number,
+      flight?.departure?.check_in_zone,
+      flight?.departure?.checkin_zone,
+      flight?.departure?.counter,
+      flight?.departure?.counters
+    ].find(value => value !== undefined && value !== null && String(value).trim() !== "") ?? null,
+    gate: [
+      flight?.departure?.gate,
+      flight?.departure?.gate_number,
+      flight?.departure?.boarding_gate,
+      flight?.departure?.gateName,
+      flight?.gate,
+      flight?.boarding?.gate
+    ].find(value => value !== undefined && value !== null && String(value).trim() !== "") ?? null,
+    status: flight?.flight_status || null
   };
 }
 
@@ -641,23 +604,11 @@ app.get("/api/flight", async (req, res) => {
       });
     }
 
-    // Diagnose missing airport operations data from the provider response.
-    // Do not log credentials or the full API payload.
+    // Return only a flight matching the requested number and exact route.
     const flight = results[0];
-    const formattedFlight = formatFlight(flight);
-    if (!formattedFlight.checkIn || !formattedFlight.gate) {
-      console.warn("Flight operations fields missing from Aviationstack response", {
-        flightNumber: formattedFlight.flightNumber,
-        departureAirport: flight?.departure?.iata || departureAirport,
-        arrivalAirport: flight?.arrival?.iata || null,
-        departureKeys: Object.keys(flight?.departure || {}),
-        checkInPresent: Boolean(formattedFlight.checkIn),
-        gatePresent: Boolean(formattedFlight.gate)
-      });
-    }
 
     return res.json({
-      flight: formattedFlight,
+      flight: formatFlight(flight),
       source: "Aviationstack",
       searchedCity: cityInput,
       searchedFlightNumber: flightNumber,
