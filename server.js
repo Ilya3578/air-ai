@@ -378,7 +378,7 @@ app.get("/api/flight", async (req, res) => {
 
     const cityInput = req.query.city;
     const city = normalizeCity(cityInput);
-    const flightNumber = String(req.query.flight || "").trim().toUpperCase().replace(/[\s-]+/g, "");
+    const flightNumber = String(req.query.flight || "").normalize("NFKC").trim().toUpperCase().replace(/[\s\u2010-\u2015\u2212./]+/g, "");
     const departureAirport = String(req.query.from || "LED").trim().toUpperCase();
 
     if (!/^[A-Z]{3}$/.test(departureAirport)) {
@@ -389,11 +389,11 @@ app.get("/api/flight", async (req, res) => {
       });
     }
 
-    if (!/^[A-Z0-9]{2,10}$/.test(flightNumber)) {
+    if (!/^(?=.{2,10}$)(?=.*[A-Z])(?=.*\d)[A-Z0-9]+$/.test(flightNumber)) {
       return res.status(400).json({
         flight: null,
         source: "Aviationstack",
-        error: "A valid flight number is required, for example D2345."
+        error: "A valid flight number is required, e.g. SU1548, D2345, TK1980 or U21234. Use Latin letters and digits."
       });
     }
 
