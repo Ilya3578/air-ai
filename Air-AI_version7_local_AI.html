@@ -941,7 +941,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
       <input id="airportBoardSearch" data-i18n-placeholder="aiPlaceholder" placeholder="Спросить AI" autocomplete="off">
       <button type="submit" data-i18n="aiButton">Air-AI</button>
     </form>
-    <button type="button" class="passport-flight-trigger" onclick="openPassportFlightModal()" data-i18n="passportFlightButton">Проверьте свой рейс по паспорту</button>
+    <button type="button" class="passport-flight-trigger" onclick="openPassportFlightModal()" data-i18n="passportFlightButton">Найдите свой рейс</button>
     <p class="board-source-note" data-i18n="airportBoardSource">Онлайн-табло Пулково встроено через официальный виджет Avionio с актуальными данными о рейсах.</p>
     <div class="board-tabs">
       <button id="boardDepartureTab" class="board-tab active" type="button" onclick="switchBoard('departure')" data-i18n="boardDepartures">Вылеты</button>
@@ -955,10 +955,10 @@ html:lang(en) .home-banner-ru{display:none!important;}
 <div id="passportFlightModal" class="passport-flight-modal" role="dialog" aria-modal="true" aria-labelledby="passportFlightTitle" onclick="if(event.target===this)closePassportFlightModal()">
   <div class="passport-flight-card">
     <button type="button" class="passport-flight-close" aria-label="Close" onclick="closePassportFlightModal()">×</button>
-    <h2 id="passportFlightTitle" data-i18n="passportFlightTitle">Проверьте свой рейс по паспорту</h2>
+    <h2 id="passportFlightTitle" data-i18n="passportFlightTitle">Найдите свой рейс</h2>
     <form onsubmit="searchPassportFlight(event)">
-      <label for="passportFlightDocument" data-i18n="passportDocumentLabel">Введите данные паспорта</label>
-      <input id="passportFlightDocument" maxlength="20" autocomplete="off" data-i18n-placeholder="passportDocumentPlaceholder" placeholder="Введите данные паспорта" pattern="[0-9A-Za-zА-Яа-яЁё \-]{1,20}" required>
+      <label for="passportFlightNumber" data-i18n="passportNumberLabel">Введите номер рейса</label>
+      <input id="passportFlightNumber" maxlength="10" autocomplete="off" autocapitalize="characters" data-i18n-placeholder="passportNumberPlaceholder" placeholder="Например, D2345" pattern="[A-Za-z0-9]{2,10}" required>
       <label for="passportFlightCity" data-i18n="passportCityLabel">Введите город прилёта</label>
       <input id="passportFlightCity" maxlength="100" autocomplete="off" data-i18n-placeholder="passportCityPlaceholder" placeholder="Введите город прилёта" required>
       <button type="submit" class="passport-flight-submit" data-i18n="passportFindButton">Найти рейс</button>
@@ -1043,7 +1043,7 @@ const translations = {
     aiPlaceholder:"Спроси AI", aiButton:"Air-AI", aiSubscriptionNote:"Полная версия доступна с подпиской Smart или First Class", chatTitle:"Air-AI Assistant", chatReady:"Локальный ИИ готов к запуску", chatLoad:"Запустить ИИ", chatLoading:"Загрузка модели…", chatLoaded:"ИИ готов — задайте вопрос выше", chatWelcome:"Задайте вопрос — ответ будет сгенерирован прямо в вашем браузере. При первом запуске потребуется загрузить модель.", chatNote:"Нужен совместимый браузер с WebGPU и свободная память. Модель загружается на устройство.", chatUnsupported:"Ваш браузер не поддерживает WebGPU. Попробуйте актуальную версию Chrome или Edge на совместимом устройстве.", chatError:"Не удалось запустить локальную модель. Проверьте подключение к интернету, память устройства и поддержку WebGPU.", chatThinking:"Думаю…", chatLoadFirst:"Сначала нажмите «Запустить ИИ».", chatYou:"Вы", chatAssistant:"Air-AI",
     benefitsTitle:"Всё для спокойного путешествия",
     benefitsText:"Главные возможности Air-AI Assistant — от поиска нужного выхода до заказа услуг прямо в аэропорту.",
-    airportLocation:"Аэропорт Ст.-Петербург Пулково", boardAirportPickerTitle:"Выберите аэропорт", boardAirportSearchPlaceholder:"Поиск по аэропорту, городу или IATA-коду", boardAirportHint:"Выберите аэропорт из списка. Можно искать по названию города или коду IATA.", boardAirportEmpty:"Ничего не найдено. Попробуйте название города или код IATA.", passportFlightButton:"Проверьте свой рейс по паспорту", passportFlightTitle:"Проверьте свой рейс по паспорту", passportDocumentLabel:"Введите данные паспорта", passportDocumentPlaceholder:"Введите данные паспорта", passportCityLabel:"Введите город прилёта", passportCityPlaceholder:"Введите город прилёта", passportFindButton:"Найти рейс", passportFlightUnavailable:"Поиск выполняется по городу прилёта. В этом прототипе нет подключённой базы рейсов, поэтому подтвердить рейс на ближайшие 24 часа пока нельзя. Проверьте онлайн-табло Пулково.", passportFlightInvalid:"Используйте не более 20 символов: цифры, русские или английские буквы, пробелы и дефисы.", passportFlightCityMissing:"Введите город прилёта.", airportBoardTitle:"Табло аэропорта Пулково", airportBoardSource:"Онлайн-табло Пулково встроено через виджет Avionio с актуальными данными о рейсах.", boardDepartures:"Вылеты", boardArrivals:"Прилёты", airportBoardFallback:"Если табло не загрузилось внутри приложения, открыть онлайн-табло:", openBoardExternal:"Avionio — Пулково", navTitle:"Умная навигация", navText:"Пошаговый маршрут до выхода, стойки регистрации, магазина, ресторана или другой точки аэропорта.",
+    airportLocation:"Аэропорт Ст.-Петербург Пулково", boardAirportPickerTitle:"Выберите аэропорт", boardAirportSearchPlaceholder:"Поиск по аэропорту, городу или IATA-коду", boardAirportHint:"Выберите аэропорт из списка. Можно искать по названию города или коду IATA.", boardAirportEmpty:"Ничего не найдено. Попробуйте название города или код IATA.", passportFlightButton:"Найдите свой рейс", passportFlightTitle:"Найдите свой рейс", passportNumberLabel:"Введите номер рейса", passportNumberPlaceholder:"Например, D2345", passportCityLabel:"Введите город прилёта", passportCityPlaceholder:"Введите город прилёта", passportFindButton:"Найти рейс", passportFlightUnavailable:"Рейс с таким номером по выбранному маршруту не найден.", passportFlightNumberMissing:"Введите номер рейса.", passportFlightNumberInvalid:"Введите номер рейса латинскими буквами и цифрами, например D2345.", passportFlightCityMissing:"Введите город прилёта.", airportBoardTitle:"Табло аэропорта Пулково", airportBoardSource:"Онлайн-табло Пулково встроено через виджет Avionio с актуальными данными о рейсах.", boardDepartures:"Вылеты", boardArrivals:"Прилёты", airportBoardFallback:"Если табло не загрузилось внутри приложения, открыть онлайн-табло:", openBoardExternal:"Avionio — Пулково", navTitle:"Умная навигация", navText:"Пошаговый маршрут до выхода, стойки регистрации, магазина, ресторана или другой точки аэропорта.",
     flightTitle:"Ваш рейс", flightText:"Статус рейса, изменения, время посадки и важные уведомления в одном месте.",
     companionTitle:"AI-сопроводитель", companionText:"Ответит на вопросы о поездке, аэропорте и сервисах на понятном языке.",
     servicesTitle:"Сервисы аэропорта", servicesText:"Лаунжи, fast track, душевые, трансферы, питание, помощь пассажирам и другие услуги.",
@@ -1100,7 +1100,7 @@ const translations = {
     aiPlaceholder:"Ask AI", aiButton:"Air-AI", aiSubscriptionNote:"The full version is available with a Smart or First Class subscription", chatTitle:"Air-AI Assistant", chatReady:"Local AI is ready to start", chatLoad:"Start AI", chatLoading:"Loading model…", chatLoaded:"AI is ready — ask your question above", chatWelcome:"Ask a question — the answer will be generated directly in your browser. The model must be downloaded on first launch.", chatNote:"Requires a WebGPU-compatible browser and available memory. The model is downloaded to your device.", chatUnsupported:"Your browser does not support WebGPU. Try an up-to-date Chrome or Edge on a compatible device.", chatError:"Could not start the local model. Check your internet connection, device memory, and WebGPU support.", chatThinking:"Thinking…", chatLoadFirst:"Click “Start AI” first.", chatYou:"You", chatAssistant:"Air-AI",
     benefitsTitle:"Everything for a stress-free journey",
     benefitsText:"Key Air-AI Assistant features — from finding the right gate to ordering services right at the airport.",
-    airportLocation:"St. Petersburg Pulkovo Airport", boardAirportPickerTitle:"Choose an airport", boardAirportSearchPlaceholder:"Search airport, city or IATA code", boardAirportHint:"Choose an airport from the list. Search by airport, city or IATA code.", boardAirportEmpty:"No airports found. Try another city or IATA code.", passportFlightButton:"Check your flight using passport details", passportFlightTitle:"Check your flight using passport details", passportDocumentLabel:"Enter passport details", passportDocumentPlaceholder:"Enter passport details", passportCityLabel:"Enter arrival city", passportCityPlaceholder:"Enter arrival city", passportFindButton:"Find flight", passportFlightUnavailable:"Searches public flight data by destination and shows the nearest available departure within 24 hours. Some details may be unavailable in free sources.", passportFlightInvalid:"Use up to 20 characters: digits, Russian or English letters, spaces, and hyphens.", passportFlightCityMissing:"Enter the arrival city.", airportBoardTitle:"Pulkovo Airport Flight Board", airportBoardSource:"The Pulkovo live flight board is embedded through the Avionio widget with current flight data.", boardDepartures:"Departures", boardArrivals:"Arrivals", airportBoardFallback:"If the board does not load inside the app, open the live flight board:", openBoardExternal:"Avionio — Pulkovo", navTitle:"Smart navigation", navText:"Step-by-step directions to your gate, check-in desk, shop, restaurant or any other point in the airport.",
+    airportLocation:"St. Petersburg Pulkovo Airport", boardAirportPickerTitle:"Choose an airport", boardAirportSearchPlaceholder:"Search airport, city or IATA code", boardAirportHint:"Choose an airport from the list. Search by airport, city or IATA code.", boardAirportEmpty:"No airports found. Try another city or IATA code.", passportFlightButton:"Find your flight", passportFlightTitle:"Find your flight", passportNumberLabel:"Enter flight number", passportNumberPlaceholder:"For example, D2345", passportCityLabel:"Enter arrival city", passportCityPlaceholder:"Enter arrival city", passportFindButton:"Find flight", passportFlightUnavailable:"No flight with this number was found on the selected route.", passportFlightNumberMissing:"Enter a flight number.", passportFlightNumberInvalid:"Enter the flight number using Latin letters and digits, for example D2345.", passportFlightCityMissing:"Enter the arrival city.", airportBoardTitle:"Pulkovo Airport Flight Board", airportBoardSource:"The Pulkovo live flight board is embedded through the Avionio widget with current flight data.", boardDepartures:"Departures", boardArrivals:"Arrivals", airportBoardFallback:"If the board does not load inside the app, open the live flight board:", openBoardExternal:"Avionio — Pulkovo", navTitle:"Smart navigation", navText:"Step-by-step directions to your gate, check-in desk, shop, restaurant or any other point in the airport.",
     flightTitle:"Your flight", flightText:"Flight status, changes, boarding time and important notifications in one place.",
     companionTitle:"AI companion", companionText:"Answers questions about your trip, airport and services in clear language.",
     servicesTitle:"Airport services", servicesText:"Lounges, fast track, showers, transfers, dining, passenger assistance and other services.",
@@ -1156,7 +1156,7 @@ const translations = {
     aiPlaceholder:"Preguntar a la IA", aiButton:"Air-AI",
     benefitsTitle:"Todo para un viaje sin estrés",
     benefitsText:"Funciones principales de Air-AI Assistant: desde encontrar tu puerta hasta pedir servicios directamente en el aeropuerto.",
-    airportLocation:"Aeropuerto de San Petersburgo Púlkovo", boardAirportPickerTitle:"Elige un aeropuerto", boardAirportSearchPlaceholder:"Buscar aeropuerto, ciudad o código IATA", boardAirportHint:"Elige un aeropuerto de la lista. Busca por aeropuerto, ciudad o código IATA.", boardAirportEmpty:"No se encontraron aeropuertos. Prueba con otra ciudad o código IATA.", airportBoardTitle:"Panel de vuelos de Púlkovo", airportBoardSource:"El panel de vuelos en directo está integrado mediante el widget de Avionio con datos actuales de vuelos.", boardDepartures:"Salidas", boardArrivals:"Llegadas", airportBoardFallback:"Si el panel no se carga dentro de la aplicación, abre el panel de vuelos:", openBoardExternal:"Avionio — Púlkovo", navTitle:"Navegación inteligente", navText:"Ruta paso a paso hasta tu puerta, mostrador de facturación, tienda, restaurante u otro punto del aeropuerto.",
+    airportLocation:"Aeropuerto de San Petersburgo Púlkovo", passportFlightButton:"Buscar tu vuelo", passportFlightTitle:"Buscar tu vuelo", passportNumberLabel:"Introduce el número de vuelo", passportNumberPlaceholder:"Por ejemplo, D2345", passportCityLabel:"Introduce la ciudad de llegada", passportCityPlaceholder:"Introduce la ciudad de llegada", passportFindButton:"Buscar vuelo", passportFlightUnavailable:"No se encontró un vuelo con ese número en la ruta seleccionada.", passportFlightNumberMissing:"Introduce el número de vuelo.", passportFlightNumberInvalid:"Introduce el número con letras latinas y números, por ejemplo D2345.", passportFlightCityMissing:"Introduce la ciudad de llegada.", boardAirportPickerTitle:"Elige un aeropuerto", boardAirportSearchPlaceholder:"Buscar aeropuerto, ciudad o código IATA", boardAirportHint:"Elige un aeropuerto de la lista. Busca por aeropuerto, ciudad o código IATA.", boardAirportEmpty:"No se encontraron aeropuertos. Prueba con otra ciudad o código IATA.", airportBoardTitle:"Panel de vuelos de Púlkovo", airportBoardSource:"El panel de vuelos en directo está integrado mediante el widget de Avionio con datos actuales de vuelos.", boardDepartures:"Salidas", boardArrivals:"Llegadas", airportBoardFallback:"Si el panel no se carga dentro de la aplicación, abre el panel de vuelos:", openBoardExternal:"Avionio — Púlkovo", navTitle:"Navegación inteligente", navText:"Ruta paso a paso hasta tu puerta, mostrador de facturación, tienda, restaurante u otro punto del aeropuerto.",
     flightTitle:"Tu vuelo", flightText:"Estado del vuelo, cambios, hora de embarque y notificaciones importantes en un solo lugar.",
     companionTitle:"Asistente de IA", companionText:"Responde preguntas sobre tu viaje, el aeropuerto y sus servicios con un lenguaje claro.",
     servicesTitle:"Servicios del aeropuerto", servicesText:"Salas VIP, fast track, duchas, traslados, restauración, asistencia al pasajero y otros servicios.",
@@ -1406,8 +1406,6 @@ function applyLanguage(){
     if(t[key]!==undefined) el.placeholder=t[key];
   });
   updateSubscriptionsBackButton();
-  // Keep the user's selected airport visible after language dictionaries are applied.
-  if (typeof selectedBoardAirport !== 'undefined') refreshSelectedAirportLabels();
 }
 
 function toast(message){
@@ -1527,7 +1525,7 @@ function openPassportFlightModal(){
   if(!modal)return;
   modal.classList.add('open');
   document.body.style.overflow='hidden';
-  setTimeout(()=>document.getElementById('passportFlightDocument')?.focus(),50);
+  setTimeout(()=>document.getElementById('passportFlightNumber')?.focus(),50);
 }
 function closePassportFlightModal(){
   const modal=document.getElementById('passportFlightModal');
@@ -1536,28 +1534,35 @@ function closePassportFlightModal(){
 }
 async function searchPassportFlight(event){
   event.preventDefault();
+  const numberInput=document.getElementById('passportFlightNumber');
   const city=document.getElementById('passportFlightCity');
   const result=document.getElementById('passportFlightResult');
   const lang=(typeof currentLanguage!=='undefined'?String(currentLanguage).toUpperCase():'RU');
+  const flightNumber=(numberInput?.value||'').trim().toUpperCase().replace(/[\s-]+/g,'');
   const destination=(city?.value||'').trim();
-  if(!destination){ result.textContent=translations[lang]?.passportFlightCityMissing||translations.RU.passportFlightCityMissing; result.classList.add('show'); return; }
+  const t=translations[lang]||translations.RU;
+  if(!flightNumber){ result.textContent=t.passportFlightNumberMissing||translations.RU.passportFlightNumberMissing; result.classList.add('show'); return; }
+  if(!/^[A-Z0-9]{2,10}$/.test(flightNumber)){ result.textContent=t.passportFlightNumberInvalid||translations.RU.passportFlightNumberInvalid; result.classList.add('show'); return; }
+  if(!destination){ result.textContent=t.passportFlightCityMissing||translations.RU.passportFlightCityMissing; result.classList.add('show'); return; }
   result.replaceChildren(); result.classList.add('show');
-  const loading=document.createElement('p'); loading.textContent=lang==='EN'?'Searching for the nearest flight…':'Ищем ближайший рейс…'; result.appendChild(loading);
+  const loading=document.createElement('p'); loading.textContent=lang==='EN'?'Searching for this flight…':lang==='ES'?'Buscando este vuelo…':'Ищем указанный рейс…'; result.appendChild(loading);
   try {
-    const response=await fetch('/api/flight?city='+encodeURIComponent(destination),{headers:{'Accept':'application/json'}});
+    const departureAirport=String(selectedBoardAirport||'LED').toUpperCase();
+    const params=new URLSearchParams({flight:flightNumber,city:destination,from:departureAirport});
+    const response=await fetch('/api/flight?'+params.toString(),{headers:{'Accept':'application/json'}});
     const data=await response.json();
     result.replaceChildren();
-    if(!response.ok) throw new Error(data.error || (lang==='EN'?'Flight service is unavailable.':'Сервис поиска рейсов недоступен.'));
-    if(!data.flight){ const p=document.createElement('p'); p.textContent=lang==='EN'?'No matching departure to this city was found in the next 24 hours.':'В ближайшие 24 часа рейс в этот город не найден.'; result.appendChild(p); return; }
+    if(!response.ok) throw new Error(data.error || (lang==='EN'?'Flight service is unavailable.':lang==='ES'?'El servicio de vuelos no está disponible.':'Сервис поиска рейсов недоступен.'));
+    if(!data.flight){ const p=document.createElement('p'); p.textContent=t.passportFlightUnavailable||translations.RU.passportFlightUnavailable; result.appendChild(p); return; }
     const f=data.flight;
-    const title=document.createElement('h3'); title.textContent=(f.flightNumber||'—')+' · '+(f.airline||''); result.appendChild(title);
-    const formatFlightTime=value=>{ if(!value)return null; const d=new Date(value); if(Number.isNaN(d.getTime()))return String(value); return new Intl.DateTimeFormat(lang==='EN'?'en-GB':'ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Moscow'}).format(d); };
-    const fields=lang==='EN'?[['Aircraft',f.aircraft],['Departure',formatFlightTime(f.departureTime)],['Arrival',formatFlightTime(f.arrivalTime)],['Check-in desk',f.checkIn],['Gate',f.gate]]:[['Тип воздушного судна',f.aircraft],['Вылет',formatFlightTime(f.departureTime)],['Прилёт',formatFlightTime(f.arrivalTime)],['Стойка регистрации',f.checkIn],['Выход на посадку',f.gate]];
+    const title=document.createElement('h3'); title.textContent=(f.flightNumber||flightNumber)+' · '+(f.airline||''); result.appendChild(title);
+    const formatFlightTime=value=>{ if(!value)return null; const d=new Date(value); if(Number.isNaN(d.getTime()))return String(value); return new Intl.DateTimeFormat(lang==='EN'?'en-GB':lang==='ES'?'es-ES':'ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d); };
+    const fields=lang==='EN'?[['From',f.departureAirport],['To',f.arrivalAirport],['Aircraft',f.aircraft],['Departure',formatFlightTime(f.departureTime)],['Arrival',formatFlightTime(f.arrivalTime)],['Check-in desk',f.checkIn],['Gate',f.gate],['Status',f.status]]:lang==='ES'?[['Origen',f.departureAirport],['Destino',f.arrivalAirport],['Aeronave',f.aircraft],['Salida',formatFlightTime(f.departureTime)],['Llegada',formatFlightTime(f.arrivalTime)],['Mostrador',f.checkIn],['Puerta',f.gate],['Estado',f.status]]:[['Аэропорт вылета',f.departureAirport],['Аэропорт прилёта',f.arrivalAirport],['Тип воздушного судна',f.aircraft],['Вылет',formatFlightTime(f.departureTime)],['Прилёт',formatFlightTime(f.arrivalTime)],['Стойка регистрации',f.checkIn],['Выход на посадку',f.gate],['Статус',f.status]];
     const table=document.createElement('div'); table.style.cssText='display:grid;grid-template-columns:minmax(125px,1fr) 1.5fr;gap:9px 12px;margin-top:12px';
     for(const [label,value] of fields){ if(value===undefined||value===null||String(value).trim()==='')continue; const a=document.createElement('strong'); a.textContent=label; const b=document.createElement('span'); b.textContent=String(value); table.append(a,b); }
     result.appendChild(table);
-    if(data.sourceUrl){const a=document.createElement('a');a.href=data.sourceUrl;a.target='_blank';a.rel='noopener noreferrer';a.textContent=lang==='EN'?'Open flight details':'Открыть подробности рейса';a.style.cssText='display:inline-block;margin-top:14px;color:#087fa4;font-weight:700';result.appendChild(a);}
-  } catch(err){ result.replaceChildren(); const p=document.createElement('p'); p.textContent=(lang==='EN'?'Could not retrieve live flight data: ':'Не удалось получить актуальные данные рейса: ')+err.message; result.appendChild(p); }
+    if(data.sourceUrl){const a=document.createElement('a');a.href=data.sourceUrl;a.target='_blank';a.rel='noopener noreferrer';a.textContent=lang==='EN'?'Open flight details':lang==='ES'?'Ver detalles del vuelo':'Открыть подробности рейса';a.style.cssText='display:inline-block;margin-top:14px;color:#087fa4;font-weight:700';result.appendChild(a);}
+  } catch(err){ result.replaceChildren(); const p=document.createElement('p'); p.textContent=(lang==='EN'?'Could not retrieve flight data: ':lang==='ES'?'No se pudieron obtener los datos del vuelo: ':'Не удалось получить данные рейса: ')+err.message; result.appendChild(p); }
 }
 const boardAirports = [
   {code:'LED',ru:'Пулково',en:'Pulkovo Airport',es:'Aeropuerto de Púlkovo',cityRu:'Санкт-Петербург',cityEn:'Saint Petersburg',cityEs:'San Petersburgo'},
@@ -1621,106 +1626,6 @@ const boardAirports = [
   {code:'TAS',ru:'Ташкент',en:'Tashkent International Airport',es:'Aeropuerto Internacional de Taskent',cityRu:'Ташкент',cityEn:'Tashkent',cityEs:'Taskent'},
   {code:'CMB',ru:'Коломбо',en:'Bandaranaike International Airport',es:'Aeropuerto Internacional Bandaranaike',cityRu:'Коломбо',cityEn:'Colombo',cityEs:'Colombo'},
   {code:'MLE',ru:'Мале',en:'Velana International Airport',es:'Aeropuerto Internacional de Velana',cityRu:'Мале',cityEn:'Malé',cityEs:'Malé'}
-,
-  {code:'KRR',ru:'Краснодар',en:'Krasnodar International Airport',es:'Aeropuerto Internacional de Krasnodar',cityRu:'Краснодар',cityEn:'Krasnodar',cityEs:'Krasnodar'},
-  {code:'ROV',ru:'Ростов-на-Дону',en:'Platov International Airport',es:'Aeropuerto Internacional Platov',cityRu:'Ростов-на-Дону',cityEn:'Rostov-on-Don',cityEs:'Rostov del Don'},
-  {code:'UFA',ru:'Уфа',en:'Ufa International Airport',es:'Aeropuerto Internacional de Ufá',cityRu:'Уфа',cityEn:'Ufa',cityEs:'Ufá'},
-  {code:'OVB',ru:'Новосибирск Толмачёво',en:'Novosibirsk Tolmachevo Airport',es:'Aeropuerto de Novosibirsk-Tolmachevo',cityRu:'Новосибирск',cityEn:'Novosibirsk',cityEs:'Novosibirsk'},
-  {code:'KUF',ru:'Самара Курумоч',en:'Kurumoch International Airport',es:'Aeropuerto Internacional de Kurúmoch',cityRu:'Самара',cityEn:'Samara',cityEs:'Samara'},
-  {code:'KGD',ru:'Калининград Храброво',en:'Khrabrovo Airport',es:'Aeropuerto de Jrábrovo',cityRu:'Калининград',cityEn:'Kaliningrad',cityEs:'Kaliningrado'},
-  {code:'MMK',ru:'Мурманск',en:'Murmansk Airport',es:'Aeropuerto de Múrmansk',cityRu:'Мурманск',cityEn:'Murmansk',cityEs:'Múrmansk'},
-  {code:'VOG',ru:'Волгоград',en:'Volgograd International Airport',es:'Aeropuerto Internacional de Volgogrado',cityRu:'Волгоград',cityEn:'Volgograd',cityEs:'Volgogrado'},
-  {code:'IKT',ru:'Иркутск',en:'Irkutsk International Airport',es:'Aeropuerto Internacional de Irkutsk',cityRu:'Иркутск',cityEn:'Irkutsk',cityEs:'Irkutsk'},
-  {code:'KJA',ru:'Красноярск',en:'Krasnoyarsk International Airport',es:'Aeropuerto Internacional de Krasnoyarsk',cityRu:'Красноярск',cityEn:'Krasnoyarsk',cityEs:'Krasnoyarsk'},
-  {code:'MRV',ru:'Минеральные Воды',en:'Mineralnye Vody Airport',es:'Aeropuerto de Mineralnye Vody',cityRu:'Минеральные Воды',cityEn:'Mineralnye Vody',cityEs:'Mineralnye Vody'},
-  {code:'CEK',ru:'Челябинск',en:'Chelyabinsk Airport',es:'Aeropuerto de Cheliábinsk',cityRu:'Челябинск',cityEn:'Chelyabinsk',cityEs:'Cheliábinsk'},
-  {code:'PEE',ru:'Пермь',en:'Perm International Airport',es:'Aeropuerto Internacional de Perm',cityRu:'Пермь',cityEn:'Perm',cityEs:'Perm'},
-  {code:'GOJ',ru:'Нижний Новгород',en:'Strigino International Airport',es:'Aeropuerto Internacional de Strigino',cityRu:'Нижний Новгород',cityEn:'Nizhny Novgorod',cityEs:'Nizhni Nóvgorod'},
-  {code:'KIV',ru:'Кишинёв',en:'Chișinău International Airport',es:'Aeropuerto Internacional de Chișinău',cityRu:'Кишинёв',cityEn:'Chișinău',cityEs:'Chisináu'},
-  {code:'GYD',ru:'Баку',en:'Heydar Aliyev International Airport',es:'Aeropuerto Internacional Heydar Aliyev',cityRu:'Баку',cityEn:'Baku',cityEs:'Bakú'},
-  {code:'KBP',ru:'Киев Борисполь',en:'Boryspil International Airport',es:'Aeropuerto Internacional de Boryspil',cityRu:'Киев',cityEn:'Kyiv',cityEs:'Kiev'},
-  {code:'LCA',ru:'Ларнака',en:'Larnaca International Airport',es:'Aeropuerto Internacional de Lárnaca',cityRu:'Ларнака',cityEn:'Larnaca',cityEs:'Lárnaca'},
-  {code:'SKG',ru:'Салоники',en:'Thessaloniki Airport',es:'Aeropuerto de Salónica',cityRu:'Салоники',cityEn:'Thessaloniki',cityEs:'Salónica'},
-  {code:'OTP',ru:'Бухарест Отопени',en:'Henri Coandă International Airport',es:'Aeropuerto Internacional Henri Coandă',cityRu:'Бухарест',cityEn:'Bucharest',cityEs:'Bucarest'},
-  {code:'SOF',ru:'София',en:'Sofia Airport',es:'Aeropuerto de Sofía',cityRu:'София',cityEn:'Sofia',cityEs:'Sofía'},
-  {code:'ZAG',ru:'Загреб',en:'Zagreb Airport',es:'Aeropuerto de Zagreb',cityRu:'Загреб',cityEn:'Zagreb',cityEs:'Zagreb'},
-  {code:'SPU',ru:'Сплит',en:'Split Airport',es:'Aeropuerto de Split',cityRu:'Сплит',cityEn:'Split',cityEs:'Split'},
-  {code:'DBV',ru:'Дубровник',en:'Dubrovnik Airport',es:'Aeropuerto de Dubrovnik',cityRu:'Дубровник',cityEn:'Dubrovnik',cityEs:'Dubrovnik'},
-  {code:'LJU',ru:'Любляна',en:'Ljubljana Jože Pučnik Airport',es:'Aeropuerto de Liubliana',cityRu:'Любляна',cityEn:'Ljubljana',cityEs:'Liubliana'},
-  {code:'BUD',ru:'Будапешт',en:'Budapest Ferenc Liszt International Airport',es:'Aeropuerto Internacional Ferenc Liszt de Budapest',cityRu:'Будапешт',cityEn:'Budapest',cityEs:'Budapest'},
-  {code:'PRG',ru:'Прага',en:'Václav Havel Airport Prague',es:'Aeropuerto de Praga Václav Havel',cityRu:'Прага',cityEn:'Prague',cityEs:'Praga'},
-  {code:'WAW',ru:'Варшава',en:'Warsaw Chopin Airport',es:'Aeropuerto de Varsovia-Chopin',cityRu:'Варшава',cityEn:'Warsaw',cityEs:'Varsovia'},
-  {code:'KRK',ru:'Краков',en:'Kraków John Paul II Airport',es:'Aeropuerto de Cracovia-Juan Pablo II',cityRu:'Краков',cityEn:'Krakow',cityEs:'Cracovia'},
-  {code:'GDN',ru:'Гданьск',en:'Gdańsk Lech Wałęsa Airport',es:'Aeropuerto de Gdańsk-Lech Wałęsa',cityRu:'Гданьск',cityEn:'Gdansk',cityEs:'Gdansk'},
-  {code:'BRU',ru:'Брюссель',en:'Brussels Airport',es:'Aeropuerto de Bruselas',cityRu:'Брюссель',cityEn:'Brussels',cityEs:'Bruselas'},
-  {code:'BRN',ru:'Берн',en:'Bern Airport',es:'Aeropuerto de Berna',cityRu:'Берн',cityEn:'Bern',cityEs:'Berna'},
-  {code:'GVA',ru:'Женева',en:'Geneva Airport',es:'Aeropuerto de Ginebra',cityRu:'Женева',cityEn:'Geneva',cityEs:'Ginebra'},
-  {code:'OSL',ru:'Осло',en:'Oslo Airport',es:'Aeropuerto de Oslo',cityRu:'Осло',cityEn:'Oslo',cityEs:'Oslo'},
-  {code:'ARN',ru:'Стокгольм Арланда',en:'Stockholm Arlanda Airport',es:'Aeropuerto de Estocolmo-Arlanda',cityRu:'Стокгольм',cityEn:'Stockholm',cityEs:'Estocolmo'},
-  {code:'CPH',ru:'Копенгаген',en:'Copenhagen Airport',es:'Aeropuerto de Copenhague',cityRu:'Копенгаген',cityEn:'Copenhagen',cityEs:'Copenhague'},
-  {code:'HEL',ru:'Хельсинки',en:'Helsinki Airport',es:'Aeropuerto de Helsinki',cityRu:'Хельсинки',cityEn:'Helsinki',cityEs:'Helsinki'},
-  {code:'DUB',ru:'Дублин',en:'Dublin Airport',es:'Aeropuerto de Dublín',cityRu:'Дублин',cityEn:'Dublin',cityEs:'Dublín'},
-  {code:'MAN',ru:'Манчестер',en:'Manchester Airport',es:'Aeropuerto de Mánchester',cityRu:'Манчестер',cityEn:'Manchester',cityEs:'Mánchester'},
-  {code:'EDI',ru:'Эдинбург',en:'Edinburgh Airport',es:'Aeropuerto de Edimburgo',cityRu:'Эдинбург',cityEn:'Edinburgh',cityEs:'Edimburgo'},
-  {code:'BHX',ru:'Бирмингем',en:'Birmingham Airport',es:'Aeropuerto de Birmingham',cityRu:'Бирмингем',cityEn:'Birmingham',cityEs:'Birmingham'},
-  {code:'LIS',ru:'Лиссабон',en:'Humberto Delgado Airport',es:'Aeropuerto Humberto Delgado de Lisboa',cityRu:'Лиссабон',cityEn:'Lisbon',cityEs:'Lisboa'},
-  {code:'OPO',ru:'Порту',en:'Francisco Sá Carneiro Airport',es:'Aeropuerto Francisco Sá Carneiro',cityRu:'Порту',cityEn:'Porto',cityEs:'Oporto'},
-  {code:'AGP',ru:'Малага',en:'Málaga-Costa del Sol Airport',es:'Aeropuerto de Málaga-Costa del Sol',cityRu:'Малага',cityEn:'Malaga',cityEs:'Málaga'},
-  {code:'PMI',ru:'Пальма-де-Майорка',en:'Palma de Mallorca Airport',es:'Aeropuerto de Palma de Mallorca',cityRu:'Пальма-де-Майорка',cityEn:'Palma de Mallorca',cityEs:'Palma de Mallorca'},
-  {code:'VLC',ru:'Валенсия',en:'Valencia Airport',es:'Aeropuerto de Valencia',cityRu:'Валенсия',cityEn:'Valencia',cityEs:'Valencia'},
-  {code:'NAP',ru:'Неаполь',en:'Naples International Airport',es:'Aeropuerto Internacional de Nápoles',cityRu:'Неаполь',cityEn:'Naples',cityEs:'Nápoles'},
-  {code:'MXP',ru:'Милан Мальпенса',en:'Milan Malpensa Airport',es:'Aeropuerto de Milán-Malpensa',cityRu:'Милан',cityEn:'Milan',cityEs:'Milán'},
-  {code:'LIN',ru:'Милан Линате',en:'Milan Linate Airport',es:'Aeropuerto de Milán-Linate',cityRu:'Милан',cityEn:'Milan',cityEs:'Milán'},
-  {code:'BLQ',ru:'Болонья',en:'Bologna Guglielmo Marconi Airport',es:'Aeropuerto de Bolonia-Guglielmo Marconi',cityRu:'Болонья',cityEn:'Bologna',cityEs:'Bolonia'},
-  {code:'IST',ru:'Стамбул',en:'Istanbul Airport',es:'Aeropuerto de Estambul',cityRu:'Стамбул',cityEn:'Istanbul',cityEs:'Estambul'},
-  {code:'ESB',ru:'Анкара',en:'Ankara Esenboğa Airport',es:'Aeropuerto de Ankara-Esenboğa',cityRu:'Анкара',cityEn:'Ankara',cityEs:'Ankara'},
-  {code:'AYT',ru:'Анталья',en:'Antalya Airport',es:'Aeropuerto de Antalya',cityRu:'Анталья',cityEn:'Antalya',cityEs:'Antalya'},
-  {code:'ADB',ru:'Измир',en:'İzmir Adnan Menderes Airport',es:'Aeropuerto Adnan Menderes de Esmirna',cityRu:'Измир',cityEn:'Izmir',cityEs:'Esmirna'},
-  {code:'BEY',ru:'Бейрут',en:'Beirut–Rafic Hariri International Airport',es:'Aeropuerto Internacional Rafic Hariri',cityRu:'Бейрут',cityEn:'Beirut',cityEs:'Beirut'},
-  {code:'RUH',ru:'Эр-Рияд',en:'King Khalid International Airport',es:'Aeropuerto Internacional Rey Khalid',cityRu:'Эр-Рияд',cityEn:'Riyadh',cityEs:'Riad'},
-  {code:'JED',ru:'Джидда',en:'King Abdulaziz International Airport',es:'Aeropuerto Internacional Rey Abdulaziz',cityRu:'Джидда',cityEn:'Jeddah',cityEs:'Yeda'},
-  {code:'MCT',ru:'Маскат',en:'Muscat International Airport',es:'Aeropuerto Internacional de Mascate',cityRu:'Маскат',cityEn:'Muscat',cityEs:'Mascate'},
-  {code:'KWI',ru:'Кувейт',en:'Kuwait International Airport',es:'Aeropuerto Internacional de Kuwait',cityRu:'Кувейт',cityEn:'Kuwait',cityEs:'Kuwait'},
-  {code:'BAH',ru:'Манама',en:'Bahrain International Airport',es:'Aeropuerto Internacional de Baréin',cityRu:'Манама',cityEn:'Manama',cityEs:'Manama'},
-  {code:'KTM',ru:'Катманду',en:'Tribhuvan International Airport',es:'Aeropuerto Internacional Tribhuvan',cityRu:'Катманду',cityEn:'Kathmandu',cityEs:'Katmandú'},
-  {code:'DAC',ru:'Дакка',en:'Hazrat Shahjalal International Airport',es:'Aeropuerto Internacional Hazrat Shahjalal',cityRu:'Дакка',cityEn:'Dhaka',cityEs:'Daca'},
-  {code:'HAN',ru:'Ханой',en:'Noi Bai International Airport',es:'Aeropuerto Internacional de Noi Bai',cityRu:'Ханой',cityEn:'Hanoi',cityEs:'Hanói'},
-  {code:'SGN',ru:'Хошимин',en:'Tan Son Nhat International Airport',es:'Aeropuerto Internacional de Tan Son Nhat',cityRu:'Хошимин',cityEn:'Ho Chi Minh City',cityEs:'Ciudad Ho Chi Minh'},
-  {code:'MNL',ru:'Манила',en:'Ninoy Aquino International Airport',es:'Aeropuerto Internacional Ninoy Aquino',cityRu:'Манила',cityEn:'Manila',cityEs:'Manila'},
-  {code:'CGK',ru:'Джакарта',en:'Soekarno–Hatta International Airport',es:'Aeropuerto Internacional Soekarno-Hatta',cityRu:'Джакарта',cityEn:'Jakarta',cityEs:'Yakarta'},
-  {code:'DPS',ru:'Бали Денпасар',en:'Ngurah Rai International Airport',es:'Aeropuerto Internacional Ngurah Rai',cityRu:'Бали',cityEn:'Denpasar / Bali',cityEs:'Denpasar / Bali'},
-  {code:'TPE',ru:'Тайбэй Таоюань',en:'Taiwan Taoyuan International Airport',es:'Aeropuerto Internacional de Taiwán Taoyuan',cityRu:'Тайбэй',cityEn:'Taipei',cityEs:'Taipéi'},
-  {code:'KIX',ru:'Осака Кансай',en:'Kansai International Airport',es:'Aeropuerto Internacional de Kansai',cityRu:'Осака',cityEn:'Osaka',cityEs:'Osaka'},
-  {code:'FUK',ru:'Фукуока',en:'Fukuoka Airport',es:'Aeropuerto de Fukuoka',cityRu:'Фукуока',cityEn:'Fukuoka',cityEs:'Fukuoka'},
-  {code:'CTS',ru:'Саппоро Нью-Титосэ',en:'New Chitose Airport',es:'Aeropuerto de Nuevo Chitose',cityRu:'Саппоро',cityEn:'Sapporo',cityEs:'Sapporo'},
-  {code:'CAN',ru:'Гуанчжоу Байюнь',en:'Guangzhou Baiyun International Airport',es:'Aeropuerto Internacional de Guangzhou Baiyun',cityRu:'Гуанчжоу',cityEn:'Guangzhou',cityEs:'Cantón'},
-  {code:'SZX',ru:'Шэньчжэнь',en:'Shenzhen Bao\'an International Airport',es:'Aeropuerto Internacional de Shenzhen-Bao\'an',cityRu:'Шэньчжэнь',cityEn:'Shenzhen',cityEs:'Shenzhen'},
-  {code:'CTU',ru:'Чэнду Тяньфу',en:'Chengdu Tianfu International Airport',es:'Aeropuerto Internacional de Chengdu Tianfu',cityRu:'Чэнду',cityEn:'Chengdu',cityEs:'Chengdu'},
-  {code:'XIY',ru:'Сиань',en:'Xi\'an Xianyang International Airport',es:'Aeropuerto Internacional de Xi\'an-Xianyang',cityRu:'Сиань',cityEn:'Xi\'an',cityEs:'Xi\'an'},
-  {code:'HGH',ru:'Ханчжоу',en:'Hangzhou Xiaoshan International Airport',es:'Aeropuerto Internacional de Hangzhou Xiaoshan',cityRu:'Ханчжоу',cityEn:'Hangzhou',cityEs:'Hangzhou'},
-  {code:'WUH',ru:'Ухань',en:'Wuhan Tianhe International Airport',es:'Aeropuerto Internacional de Wuhan Tianhe',cityRu:'Ухань',cityEn:'Wuhan',cityEs:'Wuhan'},
-  {code:'PER',ru:'Перт',en:'Perth Airport',es:'Aeropuerto de Perth',cityRu:'Перт',cityEn:'Perth',cityEs:'Perth'},
-  {code:'BNE',ru:'Брисбен',en:'Brisbane Airport',es:'Aeropuerto de Brisbane',cityRu:'Брисбен',cityEn:'Brisbane',cityEs:'Brisbane'},
-  {code:'AKL',ru:'Окленд',en:'Auckland Airport',es:'Aeropuerto de Auckland',cityRu:'Окленд',cityEn:'Auckland',cityEs:'Auckland'},
-  {code:'CPT',ru:'Кейптаун',en:'Cape Town International Airport',es:'Aeropuerto Internacional de Ciudad del Cabo',cityRu:'Кейптаун',cityEn:'Cape Town',cityEs:'Ciudad del Cabo'},
-  {code:'LOS',ru:'Лагос',en:'Murtala Muhammed International Airport',es:'Aeropuerto Internacional Murtala Muhammed',cityRu:'Лагос',cityEn:'Lagos',cityEs:'Lagos'},
-  {code:'ADD',ru:'Аддис-Абеба',en:'Bole International Airport',es:'Aeropuerto Internacional Bole',cityRu:'Аддис-Абеба',cityEn:'Addis Ababa',cityEs:'Adís Abeba'},
-  {code:'DSS',ru:'Дакар',en:'Blaise Diagne International Airport',es:'Aeropuerto Internacional Blaise Diagne',cityRu:'Дакар',cityEn:'Dakar',cityEs:'Dakar'},
-  {code:'SCL',ru:'Сантьяго',en:'Arturo Merino Benítez International Airport',es:'Aeropuerto Internacional Arturo Merino Benítez',cityRu:'Сантьяго',cityEn:'Santiago',cityEs:'Santiago'},
-  {code:'BOG',ru:'Богота',en:'El Dorado International Airport',es:'Aeropuerto Internacional El Dorado',cityRu:'Богота',cityEn:'Bogota',cityEs:'Bogotá'},
-  {code:'LIM',ru:'Лима',en:'Jorge Chávez International Airport',es:'Aeropuerto Internacional Jorge Chávez',cityRu:'Лима',cityEn:'Lima',cityEs:'Lima'},
-  {code:'PTY',ru:'Панама-Сити',en:'Tocumen International Airport',es:'Aeropuerto Internacional de Tocumen',cityRu:'Панама-Сити',cityEn:'Panama City',cityEs:'Ciudad de Panamá'},
-  {code:'SJO',ru:'Сан-Хосе',en:'Juan Santamaría International Airport',es:'Aeropuerto Internacional Juan Santamaría',cityRu:'Сан-Хосе',cityEn:'San José',cityEs:'San José'},
-  {code:'YUL',ru:'Монреаль',en:'Montréal–Trudeau International Airport',es:'Aeropuerto Internacional Montréal-Trudeau',cityRu:'Монреаль',cityEn:'Montreal',cityEs:'Montreal'},
-  {code:'MIA',ru:'Майами',en:'Miami International Airport',es:'Aeropuerto Internacional de Miami',cityRu:'Майами',cityEn:'Miami',cityEs:'Miami'},
-  {code:'BOS',ru:'Бостон',en:'Boston Logan International Airport',es:'Aeropuerto Internacional Logan de Boston',cityRu:'Бостон',cityEn:'Boston',cityEs:'Boston'},
-  {code:'SEA',ru:'Сиэтл',en:'Seattle–Tacoma International Airport',es:'Aeropuerto Internacional de Seattle-Tacoma',cityRu:'Сиэтл',cityEn:'Seattle',cityEs:'Seattle'},
-  {code:'IAD',ru:'Вашингтон Даллес',en:'Washington Dulles International Airport',es:'Aeropuerto Internacional Washington Dulles',cityRu:'Вашингтон',cityEn:'Washington, D.C.',cityEs:'Washington D. C.'},
-  {code:'IAH',ru:'Хьюстон',en:'George Bush Intercontinental Airport',es:'Aeropuerto Intercontinental George Bush',cityRu:'Хьюстон',cityEn:'Houston',cityEs:'Houston'},
-  {code:'DFW',ru:'Даллас Форт-Уэрт',en:'Dallas Fort Worth International Airport',es:'Aeropuerto Internacional de Dallas-Fort Worth',cityRu:'Даллас',cityEn:'Dallas–Fort Worth',cityEs:'Dallas–Fort Worth'},
-  {code:'LAS',ru:'Лас-Вегас',en:'Harry Reid International Airport',es:'Aeropuerto Internacional Harry Reid',cityRu:'Лас-Вегас',cityEn:'Las Vegas',cityEs:'Las Vegas'},
-  {code:'MCO',ru:'Орландо',en:'Orlando International Airport',es:'Aeropuerto Internacional de Orlando',cityRu:'Орландо',cityEn:'Orlando',cityEs:'Orlando'},
-  {code:'FLL',ru:'Форт-Лодердейл',en:'Fort Lauderdale–Hollywood International Airport',es:'Aeropuerto Internacional de Fort Lauderdale-Hollywood',cityRu:'Форт-Лодердейл',cityEn:'Fort Lauderdale',cityEs:'Fort Lauderdale'}
 ];
 let selectedBoardAirport = 'LED';
 let selectedBoardType = 'departure';
@@ -1762,32 +1667,16 @@ function openSelectedAirportBoard(){
 function selectBoardAirport(code){
   const a=boardAirports.find(x=>x.code===code); if(!a)return;
   selectedBoardAirport=code;
-  closeBoardAirportPicker();
-  refreshSelectedAirportLabels();
-  switchBoard(selectedBoardType);
-}
-function refreshSelectedAirportLabels(){
-  const a=boardAirports.find(x=>x.code===selectedBoardAirport)||boardAirports.find(x=>x.code==='LED')||boardAirports[0];
-  if(!a)return;
-  const lang=String(currentLanguage||'RU').toUpperCase();
-  const t=translations[lang]||translations.RU;
+  const t=translations[String(currentLanguage||'RU').toUpperCase()]||translations.RU;
   const location=document.querySelector('.airport-location-link [data-i18n="airportLocation"]');
   if(location)location.textContent=boardAirportName(a);
   const title=document.querySelector('.airport-board-title');
-  if(title){
-    const base=t.airportBoardTitle||'Flight board';
-    title.textContent=lang==='RU' ? base.replace('Пулково',boardAirportName(a)) :
-      lang==='ES' ? base.replace('Púlkovo',boardAirportName(a)) :
-      base.replace('Pulkovo',boardAirportName(a));
-  }
+  const titleText=(t.airportBoardTitle||'Flight board');
+  if(title)title.textContent=titleText.replace(/Pulkovo Airport Flight Board|Табло аэропорта Пулково|Panel de vuelos de Púlkovo/,boardAirportName(a));
   const source=document.querySelector('.board-source-note');
-  if(source){
-    source.textContent=lang==='EN' ? `Live flight board for ${boardAirportName(a)} is embedded through the Avionio widget with current flight data.` :
-      lang==='ES' ? `El panel de vuelos en directo de ${boardAirportName(a)} está integrado mediante el widget de Avionio con datos actuales.` :
-      `Онлайн-табло аэропорта ${boardAirportName(a)} встроено через виджет Avionio с актуальными данными о рейсах.`;
-  }
-  const link=document.getElementById('airportBoardExternal');
-  if(link)link.textContent=`Avionio — ${boardAirportName(a)}`;
+  if(source)source.textContent=(String(currentLanguage).toUpperCase()==='EN'?'Live flight board for ':'Онлайн-табло аэропорта ')+boardAirportName(a)+(String(currentLanguage).toUpperCase()==='EN'?' is embedded through the Avionio widget.':' встроено через виджет Avionio.');
+  closeBoardAirportPicker();
+  switchBoard(selectedBoardType);
 }
 function switchBoard(type){
   const frame=document.getElementById('airportBoardFrame');
