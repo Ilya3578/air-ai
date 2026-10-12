@@ -329,46 +329,37 @@ function normalizeCity(value) {
 }
 
 function formatFlight(flight) {
+  const aircraftParts = [
+    flight?.aircraft?.iata,
+    flight?.aircraft?.registration
+  ].filter(Boolean);
+
   return {
-    flightNumber:
-      flight?.flight?.iata ||
-      flight?.flight?.icao ||
-      null,
-
-    airline:
-      flight?.airline?.name ||
-      flight?.airline?.iata ||
-      null,
-    
-aircraft: {
-  registration: flight?.aircraft?.registration || null,
-  iata: flight?.aircraft?.iata || null,
-  icao: flight?.aircraft?.icao || null
-},
+    flightNumber: flight?.flight?.iata || flight?.flight?.icao || null,
+    airline: flight?.airline?.name || flight?.airline?.iata || null,
+    // Response shape expected by searchPassportFlight() in the HTML.
+    aircraft: aircraftParts.join(" · ") || null,
+    departureTime:
+      flight?.departure?.scheduled ||
+      flight?.departure?.estimated ||
+      flight?.departure?.actual || null,
+    arrivalTime:
+      flight?.arrival?.scheduled ||
+      flight?.arrival?.estimated ||
+      flight?.arrival?.actual || null,
+    checkIn:
+      flight?.departure?.check_in_counter ||
+      flight?.departure?.checkin_counter || null,
+    gate: flight?.departure?.gate || null,
     departure: {
-  airport: flight?.departure?.airport || null,
-  iata: flight?.departure?.iata || null,
-  scheduled: flight?.departure?.scheduled || null,
-  estimated: flight?.departure?.estimated || null,
-  actual: flight?.departure?.actual || null,
-
-  terminal: flight?.departure?.terminal || null,
-  gate: flight?.departure?.gate || null,
-
-  checkInCounter:
-    flight?.departure?.check_in_counter ||
-    flight?.departure?.checkin_counter ||
-    null
-},
-
+      airport: flight?.departure?.airport || null,
+      iata: flight?.departure?.iata || null,
+      terminal: flight?.departure?.terminal || null
+    },
     arrival: {
       airport: flight?.arrival?.airport || null,
-      iata: flight?.arrival?.iata || null,
-      scheduled: flight?.arrival?.scheduled || null,
-      estimated: flight?.arrival?.estimated || null,
-      actual: flight?.arrival?.actual || null
+      iata: flight?.arrival?.iata || null
     },
-
     status: flight?.flight_status || null
   };
 }
@@ -387,6 +378,24 @@ app.get("/api/flight", async (req, res) => {
 
     const cityInput = req.query.city;
     const city = normalizeCity(cityInput);
+    const flightNumber = String(req.query.flight || "").trim().toUpperCase().replace(/[\s-]+/g, "");
+    const departureAirport = String(req.query.from || "LED").trim().toUpperCase();
+
+    if (!/^[A-Z]{3}$/.test(departureAirport)) {
+      return res.status(400).json({
+        flight: null,
+        source: "Aviationstack",
+        error: "Departure airport must be a valid 3-letter IATA code."
+      });
+    }
+
+    if (!/^[A-Z0-9]{2,10}$/.test(flightNumber)) {
+      return res.status(400).json({
+        flight: null,
+        source: "Aviationstack",
+        error: "A valid flight number is required, for example D2345."
+      });
+    }
 
     if (!city) {
       return res.status(400).json({
@@ -411,14 +420,15 @@ app.get("/api/flight", async (req, res) => {
 
     const results = [];
 
-    // Пулково всегда LED.
-    // Делаем отдельный запрос для каждого аэропорта назначения.
+    // Departure airport comes from the airport selected above the flight board.
+    // Make a separate request for each airport mapped to the destination city.
     for (const arrIata of destinationAirports) {
       const url = new URL("https://api.aviationstack.com/v1/flights");
 
       url.searchParams.set("access_key", apiKey);
-      url.searchParams.set("dep_iata", "LED");
+      url.searchParams.set("dep_iata", departureAirport);
       url.searchParams.set("arr_iata", arrIata);
+      url.searchParams.set("flight_iata", flightNumber);
       url.searchParams.set("limit", "100");
 
       const response = await fetch(url);
@@ -436,7 +446,13 @@ app.get("/api/flight", async (req, res) => {
       }
 
       if (Array.isArray(data?.data)) {
-        results.push(...data.data);
+        const exactMatches = data.data.filter(item => {
+          const returnedNumber = String(item?.flight?.iata || "").toUpperCase().replace(/[\s-]+/g, "");
+          return returnedNumber === flightNumber &&
+            String(item?.departure?.iata || "").toUpperCase() === departureAirport &&
+            String(item?.arrival?.iata || "").toUpperCase() === arrIata;
+        });
+        results.push(...exactMatches);
       }
     }
 
@@ -445,22 +461,23 @@ app.get("/api/flight", async (req, res) => {
         flight: null,
         source: "Aviationstack",
         searchedCity: cityInput,
-        from: "LED",
+        from: departureAirport,
         destinationAirports,
         totalFlightsReceived: 0,
-        note:
-          "No current flight found from Pulkovo (LED) to the selected destination."
+        searchedFlightNumber: flightNumber,
+        note: `No flight ${flightNumber} found from ${departureAirport} to the selected destination.`
       });
     }
 
-    // Берём первый найденный рейс.
+    // Return only a flight matching the requested number and exact route.
     const flight = results[0];
 
     return res.json({
       flight: formatFlight(flight),
       source: "Aviationstack",
       searchedCity: cityInput,
-      from: "LED",
+      searchedFlightNumber: flightNumber,
+      from: departureAirport,
       destinationAirports,
       totalFlightsReceived: results.length
     });
