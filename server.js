@@ -379,7 +379,21 @@ app.get("/api/flight", async (req, res) => {
     const cityInput = req.query.city;
     const city = normalizeCity(cityInput);
     const flightNumber = String(req.query.flight || "").normalize("NFKC").trim().toUpperCase().replace(/[\s\u2010-\u2015\u2212./]+/g, "");
-    const departureAirport = String(req.query.from || "LED").trim().toUpperCase();
+    const rawDepartureAirport = String(req.query.from || "").trim();
+    const departureAirport = rawDepartureAirport.toUpperCase();
+
+    // Do not silently fall back to Pulkovo: the selected airport must come from the page.
+    if (!rawDepartureAirport) {
+      console.warn("Flight search rejected: missing departure airport", {
+        flightNumber,
+        city: cityInput
+      });
+      return res.status(400).json({
+        flight: null,
+        source: "Aviationstack",
+        error: "Selected departure airport was not provided. Please reselect the airport and try again."
+      });
+    }
 
     if (!/^[A-Z]{3}$/.test(departureAirport)) {
       return res.status(400).json({
@@ -417,6 +431,13 @@ app.get("/api/flight", async (req, res) => {
         availableCities: Object.keys(DESTINATIONS)
       });
     }
+
+    console.log("Flight search request", {
+      flightNumber,
+      departureAirport,
+      city: cityInput,
+      destinationAirports
+    });
 
     const results = [];
 
