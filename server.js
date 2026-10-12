@@ -71,12 +71,10 @@ app.get("/", async (req, res) => {
       "utf8"
     );
 
-    const updatedHtml = html.replace(
-      /<\/body>/i,
-      '<script src="/integrate-search.js"></script></body>'
-    );
-
-    res.send(updatedHtml);
+    // The HTML already contains the current flight-search handler.
+    // Do not inject the legacy integrate-search.js: it intercepts the form,
+    // sends only the city, and hard-codes Pulkovo in its status/result UI.
+    res.send(html);
   } catch (error) {
     console.error("Не удалось открыть главную страницу:", error);
     res.status(500).send("Ошибка загрузки Air-AI");
@@ -84,7 +82,7 @@ app.get("/", async (req, res) => {
 });
 
 // Города → аэропорты назначения.
-// Пулково всегда является аэропортом отправления: LED.
+// Аэропорт вылета передаётся из выбранного пользователем табло.
 const DESTINATIONS = {
   // Россия
   "москва": ["SVO", "DME", "VKO", "ZIA"],
@@ -329,37 +327,16 @@ function normalizeCity(value) {
 }
 
 function formatFlight(flight) {
-  const aircraftParts = [
-    flight?.aircraft?.iata,
-    flight?.aircraft?.registration
-  ].filter(Boolean);
-
   return {
     flightNumber: flight?.flight?.iata || flight?.flight?.icao || null,
     airline: flight?.airline?.name || flight?.airline?.iata || null,
-    // Response shape expected by searchPassportFlight() in the HTML.
-    aircraft: aircraftParts.join(" · ") || null,
-    departureTime:
-      flight?.departure?.scheduled ||
-      flight?.departure?.estimated ||
-      flight?.departure?.actual || null,
-    arrivalTime:
-      flight?.arrival?.scheduled ||
-      flight?.arrival?.estimated ||
-      flight?.arrival?.actual || null,
-    checkIn:
-      flight?.departure?.check_in_counter ||
-      flight?.departure?.checkin_counter || null,
+    departureAirport: flight?.departure?.airport || flight?.departure?.iata || null,
+    arrivalAirport: flight?.arrival?.airport || flight?.arrival?.iata || null,
+    aircraft: flight?.aircraft?.iata || flight?.aircraft?.icao || flight?.aircraft?.registration || null,
+    departureTime: flight?.departure?.scheduled || flight?.departure?.estimated || flight?.departure?.actual || null,
+    arrivalTime: flight?.arrival?.scheduled || flight?.arrival?.estimated || flight?.arrival?.actual || null,
+    checkIn: flight?.departure?.check_in_counter || flight?.departure?.checkin_counter || null,
     gate: flight?.departure?.gate || null,
-    departure: {
-      airport: flight?.departure?.airport || null,
-      iata: flight?.departure?.iata || null,
-      terminal: flight?.departure?.terminal || null
-    },
-    arrival: {
-      airport: flight?.arrival?.airport || null,
-      iata: flight?.arrival?.iata || null
-    },
     status: flight?.flight_status || null
   };
 }
