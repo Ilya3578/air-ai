@@ -72,13 +72,12 @@ button{cursor:pointer}
   padding:9px 14px;color:var(--text);font-weight:600;
 }
 
-.airport-location-link{
-  position:absolute;left:50%;transform:translateX(-50%);top:78px;z-index:18;
-  display:inline-flex;align-items:center;gap:7px;color:#111;text-decoration:underline;
-  text-underline-offset:4px;font-size:13px;font-weight:300;letter-spacing:.05px;
-  background:rgba(255,255,255,.9);padding:3px 0;border-radius:4px;
-}
+.airport-location-wrap{position:absolute;left:50%;transform:translateX(-50%);top:78px;z-index:18;display:flex;align-items:center;gap:7px;max-width:82vw;background:rgba(255,255,255,.92);padding:3px 6px;border-radius:8px}
+.airport-location-link{display:inline-flex;align-items:center;gap:7px;min-width:0;color:#111;text-decoration:underline;text-underline-offset:4px;font-size:13px;font-weight:300;letter-spacing:.05px;white-space:nowrap}
 .airport-location-link:hover{color:#333}
+.airport-board-arrow{flex:0 0 auto;border:0;background:transparent;color:#19b7e7;font-size:22px;line-height:1;font-weight:800;padding:0 2px;cursor:pointer;border-radius:6px;transition:transform .18s ease,background .18s ease}
+.airport-board-arrow:hover{background:rgba(37,189,231,.12);transform:translateX(2px)}
+.airport-board-arrow:focus-visible{outline:2px solid #19b7e7;outline-offset:2px}
 .location-pin{width:13px;height:16px;display:inline-block;position:relative;flex:0 0 13px}
 .location-pin:before{content:'';position:absolute;left:2px;top:0;width:9px;height:9px;border:1.3px solid #111;border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
 .location-pin:after{content:'';position:absolute;left:5px;top:3px;width:3px;height:3px;border:1px solid #111;border-radius:50%}
@@ -97,7 +96,9 @@ button{cursor:pointer}
 .board-fallback{text-align:center;margin-top:10px;font-size:13px;color:var(--muted)}
 .board-fallback a{color:var(--azure-dark);font-weight:700}
 @media(max-width:620px){
-  .airport-location-link{left:50%;transform:translateX(-50%);top:72px;font-size:11px;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .airport-location-wrap{top:72px;max-width:86vw;gap:5px}
+  .airport-location-link{font-size:11px;max-width:calc(86vw - 38px);overflow:hidden;text-overflow:ellipsis}
+  .airport-board-arrow{font-size:20px}
   .airport-board-page{padding:62px 18px 110px}
   .airport-board-title{font-size:25px}
   .airport-board-search{border-radius:15px}
@@ -536,9 +537,12 @@ html:lang(en) .home-banner-ru{display:none!important;}
 
 <header class="top">
   <div class="logo">Air-AI <span>Assistant</span></div>
-  <a href="javascript:void(0)" class="airport-location-link" onclick="openBoardAirportPicker()" aria-label="Airport board">
-    <span class="location-pin" aria-hidden="true"></span><span data-i18n="airportLocation">Аэропорт Ст.-Петербург Пулково</span>
-  </a>
+  <div class="airport-location-wrap">
+    <a href="javascript:void(0)" class="airport-location-link" onclick="openBoardAirportPicker();return false;" aria-label="Select airport">
+      <span class="location-pin" aria-hidden="true"></span><span data-i18n="airportLocation">Аэропорт Ст.-Петербург Пулково</span>
+    </a>
+    <button type="button" class="airport-board-arrow" onclick="openSelectedAirportBoard()" aria-label="Open selected airport flight board" title="Open flight board">›</button>
+  </div>
   <div style="position:relative">
     <button class="lang" onclick="toggleLanguages()" aria-label="Language">RU ▾</button>
     <div id="languageMenu" style="display:none;position:absolute;right:0;top:48px;background:#fff;border:2px solid rgba(25,183,177,.35);border-radius:14px;padding:6px;min-width:170px;box-shadow:0 12px 30px rgba(15,50,55,.14)">
@@ -1649,6 +1653,10 @@ function renderBoardAirportOptions(){
   if(!filtered.length){list.innerHTML=`<div class="board-airport-empty">${t.boardAirportEmpty||'No airports found.'}</div>`;return;}
   list.innerHTML=filtered.map(a=>`<button type="button" class="board-airport-option" role="option" aria-selected="${a.code===selectedBoardAirport}" onclick="selectBoardAirport('${a.code}')"><span class="board-airport-code">${a.code}</span><span class="board-airport-name">${boardAirportName(a)}<span class="board-airport-city">${boardAirportCity(a)}</span></span></button>`).join('');
 }
+function openSelectedAirportBoard(){
+  switchBoard(selectedBoardType);
+  showPage('airportBoard');
+}
 function selectBoardAirport(code){
   const a=boardAirports.find(x=>x.code===code); if(!a)return;
   selectedBoardAirport=code;
@@ -1656,12 +1664,12 @@ function selectBoardAirport(code){
   const location=document.querySelector('.airport-location-link [data-i18n="airportLocation"]');
   if(location)location.textContent=boardAirportName(a);
   const title=document.querySelector('.airport-board-title');
-  if(title)title.textContent=(t.airportBoardTitle||'Flight board').replace(/Pulkovo Airport Flight Board|Табло аэропорта Пулково|Panel de vuelos de Púlkovo/,boardAirportName(a));
+  const titleText=(t.airportBoardTitle||'Flight board');
+  if(title)title.textContent=titleText.replace(/Pulkovo Airport Flight Board|Табло аэропорта Пулково|Panel de vuelos de Púlkovo/,boardAirportName(a));
   const source=document.querySelector('.board-source-note');
   if(source)source.textContent=(String(currentLanguage).toUpperCase()==='EN'?'Live flight board for ':'Онлайн-табло аэропорта ')+boardAirportName(a)+(String(currentLanguage).toUpperCase()==='EN'?' is embedded through the Avionio widget.':' встроено через виджет Avionio.');
   closeBoardAirportPicker();
   switchBoard(selectedBoardType);
-  const page=document.getElementById('airportBoard'); if(page)page.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function switchBoard(type){
   const frame=document.getElementById('airportBoardFrame');
