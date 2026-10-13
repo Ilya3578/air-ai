@@ -712,6 +712,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
     <div class="container">
       <button class="back-btn" onclick="showPage('home')">← <span data-i18n="backHome">Главная</span></button>
       <div class="plan-title" id="activeSubscriptionTitle" data-i18n="helloPlanTitle">Hello Air-AI</div>
+      <button id="returnPreviousSubscriptionButton" class="back-btn" type="button" onclick="returnToHelloSubscription()" data-i18n="returnPreviousSubscription" hidden>Вернуться на предыдущую подписку</button>
 
       <div class="section-head">
         <h2 data-i18n="availableServices">Доступные услуги</h2>
@@ -1056,14 +1057,14 @@ const translations = {
     subscriptionsTitle:"Подписки", subscriptionsText:"Выберите уровень сопровождения — от базовой информации до расширенного персонального сервиса.", learnMoreSubscription:"Узнать более подробно",
     helloText:"Базовые возможности для каждого пассажира.", hello1:"• Информация о рейсе", hello2:"• Базовая навигация", hello3:"• AI-вопросы",
     familyText:"Все возможности Smart для всей семьи.", family1:"• Семейный режим", family2:"• Навигация для детей", family3:"• Помощь всей семье в поездке",
-    backHome:"Главная", backSubscription:"Моя подписка", helloPlanTitle:"Hello Air-AI",
+    backHome:"Главная", backSubscription:"Моя подписка", helloPlanTitle:"Hello Air-AI", returnPreviousSubscription:"Вернуться на предыдущую подписку",
     backSubscriptions:"Подписки", paymentSubtitle:"Улучшите возможности Assistant", cardPayment:"Банковская карта", qrPayment:"QR код",
     paymentUnsupported:"Данный тип оплаты пока что не поддерживается", airAiBalancePayment:"Air-AI Баланс", walletBalanceLabel:"Баланс кошелька", smartPriceLabel:"К оплате: $4,99", paySmartWithBalance:"Оплатить $4,99 с баланса", insufficientForSmart:"Недостаточно средств. Пополните Air-AI Баланс или выберите другой способ оплаты.", smartPurchaseSuccess:"Smart Air-AI успешно активирован!", smartAlreadyActive:"Smart Air-AI уже активен.", unavailablePlan:"Тариф пока нельзя купить", cardNumber:"Введите номер карты", cardExpiry:"Период действия карты", emailAddress:"Ваша электронная почта", cvvCode:"Введите CVV код",
     availableServices:"Доступные услуги", onlineNavigation:"Онлайн навигация", selectAirport:"Выбрать аэропорт", airportPickerTitle:"Выберите аэропорт", airportNavTitle:"Навигация",
     lockedServices:"Недоступные услуги", faqService:"Чат с ответами нейросети (FAQ)", flightDataService:"Все данные о вашем рейсе",
     bookingService:"Бронирование услуг в аэропорту", advancedNavService:"Прокачанная навигация", arrivalInfoService:"Информация об аэропорте пребывания", otherServices:"Другие услуги",
     smartFlightData:"Все данные о вашем рейсе", smartAirportServices:"Услуги выбранного аэропорта", smartCountryInfo:"Информация о стране пребывания", smartEscort:"Заказ сопровождения", smartChildren:"Услуги для пассажиров с детьми", smartDisruption:"Рекомендации при задержке/отмене рейса",
-    upgradeButton:"Перейдём на Smart или другой Air-AI?", underDevelopment:"В разработке",
+    upgradeButton:"Перейдём на другой Air-AI?", underDevelopment:"В разработке",
     helloDetail:"Стартовый пакет услуг для пассажира с доступом к онлайн-навигации.",
     smartDetail:"Чат с ответами нейросети (FAQ), информация о рейсе, регистрация, посадка и вылет, изменения выхода, общая информация (валюта, визы, погода, правила въезда), услуги аэропорта, магазины, рестораны и лаунжи.",
     familyDetail:"Все возможности Smart Air-AI, а также семейный режим, навигация для детей, сопровождение членов семьи, помощь с коляской, детским багажом и автокреслом, напоминания о семейной посадке и рекомендации при задержках.",
@@ -1073,7 +1074,7 @@ const translations = {
     smartText:"Больше удобства во время поездки.", smart1:"• Расширенная навигация", smart2:"• Больше AI-возможностей", smart3:"• Персональные уведомления",
     proText:"Расширенный цифровой консьерж.", pro1:"• Приоритетные сервисы", pro2:"• Лаунжи и fast track", pro3:"• Персональный AI-сопроводитель",
     firstText:"Максимальный уровень сопровождения.", first1:"• VIP-сервисы", first2:"• Трансферы и специальные услуги", first3:"• Максимум возможностей AI",
-    airportsTitle:"Наши Аэропорты-Партнёры", airportsText:"",
+    airportsTitle:"Наши Аэропорты-Партнёры", airportsText:"и другие международные аэропорты",
     whyTitle:"Почему Air-AI?",
     downloadAppButton:"Скачать приложение", downloadAppNotice:"Приложение пока в разработке. Используйте эту веб-версию",
     accountTitle:"Мой аккаунт",
@@ -1114,14 +1115,14 @@ const translations = {
     subscriptionsTitle:"Subscriptions", subscriptionsText:"Choose your level of assistance — from essential information to an extended personal service.", learnMoreSubscription:"Learn more",
     helloText:"Essential features for every passenger.", hello1:"• Flight information", hello2:"• Basic navigation", hello3:"• AI questions",
     familyText:"All Smart features for the whole family.", family1:"• Family mode", family2:"• Navigation for children", family3:"• Assistance for the whole family",
-    backHome:"Home", backSubscription:"My subscription", helloPlanTitle:"Hello Air-AI",
+    backHome:"Home", backSubscription:"My subscription", helloPlanTitle:"Hello Air-AI", returnPreviousSubscription:"Return to previous subscription",
     backSubscriptions:"Subscriptions", paymentSubtitle:"Upgrade your Assistant experience", cardPayment:"Bank card", qrPayment:"QR code",
     paymentUnsupported:"This payment method is not supported yet.", airAiBalancePayment:"Air-AI Balance", walletBalanceLabel:"Wallet balance", smartPriceLabel:"Amount due: $4.99", paySmartWithBalance:"Pay $4.99 from balance", insufficientForSmart:"Insufficient funds. Top up Air-AI Balance or choose another payment method.", smartPurchaseSuccess:"Smart Air-AI activated successfully!", smartAlreadyActive:"Smart Air-AI is already active.", unavailablePlan:"This plan is not available for purchase yet.", cardNumber:"Enter card number", cardExpiry:"Card expiry date", emailAddress:"Your email address", cvvCode:"Enter CVV code",
     availableServices:"Available services", onlineNavigation:"Online navigation", selectAirport:"Select airport", airportPickerTitle:"Select airport", airportNavTitle:"Navigation",
     lockedServices:"Unavailable services", faqService:"AI answers chat (FAQ)", flightDataService:"All your flight data",
     bookingService:"Airport service booking", advancedNavService:"Advanced navigation", arrivalInfoService:"Information about your destination airport", otherServices:"Other services",
     smartFlightData:"All your flight data", smartAirportServices:"Services at the selected airport", smartCountryInfo:"Information about your destination country", smartEscort:"Assistance booking", smartChildren:"Services for passengers travelling with children", smartDisruption:"Recommendations for flight delays/cancellations",
-    upgradeButton:"Move to Smart or another Air-AI?", underDevelopment:"Under development",
+    upgradeButton:"Switch to another Air-AI plan?", underDevelopment:"Under development",
     helloDetail:"Starter service package for passengers with access to online navigation.",
     smartDetail:"AI answers chat (FAQ), flight information, check-in, boarding and departure, gate changes, general information (currency, visas, weather, entry rules), airport services, shops, restaurants and lounges.",
     familyDetail:"All Smart Air-AI features plus family mode, navigation for children, family member assistance, help with strollers, children's baggage and car seats, family boarding reminders and delay recommendations.",
@@ -1131,7 +1132,7 @@ const translations = {
     smartText:"More convenience during your trip.", smart1:"• Advanced navigation", smart2:"• More AI features", smart3:"• Personal notifications",
     proText:"Extended digital concierge.", pro1:"• Priority services", pro2:"• Lounges and fast track", pro3:"• Personal AI companion",
     firstText:"Maximum level of assistance.", first1:"• VIP services", first2:"• Transfers and special services", first3:"• Maximum AI capabilities",
-    airportsTitle:"Our Partner Airports", airportsText:"",
+    airportsTitle:"Our Partner Airports", airportsText:"and other international airports",
     whyTitle:"Why Air-AI?",
     downloadAppButton:"Download the app", downloadAppNotice:"The app is still in development. Please use this web version.",
     accountTitle:"My account",
@@ -1811,6 +1812,8 @@ function renderSubscriptionState(){
   if(flightSearchButton)flightSearchButton.hidden=!hasFlightSearchAccess();
   const plan=activeAirAiPlan();
   const title=document.getElementById('activeSubscriptionTitle');
+  const returnButton=document.getElementById('returnPreviousSubscriptionButton');
+  if(returnButton)returnButton.hidden=plan!=='smart';
   const available=document.querySelector('#subscription .section-head + .service-list');
   const lists=document.querySelectorAll('#subscription .service-list');
   const locked=lists[1];
@@ -1836,6 +1839,14 @@ function renderSubscriptionState(){
     }
   }
 }
+function returnToHelloSubscription(){
+  const t=translations[currentLanguage]||translations.RU;
+  try{localStorage.setItem(AIR_AI_PLAN_KEY,'hello');}
+  catch(err){toast(currentLanguage==='EN'?'Could not change subscription.':'Не удалось изменить подписку.');return;}
+  renderSubscriptionState();
+  toast(currentLanguage==='EN'?'Returned to Hello Air-AI.':'Вы вернулись на подписку Hello Air-AI.');
+}
+
 function showUnavailablePlan(){toast((translations[currentLanguage]||translations.RU).unavailablePlan||'Тариф пока нельзя купить');}
 function openPayment(planName, photoUrl){
   if(!/smart/i.test(String(planName||''))){showUnavailablePlan();return;}
