@@ -367,7 +367,7 @@ footer{background:#101c1e;color:white;padding:45px 5vw 105px}
 .payment-method{border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 12px;display:flex;align-items:center;gap:10px;text-align:left;font-weight:750;color:var(--text)}
 .payment-method.active{border:2px solid var(--azure);padding:12px 11px}
 .payment-icon{width:30px;height:30px;border-radius:9px;background:#e8f8f7;display:grid;place-items:center;font-size:16px;flex:0 0 30px}
-.payment-form{margin-top:22px;display:grid;gap:12px}
+.payment-form{margin-top:22px;display:grid;gap:12px} .payment-balance-info{margin-top:22px;padding:18px;border:1px solid var(--azure);border-radius:16px;background:rgba(0,188,212,.06);display:grid;gap:12px} .payment-balance-info p{margin:0;color:var(--muted,#68777a)} .payment-balance-info[hidden]{display:none!important} .payment-balance-info .wallet-amount-confirm{width:100%;margin-top:2px} .smart-placeholder{cursor:pointer;user-select:none} .smart-placeholder:focus{outline:2px solid var(--azure);outline-offset:2px}
 .payment-unsupported{margin-top:22px;padding:18px 16px;border:1px solid var(--azure);border-radius:14px;text-align:center;color:var(--azure-dark);font-weight:750;background:rgba(25,183,177,.06)}
 .payment-field{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:13px 14px;outline:none}
 .payment-field:focus{border-color:var(--azure);box-shadow:0 0 0 3px rgba(25,183,177,.12)}
@@ -711,7 +711,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
   <section>
     <div class="container">
       <button class="back-btn" onclick="showPage('home')">← <span data-i18n="backHome">Главная</span></button>
-      <div class="plan-title" data-i18n="helloPlanTitle">Hello Air-AI</div>
+      <div class="plan-title" id="activeSubscriptionTitle" data-i18n="helloPlanTitle">Hello Air-AI</div>
 
       <div class="section-head">
         <h2 data-i18n="availableServices">Доступные услуги</h2>
@@ -759,17 +759,17 @@ html:lang(en) .home-banner-ru{display:none!important;}
           <div class="sub-body"><span class="pill">SMART AIR-AI ASSISTENT</span><div class="price">$4.99 <small>/ месяц</small></div><p data-i18n="smartDetail">Чат с ответами нейросети (FAQ), информация о рейсе, регистрация, посадка и вылет, изменения выхода, общая информация (валюта, визы, погода, правила въезда), услуги аэропорта, магазины, рестораны и лаунжи.</p></div>
         </article>
 
-        <article class="card detailed-sub" onclick="openPayment('Family Air-AI', 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=85')" style="cursor:pointer">
+        <article class="card detailed-sub" onclick="showUnavailablePlan()" style="cursor:pointer" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showUnavailablePlan()}">
           <div class="sub-img" style="background-image:url('https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=85')"></div>
           <div class="sub-body"><span class="pill">FAMILY AIR-AI</span><div class="price">$9.99 <small>/ месяц</small></div><p data-i18n="familyDetail">Все возможности Smart Air-AI, а также семейный режим, навигация для детей, сопровождение членов семьи, помощь с коляской, детским багажом и автокреслом, напоминания о семейной посадке и рекомендации при задержках.</p></div>
         </article>
 
-        <article class="card detailed-sub" onclick="openPayment('PRO Air-AI Assistant', 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=85')" style="cursor:pointer">
+        <article class="card detailed-sub" onclick="showUnavailablePlan()" style="cursor:pointer" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showUnavailablePlan()}">
           <div class="sub-img" style="background-image:url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=85')"></div>
           <div class="sub-body"><span class="pill">PRO AIR-AI ASSISTANT</span><div class="price">$14.99 <small>/ месяц</small></div><p data-i18n="proDetail">Расширенное интеллектуальное сопровождение, полный анализ поездки, отслеживание багажа и расчёт времени его выдачи, действия при сбоях и VIP/расширенные услуги.</p></div>
         </article>
 
-        <article class="card detailed-sub" onclick="openPayment('First Class Assistant', 'https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=900&q=85')" style="cursor:pointer">
+        <article class="card detailed-sub" onclick="showUnavailablePlan()" style="cursor:pointer" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showUnavailablePlan()}">
           <div class="sub-img" style="background-image:url('https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=900&q=85')"></div>
           <div class="sub-body"><span class="pill">FIRST CLASS ASSISTANT</span><div class="price">$49.99 <small>/ месяц</small></div><p data-i18n="firstDetail">Максимальный доступ ко всем блокам и кнопкам: данные пассажира, рейса, багажа, геолокации и аэропорта, VIP и семейные функции, продвинутая навигация, персональный план трансфера, Work Mode, Airport Explorer, переводчик, медицинская и экстренная помощь, отели, трансферы, потерянные вещи и другие возможности без рекламы.</p></div>
         </article>
@@ -789,7 +789,10 @@ html:lang(en) .home-banner-ru{display:none!important;}
       <p class="payment-subtitle" data-i18n="paymentSubtitle">Улучшите возможности Assistant</p>
 
       <div class="payment-grid">
-        <button class="payment-method active" data-payment-type="card" onclick="selectPayment(this)">
+        <button class="payment-method active" data-payment-type="balance" onclick="selectPayment(this)">
+          <span class="payment-icon">◉</span><span data-i18n="airAiBalancePayment">Air-AI Баланс</span>
+        </button>
+        <button class="payment-method" data-payment-type="card" onclick="selectPayment(this)">
           <span class="payment-icon">💳</span><span data-i18n="cardPayment">Банковская карта</span>
         </button>
         <button class="payment-method" data-payment-type="paypal" onclick="selectPayment(this)">
@@ -803,7 +806,13 @@ html:lang(en) .home-banner-ru{display:none!important;}
         </button>
       </div>
 
-      <div class="payment-form">
+      <div class="payment-balance-info" id="paymentBalanceInfo">
+        <div><span data-i18n="walletBalanceLabel">Баланс кошелька</span>: <strong id="paymentBalanceValue">9,8$</strong></div>
+        <p id="paymentBalanceMessage" data-i18n="smartPriceLabel">К оплате: $4,99</p>
+        <button class="wallet-amount-confirm" id="payWithBalanceButton" type="button" onclick="paySmartWithBalance()" data-i18n="paySmartWithBalance">Оплатить $4,99 с баланса</button>
+      </div>
+
+      <div class="payment-form" id="bankCardPaymentForm">
         <input class="payment-field" type="text" inputmode="numeric" autocomplete="cc-number" placeholder="Введите номер карты" data-i18n-placeholder="cardNumber">
         <input class="payment-field" type="text" inputmode="numeric" autocomplete="cc-exp" placeholder="Период действия карты" data-i18n-placeholder="cardExpiry">
         <input class="payment-field" type="email" autocomplete="email" placeholder="Ваша электронная почта" data-i18n-placeholder="emailAddress">
@@ -1048,10 +1057,11 @@ const translations = {
     familyText:"Все возможности Smart для всей семьи.", family1:"• Семейный режим", family2:"• Навигация для детей", family3:"• Помощь всей семье в поездке",
     backHome:"Главная", backSubscription:"Моя подписка", helloPlanTitle:"Hello Air-AI",
     backSubscriptions:"Подписки", paymentSubtitle:"Улучшите возможности Assistant", cardPayment:"Банковская карта", qrPayment:"QR код",
-    paymentUnsupported:"Данный тип оплаты пока что не поддерживается", cardNumber:"Введите номер карты", cardExpiry:"Период действия карты", emailAddress:"Ваша электронная почта", cvvCode:"Введите CVV код",
+    paymentUnsupported:"Данный тип оплаты пока что не поддерживается", airAiBalancePayment:"Air-AI Баланс", walletBalanceLabel:"Баланс кошелька", smartPriceLabel:"К оплате: $4,99", paySmartWithBalance:"Оплатить $4,99 с баланса", insufficientForSmart:"Недостаточно средств. Пополните Air-AI Баланс или выберите другой способ оплаты.", smartPurchaseSuccess:"Smart Air-AI успешно активирован!", smartAlreadyActive:"Smart Air-AI уже активен.", unavailablePlan:"Тариф пока нельзя купить", cardNumber:"Введите номер карты", cardExpiry:"Период действия карты", emailAddress:"Ваша электронная почта", cvvCode:"Введите CVV код",
     availableServices:"Доступные услуги", onlineNavigation:"Онлайн навигация", selectAirport:"Выбрать аэропорт", airportPickerTitle:"Выберите аэропорт", airportNavTitle:"Навигация",
-    lockedServices:"Заблокированные услуги", faqService:"Чат с ответами нейросети (FAQ)", flightDataService:"Все данные о вашем рейсе",
+    lockedServices:"Недоступные услуги", faqService:"Чат с ответами нейросети (FAQ)", flightDataService:"Все данные о вашем рейсе",
     bookingService:"Бронирование услуг в аэропорту", advancedNavService:"Прокачанная навигация", arrivalInfoService:"Информация об аэропорте пребывания", otherServices:"Другие услуги",
+    smartFlightData:"Все данные о вашем рейсе", smartAirportServices:"Услуги выбранного аэропорта", smartCountryInfo:"Информация о стране пребывания", smartEscort:"Заказ сопровождения", smartChildren:"Услуги для пассажиров с детьми", smartDisruption:"Рекомендации при задержке/отмене рейса",
     upgradeButton:"Перейдём на Smart или другой Air-AI?", underDevelopment:"В разработке",
     helloDetail:"Стартовый пакет услуг для пассажира с доступом к онлайн-навигации.",
     smartDetail:"Чат с ответами нейросети (FAQ), информация о рейсе, регистрация, посадка и вылет, изменения выхода, общая информация (валюта, визы, погода, правила въезда), услуги аэропорта, магазины, рестораны и лаунжи.",
@@ -1105,10 +1115,11 @@ const translations = {
     familyText:"All Smart features for the whole family.", family1:"• Family mode", family2:"• Navigation for children", family3:"• Assistance for the whole family",
     backHome:"Home", backSubscription:"My subscription", helloPlanTitle:"Hello Air-AI",
     backSubscriptions:"Subscriptions", paymentSubtitle:"Upgrade your Assistant experience", cardPayment:"Bank card", qrPayment:"QR code",
-    paymentUnsupported:"This payment method is not supported yet.", cardNumber:"Enter card number", cardExpiry:"Card expiry date", emailAddress:"Your email address", cvvCode:"Enter CVV code",
+    paymentUnsupported:"This payment method is not supported yet.", airAiBalancePayment:"Air-AI Balance", walletBalanceLabel:"Wallet balance", smartPriceLabel:"Amount due: $4.99", paySmartWithBalance:"Pay $4.99 from balance", insufficientForSmart:"Insufficient funds. Top up Air-AI Balance or choose another payment method.", smartPurchaseSuccess:"Smart Air-AI activated successfully!", smartAlreadyActive:"Smart Air-AI is already active.", unavailablePlan:"This plan is not available for purchase yet.", cardNumber:"Enter card number", cardExpiry:"Card expiry date", emailAddress:"Your email address", cvvCode:"Enter CVV code",
     availableServices:"Available services", onlineNavigation:"Online navigation", selectAirport:"Select airport", airportPickerTitle:"Select airport", airportNavTitle:"Navigation",
-    lockedServices:"Locked services", faqService:"AI answers chat (FAQ)", flightDataService:"All your flight data",
+    lockedServices:"Unavailable services", faqService:"AI answers chat (FAQ)", flightDataService:"All your flight data",
     bookingService:"Airport service booking", advancedNavService:"Advanced navigation", arrivalInfoService:"Information about your destination airport", otherServices:"Other services",
+    smartFlightData:"All your flight data", smartAirportServices:"Services at the selected airport", smartCountryInfo:"Information about your destination country", smartEscort:"Assistance booking", smartChildren:"Services for passengers travelling with children", smartDisruption:"Recommendations for flight delays/cancellations",
     upgradeButton:"Move to Smart or another Air-AI?", underDevelopment:"Under development",
     helloDetail:"Starter service package for passengers with access to online navigation.",
     smartDetail:"AI answers chat (FAQ), flight information, check-in, boarding and departure, gate changes, general information (currency, visas, weather, entry rules), airport services, shops, restaurants and lounges.",
@@ -1149,6 +1160,8 @@ const translations = {
     heroEyebrow:"✈️ Tu asistente digital en el aeropuerto",
     heroTitle:"Bienvenido<br>a un viaje sin estrés.",
     heroText:"Air-AI Assistant reúne la información de tu vuelo, navegación, servicios del aeropuerto y un asistente personal de IA en un solo lugar.",
+    airAiBalancePayment:"Saldo Air-AI", walletBalanceLabel:"Saldo de la cartera", smartPriceLabel:"Importe: $4,99", paySmartWithBalance:"Pagar $4,99 con el saldo", insufficientForSmart:"Saldo insuficiente. Recarga el saldo Air-AI o elige otro método de pago.", smartPurchaseSuccess:"¡Smart Air-AI se ha activado correctamente!", smartAlreadyActive:"Smart Air-AI ya está activo.", unavailablePlan:"Este plan todavía no se puede comprar.",
+    smartFlightData:"Todos los datos de tu vuelo", smartAirportServices:"Servicios del aeropuerto seleccionado", smartCountryInfo:"Información sobre el país de destino", smartEscort:"Reserva de asistencia", smartChildren:"Servicios para pasajeros con niños", smartDisruption:"Recomendaciones ante retrasos o cancelaciones",
     aiPlaceholder:"Preguntar a la IA", aiButton:"Air-AI",
     benefitsTitle:"Todo para un viaje sin estrés",
     benefitsText:"Funciones principales de Air-AI Assistant: desde encontrar tu puerta hasta pedir servicios directamente en el aeropuerto.",
@@ -1402,6 +1415,7 @@ function applyLanguage(){
     if(t[key]!==undefined) el.placeholder=t[key];
   });
   updateSubscriptionsBackButton();
+  try { writeWalletBalance(readWalletBalance()); renderSubscriptionState(); } catch (err) { /* subscription or wallet UI may not be ready yet */ }
   // Restore the user's selected airport after generic translations reset labels to defaults.
   try { refreshSelectedBoardAirportLabels(); } catch (err) { /* airport selector may not be initialized yet */ }
 }
@@ -1725,19 +1739,117 @@ function switchBoard(type){
 
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeBoardAirportPicker();});
 
+const AIR_AI_WALLET_KEY = 'airAiWalletBalance';
+const AIR_AI_PLAN_KEY = 'airAiActivePlan';
+const SMART_AIR_AI_PRICE = 4.99;
+
+function readWalletBalance(){
+  const el=document.getElementById('walletBalance');
+  try{
+    const saved=localStorage.getItem(AIR_AI_WALLET_KEY);
+    if(saved!==null && saved.trim()!=='' && Number.isFinite(Number(saved))) return Math.max(0,Math.round(Number(saved)*100)/100);
+  }catch(err){}
+  const parsed=el ? Number(String(el.textContent).replace(',', '.').replace('$','').trim()) : NaN;
+  const initial=Number.isFinite(parsed) ? Math.max(0,Math.round(parsed*100)/100) : 9.8;
+  try{localStorage.setItem(AIR_AI_WALLET_KEY,String(initial));}catch(err){}
+  return initial;
+}
+function formatWalletBalance(amount){
+  const locale=currentLanguage==='RU'?'ru-RU':'en-US';
+  return amount.toLocaleString(locale,{minimumFractionDigits:amount%1===0?0:1,maximumFractionDigits:2})+'$';
+}
+function writeWalletBalance(amount){
+  const safe=Math.max(0,Math.round(Number(amount)*100)/100);
+  try{localStorage.setItem(AIR_AI_WALLET_KEY,String(safe));}catch(err){}
+  const el=document.getElementById('walletBalance');
+  if(el)el.textContent=formatWalletBalance(safe);
+  const paymentBalance=document.getElementById('paymentBalanceValue');
+  if(paymentBalance)paymentBalance.textContent=formatWalletBalance(safe);
+  return safe;
+}
+function activeAirAiPlan(){
+  try{return localStorage.getItem(AIR_AI_PLAN_KEY)==='smart'?'smart':'hello';}catch(err){return 'hello';}
+}
+function renderSubscriptionState(){
+  const plan=activeAirAiPlan();
+  const title=document.getElementById('activeSubscriptionTitle');
+  const available=document.querySelector('#subscription .section-head + .service-list');
+  const lists=document.querySelectorAll('#subscription .service-list');
+  const locked=lists[1];
+  const t=translations[currentLanguage]||translations.RU;
+  if(title){title.textContent=plan==='smart'?(currentLanguage==='EN'?'Smart Air-AI':currentLanguage==='ES'?'Smart Air-AI':'Smart Air-AI'):(t.helloPlanTitle||'Hello Air-AI');}
+  if(available){
+    available.querySelectorAll('.smart-placeholder').forEach(el=>el.remove());
+    if(plan==='smart'){
+      const services=[['smartFlightData','flight-data'],['smartAirportServices','airport-services'],['smartCountryInfo','country-info']];
+      services.forEach(([key,kind])=>{
+        const row=document.createElement('div'); row.className='service-row smart-placeholder'; row.setAttribute('role','button'); row.setAttribute('tabindex','0'); row.setAttribute('aria-label',t[key]||key); row.onclick=()=>{}; row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();}};
+        const name=document.createElement('div'); name.className='service-name'; name.textContent=t[key]||key; row.appendChild(name); available.appendChild(row);
+      });
+    }
+  }
+  if(locked){
+    if(plan==='smart'){
+      const rows=[['smartEscort','escort'],['smartChildren','children'],['smartDisruption','disruption'],['otherServices','other']];
+      locked.innerHTML=rows.map(([key])=>`<div class="service-row locked"><div class="lock-icon">🔒</div><div class="service-name">${t[key]||key}</div></div>`).join('');
+    }else{
+      locked.innerHTML='<div class="service-row locked"><div class="lock-icon">🔒</div><div class="service-name" data-i18n="faqService">'+(t.faqService||'Чат с ответами нейросети (FAQ)')+'</div></div><div class="service-row locked"><div class="lock-icon">🔒</div><div class="service-name" data-i18n="flightDataService">'+(t.flightDataService||'Все данные о вашем рейсе')+'</div></div><div class="service-row locked"><div class="lock-icon">🔒</div><div class="service-name" data-i18n="bookingService">'+(t.bookingService||'Бронирование услуг в аэропорту')+'</div></div><div class="service-row locked"><div class="lock-icon">🔒</div><div class="service-name" data-i18n="advancedNavService">'+(t.advancedNavService||'Прокачанная навигация')+'</div></div><div class="service-row locked"><div class="lock-icon">🔒</div><div class="service-name" data-i18n="arrivalInfoService">'+(t.arrivalInfoService||'Информация об аэропорте пребывания')+'</div></div><div class="service-row locked"><div class="lock-icon">🔒</div><div class="service-name" data-i18n="otherServices">'+(t.otherServices||'Другие услуги')+'</div></div>';
+    }
+  }
+}
+function showUnavailablePlan(){toast((translations[currentLanguage]||translations.RU).unavailablePlan||'Тариф пока нельзя купить');}
 function openPayment(planName, photoUrl){
+  if(!/smart/i.test(String(planName||''))){showUnavailablePlan();return;}
   document.getElementById('paymentPlanTitle').textContent=planName;
   document.getElementById('paymentPhoto').style.backgroundImage="url('" + photoUrl + "')";
+  writeWalletBalance(readWalletBalance());
+  const balanceMessage=document.getElementById('paymentBalanceMessage');
+  if(balanceMessage)balanceMessage.textContent=(translations[currentLanguage]||translations.RU).smartPriceLabel||'К оплате: $4,99';
+  const balanceButton=document.querySelector('.payment-method[data-payment-type="balance"]');
+  if(balanceButton)selectPayment(balanceButton);
   showPage('payment');
 }
 function selectPayment(btn){
+  if(!btn)return;
   document.querySelectorAll('.payment-method').forEach(x=>x.classList.remove('active'));
   btn.classList.add('active');
+  const type=btn.dataset.paymentType;
   const fields=document.querySelectorAll('.payment-form .payment-field');
+  const form=document.getElementById('bankCardPaymentForm');
   const unsupported=document.getElementById('paymentUnsupported');
-  const unsupportedType=btn.dataset.paymentType && btn.dataset.paymentType!=='card';
-  fields.forEach(field=>field.hidden=unsupportedType);
-  if(unsupported) unsupported.hidden=!unsupportedType;
+  const balanceInfo=document.getElementById('paymentBalanceInfo');
+  const unsupportedType=type!=='card'&&type!=='balance';
+  if(form)form.hidden=type!=='card';
+  fields.forEach(field=>field.hidden=type!=='card');
+  if(unsupported)unsupported.hidden=!unsupportedType;
+  if(balanceInfo){balanceInfo.hidden=type!=='balance';if(type==='balance')writeWalletBalance(readWalletBalance());}
+}
+function paySmartWithBalance(){
+  if(activeAirAiPlan()==='smart'){toast((translations[currentLanguage]||translations.RU).smartAlreadyActive||'Smart Air-AI уже активен.');return;}
+  const balance=readWalletBalance();
+  if(balance+0.000001<SMART_AIR_AI_PRICE){
+    const msg=(translations[currentLanguage]||translations.RU).insufficientForSmart||'Недостаточно средств на балансе.';
+    const target=document.getElementById('paymentBalanceMessage');if(target)target.textContent=msg;
+    toast(msg);return;
+  }
+  // Update the wallet and subscription together only after the balance check succeeds.
+  const next=Math.round((balance-SMART_AIR_AI_PRICE)*100)/100;
+  let previousWallet=null, previousPlan=null;
+  try{
+    previousWallet=localStorage.getItem(AIR_AI_WALLET_KEY);
+    previousPlan=localStorage.getItem(AIR_AI_PLAN_KEY);
+    localStorage.setItem(AIR_AI_WALLET_KEY,String(next));
+    localStorage.setItem(AIR_AI_PLAN_KEY,'smart');
+  }catch(err){
+    // Roll back any partial localStorage write so a failed activation never charges the wallet.
+    try{if(previousWallet===null)localStorage.removeItem(AIR_AI_WALLET_KEY);else localStorage.setItem(AIR_AI_WALLET_KEY,previousWallet);}catch(rollbackErr){}
+    try{if(previousPlan===null)localStorage.removeItem(AIR_AI_PLAN_KEY);else localStorage.setItem(AIR_AI_PLAN_KEY,previousPlan);}catch(rollbackErr){}
+    toast((translations[currentLanguage]||translations.RU).paymentUnsupported||'Не удалось провести оплату.');return;
+  }
+  writeWalletBalance(next);
+  renderSubscriptionState();
+  toast((translations[currentLanguage]||translations.RU).smartPurchaseSuccess||'Smart Air-AI успешно активирован!');
+  showPage('subscription');
 }
 
 const subscriptionDetails = {
@@ -1780,9 +1892,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape' && document.getEleme
 let walletAmountMode='add';
 function openWalletAmount(mode){walletAmountMode=mode;const t=translations[currentLanguage];document.getElementById('walletAmountTitle').textContent=t[mode==='add'?'walletAddTitle':'walletSubtractTitle'];document.getElementById('walletAmountInput').value='';document.getElementById('walletAmountError').textContent='';const m=document.getElementById('walletAmountModal');m.classList.add('show');m.setAttribute('aria-hidden','false');setTimeout(()=>document.getElementById('walletAmountInput').focus(),30);}
 function closeWalletAmount(){const m=document.getElementById('walletAmountModal');m.classList.remove('show');m.setAttribute('aria-hidden','true');}
-function confirmWalletAmount(){const input=document.getElementById('walletAmountInput');const amount=Number(input.value);const error=document.getElementById('walletAmountError');const t=translations[currentLanguage];if(!Number.isInteger(amount)||amount<1||amount>99){error.textContent=t.walletAmountError;return;}const balanceEl=document.getElementById('walletBalance');const current=Number(balanceEl.textContent.replace(',','.').replace('$','').trim());if(walletAmountMode==='subtract'&&amount>current){error.textContent=t.walletInsufficient;return;}const next=walletAmountMode==='add'?current+amount:current-amount;balanceEl.textContent=next.toLocaleString(currentLanguage==='ru'?'ru-RU':'en-US',{minimumFractionDigits:Number.isInteger(next)?0:1,maximumFractionDigits:2})+'$';closeWalletAmount();}
+function confirmWalletAmount(){const input=document.getElementById('walletAmountInput');const amount=Number(input.value);const error=document.getElementById('walletAmountError');const t=translations[currentLanguage]||translations.RU;if(!Number.isInteger(amount)||amount<1||amount>99){error.textContent=t.walletAmountError;return;}const current=readWalletBalance();if(walletAmountMode==='subtract'&&amount>current){error.textContent=t.walletInsufficient;return;}const next=walletAmountMode==='add'?current+amount:current-amount;writeWalletBalance(next);closeWalletAmount();}
 document.getElementById('walletAmountModal')?.addEventListener('click',e=>{if(e.target.id==='walletAmountModal')closeWalletAmount();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('walletAmountModal')?.classList.contains('show'))closeWalletAmount();});
+try{writeWalletBalance(readWalletBalance());renderSubscriptionState();}catch(err){}
 
 function openAutopayPayment(){
   const m=document.getElementById('autopayModal');
