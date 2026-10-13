@@ -943,6 +943,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
 
 <main id="airportBoard" class="page airport-board-page">
   <div class="airport-board-screen">
+    <button id="airportBoardReturnButton" type="button" class="back-btn" onclick="returnFromAirportBoard()" hidden>← <span id="airportBoardReturnText">Моя подписка</span></button>
     <div class="airport-board-head">
       <h1 class="airport-board-title" data-i18n="airportBoardTitle">Табло аэропорта Пулково</h1>
     </div>
@@ -1682,7 +1683,32 @@ function renderBoardAirportOptions(){
   if(!filtered.length){list.innerHTML=`<div class="board-airport-empty">${t.boardAirportEmpty||'No airports found.'}</div>`;return;}
   list.innerHTML=filtered.map(a=>`<button type="button" class="board-airport-option" role="option" aria-selected="${a.code===selectedBoardAirport}" onclick="selectBoardAirport('${a.code}')"><span class="board-airport-code">${a.code}</span><span class="board-airport-name">${boardAirportName(a)}<span class="board-airport-city">${boardAirportCity(a)}</span></span></button>`).join('');
 }
+let airportBoardReturnPage = null;
+function openFlightDataBoard(){
+  if(!hasFlightSearchAccess()){
+    const t=translations[currentLanguage]||translations.RU;
+    toast(t.flightSearchSmartRequired||'Поиск рейса доступен на тарифе Smart Air-AI и выше.');
+    return;
+  }
+  airportBoardReturnPage='subscription';
+  const button=document.getElementById('airportBoardReturnButton');
+  const label=document.getElementById('airportBoardReturnText');
+  if(button)button.hidden=false;
+  if(label)label.textContent=currentLanguage==='EN'?'My subscription':'Моя подписка';
+  switchBoard(selectedBoardType);
+  showPage('airportBoard');
+}
+function returnFromAirportBoard(){
+  const target=airportBoardReturnPage||'subscription';
+  airportBoardReturnPage=null;
+  const button=document.getElementById('airportBoardReturnButton');
+  if(button)button.hidden=true;
+  showPage(target);
+}
 function openSelectedAirportBoard(){
+  airportBoardReturnPage=null;
+  const button=document.getElementById('airportBoardReturnButton');
+  if(button)button.hidden=true;
   switchBoard(selectedBoardType);
   showPage('airportBoard');
 }
@@ -1795,7 +1821,8 @@ function renderSubscriptionState(){
     if(plan==='smart'){
       const services=[['smartFlightData','flight-data'],['smartAirportServices','airport-services'],['smartCountryInfo','country-info']];
       services.forEach(([key,kind])=>{
-        const row=document.createElement('div'); row.className='service-row smart-placeholder'; row.setAttribute('role','button'); row.setAttribute('tabindex','0'); row.setAttribute('aria-label',t[key]||key); row.onclick=()=>{}; row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();}};
+        const row=document.createElement('div'); row.className='service-row smart-placeholder'; row.setAttribute('role','button'); row.setAttribute('tabindex','0'); row.setAttribute('aria-label',t[key]||key);
+        if(kind==='flight-data'){row.onclick=openFlightDataBoard;row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openFlightDataBoard();}};}else{row.onclick=()=>{};row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();}};}
         const name=document.createElement('div'); name.className='service-name'; name.textContent=t[key]||key; row.appendChild(name); available.appendChild(row);
       });
     }
