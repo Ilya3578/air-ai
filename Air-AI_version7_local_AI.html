@@ -1997,6 +1997,69 @@ function hasFlightSearchAccess(){
   try{return ['smart','family','pro','first'].includes(String(localStorage.getItem(AIR_AI_PLAN_KEY)||'').toLowerCase());}
   catch(err){return false;}
 }
+// Official services pages where a direct URL is known. For every other airport
+// in the selector, open a targeted search for that airport's official services page
+// instead of showing an unavailable message or sending the passenger to another airport.
+const airportServicesUrls = {
+  LED: 'https://pulkovoairport.ru/passengers/services/',
+  SVO: 'https://www.svo.aero/en/services',
+  DME: 'https://www.dme.ru/',
+  VKO: 'https://www.vnukovo.ru/en/',
+  LHR: 'https://www.heathrow.com/at-the-airport/airport-services',
+  AMS: 'https://www.schiphol.nl/en/at-schiphol/services/',
+  SIN: 'https://www.changiairport.com/en/airport-guide.html',
+  DXB: 'https://www.dubaiairports.ae/',
+  DOH: 'https://dohahamadairport.com/',
+  FRA: 'https://www.frankfurt-airport.com/en.html',
+  MUC: 'https://www.munich-airport.com/',
+  CDG: 'https://www.parisaeroport.fr/en/passengers',
+  ORY: 'https://www.parisaeroport.fr/en/passengers',
+  MAD: 'https://www.aena.es/en/adolfo-suarez-madrid-barajas.html',
+  BCN: 'https://www.aena.es/en/josep-tarradellas-barcelona-el-prat.html',
+  FCO: 'https://www.adr.it/web/aeroporti-di-roma-en',
+  MXP: 'https://www.milanomalpensa-airport.com/en/',
+  ZRH: 'https://www.flughafen-zuerich.ch/en/passengers',
+  VIE: 'https://www.viennaairport.com/en/passengers',
+  ATH: 'https://www.aia.gr/traveler/',
+  BEG: 'https://beg.aero/eng',
+  JFK: 'https://www.jfkairport.com/',
+  EWR: 'https://www.newarkairport.com/',
+  LAX: 'https://www.flylax.com/',
+  SFO: 'https://www.flysfo.com/',
+  ORD: 'https://www.flychicago.com/ohare/home/pages/default.aspx',
+  ATL: 'https://www.atl.com/',
+  YYZ: 'https://www.torontopearson.com/',
+  SYD: 'https://www.sydneyairport.com.au/',
+  MEL: 'https://www.melbourneairport.com.au/',
+  HKG: 'https://www.hongkongairport.com/en/',
+  NRT: 'https://www.narita-airport.jp/en/',
+  HND: 'https://tokyo-haneda.com/en/',
+  ICN: 'https://www.airport.kr/ap/en/index.do',
+  PEK: 'https://en.bcia.com.cn/',
+  PVG: 'https://www.shanghaiairport.com/en/',
+  BKK: 'https://www.airportthai.co.th/en/',
+  KUL: 'https://www.klia.com.my/',
+  DEL: 'https://www.newdelhiairport.in/',
+  BOM: 'https://csmia.adaniairports.com/',
+  TLV: 'https://www.iaa.gov.il/en/airports/ben-gurion/',
+  TBS: 'https://tbilisiairport.com/en-EN',
+  EVN: 'https://www.zvartnots.aero/',
+  DOH: 'https://dohahamadairport.com/'
+};
+function openSelectedAirportServices(){
+  const code=String(selectedBoardAirport||'').toUpperCase();
+  const airport=boardAirports.find(a=>String(a.code).toUpperCase()===code);
+  if(!airport){
+    const lang=String(currentLanguage||'RU').toUpperCase();
+    const message=lang==='EN'?'Please select an airport first.':lang==='ES'?'Selecciona primero un aeropuerto.':'Сначала выберите аэропорт.';
+    if(typeof toast==='function')toast(message); else alert(message);
+    return;
+  }
+  const directUrl=airportServicesUrls[code];
+  const queryName=(currentLanguage==='EN'?airport.en:currentLanguage==='ES'?airport.es:airport.ru)+' official airport passenger services';
+  const url=directUrl || ('https://www.google.com/search?q='+encodeURIComponent(queryName));
+  window.open(url,'_blank','noopener,noreferrer');
+}
 function renderSubscriptionState(){
   const flightSearchButton=document.querySelector('.passport-flight-trigger');
   if(flightSearchButton)flightSearchButton.hidden=!hasFlightSearchAccess();
@@ -2015,7 +2078,7 @@ function renderSubscriptionState(){
       const services=[['smartFlightData','flight-data'],['smartAirportServices','airport-services'],['smartCountryInfo','country-info']];
       services.forEach(([key,kind])=>{
         const row=document.createElement('div'); row.className='service-row smart-placeholder'; row.setAttribute('role','button'); row.setAttribute('tabindex','0'); row.setAttribute('aria-label',t[key]||key);
-        if(kind==='flight-data'){row.onclick=openFlightDataBoard;row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openFlightDataBoard();}};}else{row.onclick=()=>{};row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();}};}
+        if(kind==='flight-data'){row.onclick=openFlightDataBoard;row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openFlightDataBoard();}};}else if(kind==='airport-services'){row.onclick=openSelectedAirportServices;row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openSelectedAirportServices();}};}else{row.onclick=()=>{};row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();}};}
         const name=document.createElement('div'); name.className='service-name'; name.textContent=t[key]||key; row.appendChild(name); available.appendChild(row);
       });
     }
