@@ -1585,6 +1585,47 @@ async function searchPassportFlight(event){
     const table=document.createElement('div'); table.style.cssText='display:grid;grid-template-columns:minmax(125px,1fr) 1.5fr;gap:9px 12px;margin-top:12px';
     for(const [label,value] of fields){ const isCheckInLabel=['Check-in desk','Mostrador','Стойка регистрации'].includes(label); if((value===undefined||value===null||String(value).trim()==='')&&!isCheckInLabel)continue; const displayValue=(value===undefined||value===null||String(value).trim()==='')?(lang==='EN'?'Information not available yet':lang==='ES'?'Información aún no disponible':'пока нет информации'):String(value); const a=document.createElement('strong'); a.textContent=label; const b=document.createElement('span'); b.textContent=displayValue; table.append(a,b); }
     result.appendChild(table);
+    // Online check-in is a direct link to a known official airline page.
+    // If the carrier cannot be matched to a verified page, show the unavailable message.
+    const checkInPages = [
+      {codes:['UA'], names:['united airlines','united air lines'], url:'https://www.united.com/en/us/checkin'},
+      {codes:['LH'], names:['lufthansa'], url:'https://www.lufthansa.com/xx/en/online-check-in'},
+      {codes:['TK'], names:['turkish airlines'], url:'https://www.turkishairlines.com/en-int/any-questions/check-in/'},
+      {codes:['EK'], names:['emirates'], url:'https://www.emirates.com/english/manage-booking/'},
+      {codes:['QR'], names:['qatar airways'], url:'https://www.qatarairways.com/en/services-checking-in.html'},
+      {codes:['JU'], names:['air serbia'], url:'https://www.airserbia.com/en/my-trips'},
+      {codes:['SU'], names:['aeroflot','аэрофлот'], url:'https://www.aeroflot.ru/'},
+      {codes:['AF'], names:['air france'], url:'https://wwws.airfrance.us/check-in'},
+      {codes:['KL'], names:['klm','klm royal dutch airlines'], url:'https://www.klm.com/check-in'},
+      {codes:['BA'], names:['british airways'], url:'https://www.britishairways.com/travel/olcilandingpageauthreq/public/en_gb'},
+      {codes:['AA'], names:['american airlines'], url:'https://www.aa.com/reservation/flightCheckInView'},
+      {codes:['DL'], names:['delta air lines','delta airlines'], url:'https://www.delta.com/check-in'},
+      {codes:['FR'], names:['ryanair'], url:'https://www.ryanair.com/gb/en/check-in'},
+      {codes:['W6'], names:['wizz air','wizzair'], url:'https://wizzair.com/en-gb/information-and-services/booking-information/check-in-and-boarding'},
+      {codes:['U2'], names:['easyjet','easy jet'], url:'https://www.easyjet.com/en/online-check-in'},
+      {codes:['LX'], names:['swiss international air lines','swiss'], url:'https://www.swiss.com/ch/en/fly/check-in'},
+      {codes:['OS'], names:['austrian airlines'], url:'https://www.austrian.com/xx/en/online-check-in'},
+      {codes:['LO'], names:['lot polish airlines','lot'], url:'https://www.lot.com/gb/en/check-in'},
+      {codes:['AY'], names:['finnair'], url:'https://www.finnair.com/gb-en/check-in'},
+      {codes:['IB'], names:['iberia'], url:'https://www.iberia.com/gb/online-checkin/'}
+    ];
+    const airlineName=String(f.airline||'').normalize('NFKD').toLowerCase().replace(/[^a-zа-яё0-9]/gi,'');
+    const flightPrefix=(String(f.flightNumber||flightNumber).trim().toUpperCase().match(/^([A-Z0-9]{2})/)||[])[1]||'';
+    const checkInCarrier=checkInPages.find(item => item.codes.includes(flightPrefix) || item.names.some(name => airlineName.includes(name.normalize('NFKD').toLowerCase().replace(/[^a-zа-яё0-9]/gi,''))));
+    if(checkInCarrier){
+      const checkInLink=document.createElement('a');
+      checkInLink.href=checkInCarrier.url;
+      checkInLink.target='_blank';
+      checkInLink.rel='noopener noreferrer';
+      checkInLink.textContent=lang==='EN'?'Online check-in':lang==='ES'?'Facturación online':'Онлайн регистрация на рейс';
+      checkInLink.style.cssText='display:inline-flex;align-items:center;justify-content:center;margin-top:16px;padding:12px 18px;border-radius:12px;background:linear-gradient(135deg,#19b7b1,#087fa4);color:#fff;font-weight:700;text-decoration:none;box-shadow:0 5px 16px rgba(8,127,164,.18)';
+      result.appendChild(checkInLink);
+    } else {
+      const unavailable=document.createElement('p');
+      unavailable.textContent=lang==='EN'?'Online check-in unavailable.':lang==='ES'?'La facturación online no está disponible.':'Онлайн регистрация недоступна.';
+      unavailable.style.cssText='margin-top:16px;font-weight:600;color:var(--text,#263238)';
+      result.appendChild(unavailable);
+    }
     if(data.sourceUrl){const a=document.createElement('a');a.href=data.sourceUrl;a.target='_blank';a.rel='noopener noreferrer';a.textContent=lang==='EN'?'Open flight details':lang==='ES'?'Ver detalles del vuelo':'Открыть подробности рейса';a.style.cssText='display:inline-block;margin-top:14px;color:#087fa4;font-weight:700';result.appendChild(a);}
   } catch(err){ result.replaceChildren(); const p=document.createElement('p'); p.textContent=(lang==='EN'?'Could not retrieve flight data: ':lang==='ES'?'No se pudieron obtener los datos del vuelo: ':'Не удалось получить данные рейса: ')+err.message; result.appendChild(p); }
 }
