@@ -658,6 +658,156 @@ function formatFlight(flight) {
   };
 }
 
+
+
+// Cached airport reference data and country information endpoints.
+let airportsCsvCache = { at: 0, rows: null };
+const countryInfoCache = new Map();
+const COUNTRY_INFO_TTL = 30 * 60 * 1000;
+
+function parseCsvLine(line) {
+  const out = []; let value = ''; let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"' && quoted && line[i + 1] === '"') { value += '"'; i++; }
+    else if (ch === '"') quoted = !quoted;
+    else if (ch === ',' && !quoted) { out.push(value); value = ''; }
+    else value += ch;
+  }
+  out.push(value); return out;
+}
+
+async function getAirportReferenceRows() {
+  if (airportsCsvCache.rows && Date.now() - airportsCsvCache.at < 24 * 60 * 60 * 1000) return airportsCsvCache.rows;
+  const response = await fetch('https://ourairports.com/data/airports.csv');
+  if (!response.ok) throw new Error(`Airport reference data HTTP ${response.status}`);
+  const csv = await response.text();
+  const lines = csv.split(/\r?\n/);
+  if (!lines.length) throw new Error('Airport reference data is empty');
+  const headers = parseCsvLine(lines[0]);
+  const index = Object.fromEntries(headers.map((h, i) => [h, i]));
+  const rows = new Map();
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i]) continue;
+    const cols = parseCsvLine(lines[i]);
+    const iata = String(cols[index.iata_code] || '').toUpperCase();
+    if (!/^[A-Z]{3}$/.test(iata) || rows.has(iata)) continue;
+    const lat = Number(cols[index.latitude_deg]); const lon = Number(cols[index.longitude_deg]);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    rows.set(iata, {
+      code: iata, name: cols[index.name] || iata,
+      city: cols[index.municipality] || '', countryCode: cols[index.iso_country] || '',
+      latitude: lat, longitude: lon
+    });
+  }
+  airportsCsvCache = { at: Date.now(), rows };
+  return rows;
+}
+
+async function getCountryInfoForAirport(airportCode, city) {
+  const cacheKey = `${airportCode}|${city}`.toUpperCase();
+  const cached = countryInfoCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < COUNTRY_INFO_TTL) return cached.data;
+
+  let airport = null;
+  try { airport = (await getAirportReferenceRows()).get(airportCode) || null; }
+  catch (err) { console.warn('Airport CSV lookup unavailable; trying city geocoding:', err.message); }
+
+  if (!airport || !airport.countryCode) {
+    const query = `${city} airport`;
+    const geoUrl = new URL('https://geocoding-api.open-meteo.com/v1/search');
+    geoUrl.searchParams.set('name', query);
+    geoUrl.searchParams.set('count', '10');
+    geoUrl.searchParams.set('language', 'en');
+    geoUrl.searchParams.set('format', 'json');
+    let geo = await fetch(geoUrl);
+    let geoData = geo.ok ? await geo.json() : {};
+    let result = (geoData.results || []).find(x => x.feature_code === 'AIRP') || (geoData.results || [])[0];
+    if (!result) {
+      geoUrl.searchParams.set('name', city);
+      geo = await fetch(geoUrl); geoData = geo.ok ? await geo.json() : {};
+      result = (geoData.results || [])[0];
+    }
+    if (!result) throw new Error('Could not locate the selected airport or city.');
+    airport = { code: airportCode, name: `${city} Airport`, city, countryCode: result.country_code, latitude: result.latitude, longitude: result.longitude };
+  }
+
+  const countryResponse = await fetch(`https://countries.dev/alpha/${encodeURIComponent(airport.countryCode)}`);
+  if (!countryResponse.ok) throw new Error(`Country lookup HTTP ${countryResponse.status}`);
+  const country = await countryResponse.json();
+  const currencyCode = country.currencies?.[0]?.code || null;
+  const weatherUrl = new URL('https://api.open-meteo.com/v1/forecast');
+  weatherUrl.searchParams.set('latitude', String(airport.latitude));
+  weatherUrl.searchParams.set('longitude', String(airport.longitude));
+  weatherUrl.searchParams.set('current', 'temperature_2m,apparent_temperature,precipitation,cloud_cover,wind_speed_10m,weather_code');
+  weatherUrl.searchParams.set('timezone', 'auto');
+  const weatherPromise = fetch(weatherUrl).then(async r => { if (!r.ok) throw new Error(`Weather HTTP ${r.status}`); return r.json(); });
+  let currency = { code: currencyCode, rate: currencyCode === 'USD' ? 1 : null, date: null };
+  const currencyPromise = (async () => {
+    if (!currencyCode || currencyCode === 'USD') return currency;
+    const rateUrl = new URL('https://api.frankfurter.dev/v1/latest');
+    rateUrl.searchParams.set('base', 'USD'); rateUrl.searchParams.set('symbols', currencyCode);
+    const r = await fetch(rateUrl);
+    if (!r.ok) throw new Error(`Currency HTTP ${r.status}`);
+    const data = await r.json();
+    return { code: currencyCode, rate: data.rates?.[currencyCode] ?? null, date: data.date || null };
+  })().catch(err => { console.warn('Currency lookup failed:', err.message); return { code: currencyCode, rate: currencyCode === 'USD' ? 1 : null, date: null }; });
+  const [weatherData, currencyData] = await Promise.all([weatherPromise, currencyPromise]);
+  const data = {
+    airport: { code: airportCode, name: airport.name, city: airport.city || city, latitude: airport.latitude, longitude: airport.longitude },
+    country: { name: country.name, alpha2Code: country.alpha2Code, alpha3Code: country.alpha3Code, flag: country.flag || null },
+    currency: currencyData,
+    weather: weatherData.current || null,
+    weatherTimezone: weatherData.timezone || null,
+    weatherTime: weatherData.current?.time || null,
+    sources: ['OurAirports', 'countries.dev', 'Open-Meteo', 'Frankfurter']
+  };
+  countryInfoCache.set(cacheKey, { at: Date.now(), data });
+  return data;
+}
+
+app.get('/api/country-info', async (req, res) => {
+  try {
+    const airport = String(req.query.airport || '').trim().toUpperCase();
+    const city = String(req.query.city || '').trim();
+    if (!/^[A-Z]{3}$/.test(airport) || !city || city.length > 100) {
+      return res.status(400).json({ error: 'A valid airport IATA code and city are required.' });
+    }
+    const data = await getCountryInfoForAirport(airport, city);
+    return res.json(data);
+  } catch (error) {
+    console.error('Country information API error:', error);
+    return res.status(502).json({ error: 'Country information is temporarily unavailable.' });
+  }
+});
+
+app.get('/api/visa/check', async (req, res) => {
+  try {
+    const passport = String(req.query.passport || '').trim().toUpperCase();
+    const destination = String(req.query.destination || '').trim().toUpperCase();
+    if (!/^[A-Z]{3}$/.test(passport) || !/^[A-Z]{3}$/.test(destination)) {
+      return res.status(400).json({ error: 'Passport and destination must be ISO alpha-3 country codes.' });
+    }
+    const apiKey = process.env.ORIZN_API_KEY;
+    if (!apiKey) return res.status(503).json({ error: 'Visa lookup is not configured on the server.' });
+    const url = new URL('https://visa.orizn.app/api/v1/visa/check');
+    url.searchParams.set('passport', passport);
+    url.searchParams.set('destination', destination);
+    const response = await fetch(url, { headers: { 'x-api-key': apiKey, 'Accept': 'application/json' } });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const status = response.status === 429 ? 429 : response.status === 401 || response.status === 403 ? 502 : response.status;
+      return res.status(status).json({ error: response.status === 429 ? 'Visa API monthly quota reached.' : response.status === 404 ? 'No verified record for this passport/destination pair.' : 'Visa data is temporarily unavailable.' });
+    }
+    // A missing record must remain unknown, never be treated as visa-free.
+    if (!data.requirement) return res.status(404).json({ error: 'No confirmed visa data for this pair.' });
+    return res.json({ passport: data.passport || passport, destination: data.destination || destination, requirement: data.requirement, visa_free_days: data.visa_free_days ?? null, last_verified: data.last_verified || null });
+  } catch (error) {
+    console.error('Visa API error:', error);
+    return res.status(502).json({ error: 'Visa data is temporarily unavailable.' });
+  }
+});
+
 app.get("/api/flight", async (req, res) => {
   try {
     const apiKey = process.env.AVIATIONSTACK_API_KEY;
@@ -811,4 +961,6 @@ app.get("/api/flight", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Air-AI Aviationstack API listening on :${PORT}`);
 });
+
+
 
