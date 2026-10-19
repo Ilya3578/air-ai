@@ -734,8 +734,16 @@ async function getCountryInfoForAirport(airportCode, city) {
 
   const countryResponse = await fetch(`https://countries.dev/alpha/${encodeURIComponent(airport.countryCode)}`);
   if (!countryResponse.ok) throw new Error(`Country lookup HTTP ${countryResponse.status}`);
-  const country = await countryResponse.json();
-  const currencyCode = country.currencies?.[0]?.code || null;
+  const rawCountry = await countryResponse.json();
+  const country = Array.isArray(rawCountry) ? (rawCountry[0] || {}) : rawCountry;
+  const countryName = typeof country.name === 'string' ? country.name : (country.name?.common || country.name?.official || country.commonName || airport.countryCode);
+  let currencyCode = null;
+  if (Array.isArray(country.currencies)) currencyCode = country.currencies.find(c => c && (c.code || c.currencyCode))?.code || country.currencies.find(c => c && c.currencyCode)?.currencyCode || null;
+  else if (country.currencies && typeof country.currencies === 'object') {
+    const firstCurrency = Object.values(country.currencies).find(c => c && typeof c === 'object');
+    currencyCode = firstCurrency?.code || firstCurrency?.currencyCode || Object.keys(country.currencies)[0] || null;
+  }
+  currencyCode = String(currencyCode || '').toUpperCase() || null;
   const weatherUrl = new URL('https://api.open-meteo.com/v1/forecast');
   weatherUrl.searchParams.set('latitude', String(airport.latitude));
   weatherUrl.searchParams.set('longitude', String(airport.longitude));
@@ -755,7 +763,7 @@ async function getCountryInfoForAirport(airportCode, city) {
   const [weatherData, currencyData] = await Promise.all([weatherPromise, currencyPromise]);
   const data = {
     airport: { code: airportCode, name: airport.name, city: airport.city || city, latitude: airport.latitude, longitude: airport.longitude },
-    country: { name: country.name, alpha2Code: country.alpha2Code, alpha3Code: country.alpha3Code, flag: country.flag || null },
+    country: { name: countryName, alpha2Code: country.alpha2Code || country.cca2 || airport.countryCode, alpha3Code: country.alpha3Code || country.cca3 || null, flag: country.flag || country.flags?.svg || country.flags?.png || null },
     currency: currencyData,
     weather: weatherData.current || null,
     weatherTimezone: weatherData.timezone || null,
@@ -765,6 +773,27 @@ async function getCountryInfoForAirport(airportCode, city) {
   countryInfoCache.set(cacheKey, { at: Date.now(), data });
   return data;
 }
+
+app.get('/api/countries', async (_req, res) => {
+  try {
+    const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,cca3,flags');
+    if (!response.ok) throw new Error(`Country list HTTP ${response.status}`);
+    const raw = await response.json();
+    if (!Array.isArray(raw)) throw new Error('Country list format was unexpected');
+    const countries = raw.map(c => ({
+      name: c.name?.common || c.name?.official || '',
+      alpha2Code: c.cca2 || '',
+      alpha3Code: c.cca3 || '',
+      flag: c.flags?.emoji || ''
+    })).filter(c => c.name && /^[A-Z]{3}$/.test(c.alpha3Code));
+    countries.sort((a, b) => a.name.localeCompare(b.name));
+    res.set('Cache-Control', 'public, max-age=86400');
+    return res.json(countries);
+  } catch (error) {
+    console.error('Country list error:', error.message);
+    return res.status(502).json({ error: 'Nationality list is temporarily unavailable.' });
+  }
+});
 
 app.get('/api/country-info', async (req, res) => {
   try {
