@@ -573,6 +573,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
       <div class="eyebrow" data-i18n="heroEyebrow">✈️ Your digital airport assistant</div>
       <h1 data-i18n="heroTitle">Welcome<br>to a stress-free journey.</h1>
       <p data-i18n="heroText">Air-AI Assistant brings flight information, navigation, airport services and a personal AI companion together in one place.</p>
+      <div id="aiSmartFeature">
       <form class="ai-search" onsubmit="askAI(event)">
         <input id="aiInput" data-i18n-placeholder="aiPlaceholder" placeholder="Ask AI" autocomplete="off">
         <button type="submit" data-i18n="aiButton">Air-AI</button>
@@ -582,6 +583,11 @@ html:lang(en) .home-banner-ru{display:none!important;}
         <div class="airai-chat-head"><strong data-i18n="chatTitle">Air-AI Assistant</strong><span id="airAiStatus" class="airai-status" data-i18n="chatReady">Локальный ИИ готов к запуску</span></div>
         <div id="airAiMessages" class="airai-messages"><div class="airai-msg assistant" data-i18n="chatWelcome">Задайте вопрос — ответ будет сгенерирован прямо в вашем браузере. При первом запуске потребуется загрузить модель.</div></div>
         <div class="airai-chat-actions"><button type="button" id="airAiLoad" class="airai-load" data-i18n="chatLoad">Запустить ИИ</button><span class="airai-note" data-i18n="chatNote">Нужен совместимый браузер с WebGPU и свободная память. Модель загружается на устройство.</span></div>
+      </div>
+      </div>
+      <div id="aiSmartLocked" class="ai-subscription-note" style="display:none;margin-top:18px">
+        <span id="aiSmartLockedText">Спроси AI доступен с подпиской Smart Air-AI и выше.</span>
+        <button type="button" class="upgrade-btn" style="display:block;margin:12px auto 0" onclick="showPage('subscriptions')" id="aiSmartUpgrade">Посмотреть подписки</button>
       </div>
     </div>
   </section>
@@ -2278,7 +2284,20 @@ function openSelectedAirportServices(){
   }
   window.open(url,'_blank','noopener,noreferrer');
 }
+function renderAiSubscriptionAccess(){
+  const allowed=hasFlightSearchAccess();
+  const feature=document.getElementById('aiSmartFeature');
+  const locked=document.getElementById('aiSmartLocked');
+  const message=document.getElementById('aiSmartLockedText');
+  const button=document.getElementById('aiSmartUpgrade');
+  if(feature)feature.style.display=allowed?'':'none';
+  if(locked)locked.style.display=allowed?'none':'block';
+  if(message)message.textContent=currentLanguage==='EN'?'Ask AI is available with Smart Air-AI and higher plans.':currentLanguage==='ES'?'Pregunta a la IA está disponible con Smart Air-AI y planes superiores.':'«Спроси AI» доступен с подпиской Smart Air-AI и выше.';
+  if(button)button.textContent=currentLanguage==='EN'?'View subscriptions':currentLanguage==='ES'?'Ver suscripciones':'Посмотреть подписки';
+}
+
 function renderSubscriptionState(){
+  renderAiSubscriptionAccess();
   const flightSearchButton=document.querySelector('.passport-flight-trigger');
   if(flightSearchButton)flightSearchButton.hidden=!hasFlightSearchAccess();
   const plan=activeAirAiPlan();
@@ -2478,6 +2497,7 @@ function addAirAiMessage(text, role='assistant'){
   const node=document.createElement('div'); node.className='airai-msg '+role; node.textContent=text; box.appendChild(node); box.scrollTop=box.scrollHeight; return node;
 }
 async function loadAirAiModel(){
+  if(!hasFlightSearchAccess()){renderAiSubscriptionAccess();return;}
   const t=translations[currentLanguage], btn=document.getElementById('airAiLoad'), status=document.getElementById('airAiStatus');
   if(airAiEngine||airAiLoading)return;
   if(!('gpu' in navigator)){status.textContent=t.chatUnsupported; addAirAiMessage(t.chatUnsupported);return;}
@@ -2491,6 +2511,7 @@ async function loadAirAiModel(){
 }
 async function askAI(e){
   e.preventDefault();
+  if(!hasFlightSearchAccess()){renderAiSubscriptionAccess();toast(currentLanguage==='EN'?'Ask AI requires Smart Air-AI or higher.':currentLanguage==='ES'?'Pregunta a la IA requiere Smart Air-AI o superior.':'Для «Спроси AI» нужна подписка Smart Air-AI или выше.');return;}
   const input=document.getElementById('aiInput'), q=input.value.trim(), t=translations[currentLanguage];
   if(!q){toast(t.askEmpty);return}
   if(!airAiEngine){addAirAiMessage(t.chatLoadFirst);return;}
@@ -2503,6 +2524,7 @@ async function askAI(e){
 }
 document.getElementById('airAiLoad')?.addEventListener('click',loadAirAiModel);
 applyLanguage();
+try{renderAiSubscriptionAccess();}catch(err){}
 </script>
 </body>
 </html>
