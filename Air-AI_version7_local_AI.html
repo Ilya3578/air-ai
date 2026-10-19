@@ -531,6 +531,31 @@ html:lang(en) .home-banner-ru{display:none!important;}
 <style>
 .passport-flight-trigger{display:block;width:100%;margin:14px 0 18px;padding:15px 18px;border:0;border-radius:14px;background:#25bde7;color:#fff;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 7px 18px rgba(37,189,231,.2)} .passport-flight-trigger[hidden]{display:none!important}
 .passport-flight-trigger:hover{background:#13add9}.passport-flight-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(10,28,42,.58);align-items:center;justify-content:center;padding:18px}.passport-flight-modal.open{display:flex}.passport-flight-card{width:min(100%,520px);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.25);color:#18313d}.passport-flight-card h2{margin:0 35px 18px 0;font-size:23px}.passport-flight-close{float:right;border:0;background:#eef5f7;border-radius:50%;width:36px;height:36px;font-size:22px;cursor:pointer}.passport-flight-card label{display:block;font-weight:600;margin:14px 0 7px}.passport-flight-card input{box-sizing:border-box;width:100%;padding:13px 14px;border:1px solid #cbdde4;border-radius:11px;font:inherit;outline-color:#25bde7}.passport-flight-submit{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:#25bde7;color:white;font-weight:700;font-size:16px;cursor:pointer}.passport-flight-result{margin-top:16px;padding:14px;border-radius:12px;background:#eef8fb;line-height:1.5;display:none}.passport-flight-result.show{display:block}
+
+/* Country information modal: weather, currency and visa lookup */
+.country-info-modal{display:none;position:fixed;inset:0;z-index:10050;background:rgba(8,20,25,.62);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:16px}
+.country-info-modal.show{display:flex}
+.country-info-card{width:min(680px,100%);max-height:90vh;overflow:auto;background:rgba(255,255,255,.97);border:1px solid rgba(25,183,177,.35);border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.28);padding:22px;color:#15262d}
+.country-info-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.country-info-head h2{font-size:22px;line-height:1.25;margin:0}
+.country-info-close{flex:0 0 auto;border:0;background:#edf5f5;border-radius:11px;width:36px;height:36px;font-size:24px;line-height:1;cursor:pointer;color:#24343a}
+.country-info-location{color:#687982;font-size:13px;margin:0 0 16px}
+.country-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.country-info-tile{border:1px solid #e1ebeb;border-radius:15px;padding:14px;background:#fff;min-width:0}
+.country-info-tile h3{margin:0 0 10px;font-size:15px}
+.country-info-value{font-size:18px;font-weight:750;line-height:1.35;overflow-wrap:anywhere}
+.country-info-sub{font-size:12px;color:#71808a;margin-top:6px;line-height:1.4}
+.country-info-visa{margin-top:12px;border:1px solid #e1ebeb;border-radius:15px;padding:14px;background:#fff}
+.country-info-visa label{display:block;font-weight:650;font-size:13px;margin:0 0 7px}
+.country-info-visa select{width:100%;padding:12px;border:1px solid #d9e4e4;border-radius:11px;font:inherit;background:#fff;color:#15262d}
+.country-info-check{margin-top:10px;width:100%;padding:12px 14px;border:0;border-radius:11px;background:var(--azure);color:#fff;font:inherit;font-weight:750;cursor:pointer}
+.country-info-check:disabled{opacity:.6;cursor:wait}
+.country-info-result{display:none;margin-top:12px;padding:13px;border-radius:12px;background:#edf9f8;line-height:1.5;font-size:14px;white-space:pre-line}
+.country-info-result.show{display:block}
+.country-info-disclaimer{font-size:11px;color:#77868d;line-height:1.45;margin:12px 2px 0}
+.country-info-loading{color:#687982;font-size:14px;padding:10px 0}
+@media(max-width:540px){.country-info-card{padding:16px;border-radius:17px}.country-info-head h2{font-size:19px}.country-info-grid{grid-template-columns:1fr}.country-info-tile{padding:12px}}
+
 </style>
 </head>
 <body>
@@ -1044,6 +1069,32 @@ html:lang(en) .home-banner-ru{display:none!important;}
   </div>
 </div>
 
+
+
+<div id="countryInfoModal" class="country-info-modal" role="dialog" aria-modal="true" aria-labelledby="countryInfoTitle" aria-hidden="true" onclick="if(event.target===this)closeCountryInfoModal()">
+  <div class="country-info-card">
+    <div class="country-info-head">
+      <h2 id="countryInfoTitle">Информация о стране пребывания</h2>
+      <button type="button" class="country-info-close" onclick="closeCountryInfoModal()" aria-label="Close">×</button>
+    </div>
+    <p id="countryInfoLocation" class="country-info-location"></p>
+    <div id="countryInfoLoading" class="country-info-loading">Загружаем данные…</div>
+    <div id="countryInfoContent" hidden>
+      <div class="country-info-grid">
+        <section class="country-info-tile"><h3 id="countryInfoCurrencyLabel">Курс валют</h3><div id="countryInfoCurrency" class="country-info-value">—</div><div id="countryInfoCurrencyNote" class="country-info-sub"></div></section>
+        <section class="country-info-tile"><h3 id="countryInfoWeatherLabel">Погода у аэропорта</h3><div id="countryInfoWeather" class="country-info-value">—</div><div id="countryInfoWeatherNote" class="country-info-sub"></div></section>
+      </div>
+      <section class="country-info-visa">
+        <h3 id="countryInfoVisaTitle" style="margin:0 0 10px;font-size:15px">Визовые требования</h3>
+        <label id="countryInfoPassportLabel" for="countryInfoPassport">Гражданство / паспорт</label>
+        <select id="countryInfoPassport"><option value="">Загрузка списка стран…</option></select>
+        <button id="countryInfoVisaButton" type="button" class="country-info-check" onclick="checkCountryVisa()">Проверить требования</button>
+        <div id="countryInfoVisaResult" class="country-info-result" aria-live="polite"></div>
+      </section>
+      <p id="countryInfoDisclaimer" class="country-info-disclaimer"></p>
+    </div>
+  </div>
+</div>
 
 <script>
 let toastTimer;
@@ -2315,7 +2366,7 @@ function renderSubscriptionState(){
       const services=[['smartFlightData','flight-data'],['smartAirportServices','airport-services'],['smartCountryInfo','country-info']];
       services.forEach(([key,kind])=>{
         const row=document.createElement('div'); row.className='service-row smart-placeholder'; row.setAttribute('role','button'); row.setAttribute('tabindex','0'); row.setAttribute('aria-label',t[key]||key);
-        if(kind==='flight-data'){row.onclick=openFlightDataBoard;row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openFlightDataBoard();}};}else if(kind==='airport-services'){row.onclick=openSelectedAirportServices;row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openSelectedAirportServices();}};}else{row.onclick=()=>{};row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();}};}
+        if(kind==='flight-data'){row.onclick=openFlightDataBoard;row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openFlightDataBoard();}};}else if(kind==='airport-services'){row.onclick=openSelectedAirportServices;row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openSelectedAirportServices();}};}else if(kind==='country-info'){row.onclick=openCountryInfoModal;row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCountryInfoModal();}};}else{row.onclick=()=>{};row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();}};}
         const name=document.createElement('div'); name.className='service-name'; name.textContent=t[key]||key; row.appendChild(name); available.appendChild(row);
       });
     }
@@ -2457,7 +2508,7 @@ function submitPromoCode(event){event.preventDefault();const input=document.getE
 document.getElementById('autopayModal')?.addEventListener('click',e=>{if(e.target.id==='autopayModal')closeAutopayModal();});
 document.getElementById('walletBenefitsModal')?.addEventListener('click',e=>{if(e.target.id==='walletBenefitsModal')closeWalletInfoModal('walletBenefitsModal');});
 document.getElementById('walletPromoModal')?.addEventListener('click',e=>{if(e.target.id==='walletPromoModal')closeWalletInfoModal('walletPromoModal');});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){['walletBenefitsModal','walletPromoModal'].forEach(id=>{if(document.getElementById(id)?.classList.contains('show'))closeWalletInfoModal(id);});}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('countryInfoModal')?.classList.contains('show'))closeCountryInfoModal();['walletBenefitsModal','walletPromoModal'].forEach(id=>{if(document.getElementById(id)?.classList.contains('show'))closeWalletInfoModal(id);});}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('autopayModal')?.classList.contains('show'))closeAutopayModal();});
 
 /* Global browser Back / swipe navigation for all Air-AI pages and windows. */
@@ -2469,6 +2520,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElement
     window.history.replaceState({airAi:true,type:'page',id:initialPage},'',window.location.href);
   }
   window.addEventListener('popstate',function(e){
+    if(document.getElementById('countryInfoModal')?.classList.contains('show')){closeCountryInfoModal(); return;}
     if(document.getElementById('airportNavModal')?.classList.contains('show')){
       closeAirportNavigation(null,true); return;
     }
@@ -2522,6 +2574,94 @@ async function askAI(e){
     pending.textContent=result.choices?.[0]?.message?.content||t.chatError;
   }catch(err){console.error('Air-AI inference failed',err);pending.textContent=t.chatError;}
 }
+
+
+// Country information: server-side proxy keeps the Orizn key out of the browser.
+let countryInfoData = null;
+let countryInfoCountriesPromise = null;
+const countryInfoUi = {
+  RU:{title:'Информация о стране пребывания',loading:'Загружаем данные…',currency:'Курс валют к USD',weather:'Погода у аэропорта',visa:'Визовые требования',passport:'Гражданство / паспорт',check:'Проверить требования',checking:'Проверяем…',select:'Выберите гражданство',source:'Источники: Open-Meteo, Frankfurter, Orizn. Курсы валют справочные; визовые правила могут меняться.',weatherFail:'Не удалось загрузить погоду.',currencyFail:'Курс валюты сейчас недоступен.',visaFail:'Не удалось проверить визовые требования. Проверьте код гражданства и попробуйте позже.',visaTypes:{visa_free:'Без визы',visa_required:'Требуется виза',e_visa:'Электронная виза (eVisa)',visa_on_arrival:'Виза по прибытии',eta:'Требуется электронное разрешение (ETA)',no_admission:'Въезд не разрешён',unknown:'Нет подтверждённых данных'},visaDays:'Разрешённый срок без визы: ',days:' дней',verified:'Проверено по данным API: ',unknown:'Неизвестно',weatherCode:{0:'Ясно',1:'Преимущественно ясно',2:'Переменная облачность',3:'Пасмурно',45:'Туман',48:'Изморозевый туман',51:'Небольшая морось',53:'Морось',55:'Сильная морось',61:'Небольшой дождь',63:'Дождь',65:'Сильный дождь',71:'Небольшой снег',73:'Снег',75:'Сильный снег',80:'Кратковременный дождь',81:'Ливни',82:'Сильные ливни',95:'Гроза'}},
+  EN:{title:'Information about your destination country',loading:'Loading data…',currency:'Exchange rate vs USD',weather:'Weather at the airport',visa:'Visa requirements',passport:'Nationality / passport',check:'Check requirements',checking:'Checking…',select:'Choose nationality',source:'Sources: Open-Meteo, Frankfurter and Orizn. Exchange rates are reference rates; visa rules can change.',weatherFail:'Weather data is currently unavailable.',currencyFail:'The exchange rate is currently unavailable.',visaFail:'Could not check visa requirements. Check the nationality and try again.',visaTypes:{visa_free:'Visa-free',visa_required:'Visa required',e_visa:'Electronic visa (eVisa)',visa_on_arrival:'Visa on arrival',eta:'Electronic travel authorization (ETA) required',no_admission:'Entry not permitted',unknown:'No confirmed data'},visaDays:'Visa-free stay: ',days:' days',verified:'API data last verified: ',unknown:'Unknown',weatherCode:{0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Rime fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Rain showers',81:'Showers',82:'Heavy showers',95:'Thunderstorm'}},
+  ES:{title:'Información sobre el país de destino',loading:'Cargando datos…',currency:'Tipo de cambio frente al USD',weather:'Tiempo en el aeropuerto',visa:'Requisitos de visado',passport:'Nacionalidad / pasaporte',check:'Consultar requisitos',checking:'Consultando…',select:'Elige la nacionalidad',source:'Fuentes: Open-Meteo, Frankfurter y Orizn. Los tipos de cambio son de referencia; las normas de visado pueden cambiar.',weatherFail:'El tiempo no está disponible ahora.',currencyFail:'El tipo de cambio no está disponible ahora.',visaFail:'No se pudieron consultar los requisitos. Comprueba la nacionalidad e inténtalo de nuevo.',visaTypes:{visa_free:'Sin visado',visa_required:'Se requiere visado',e_visa:'Visado electrónico (eVisa)',visa_on_arrival:'Visado a la llegada',eta:'Se requiere autorización electrónica (ETA)',no_admission:'Entrada no permitida',unknown:'No hay datos confirmados'},visaDays:'Estancia sin visado: ',days:' días',verified:'Última verificación de la API: ',unknown:'Desconocido',weatherCode:{0:'Despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla con escarcha',51:'Llovizna ligera',53:'Llovizna',55:'Llovizna intensa',61:'Lluvia ligera',63:'Lluvia',65:'Lluvia intensa',71:'Nieve ligera',73:'Nieve',75:'Nieve intensa',80:'Chubascos',81:'Lluvias',82:'Chubascos intensos',95:'Tormenta'}}
+};
+function countryInfoLang(){return countryInfoUi[currentLanguage]||countryInfoUi.RU;}
+function setCountryInfoText(){
+  const t=countryInfoLang();
+  const values={countryInfoTitle:t.title,countryInfoLoading:t.loading,countryInfoCurrencyLabel:t.currency,countryInfoWeatherLabel:t.weather,countryInfoVisaTitle:t.visa,countryInfoPassportLabel:t.passport,countryInfoVisaButton:t.check,countryInfoDisclaimer:t.source};
+  Object.entries(values).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value;});
+}
+async function loadCountryInfoCountries(){
+  if(countryInfoCountriesPromise)return countryInfoCountriesPromise;
+  countryInfoCountriesPromise=fetch('https://countries.dev/countries?fields=name,alpha3Code,alpha2Code,flag').then(r=>{if(!r.ok)throw new Error('countries');return r.json();}).then(rows=>rows.filter(c=>c.alpha3Code&&c.name).sort((a,b)=>a.name.localeCompare(b.name))).catch(err=>{countryInfoCountriesPromise=null;throw err;});
+  return countryInfoCountriesPromise;
+}
+async function openCountryInfoModal(){
+  if(!hasFlightSearchAccess()){toast(currentLanguage==='EN'?'This feature requires Smart Air-AI or higher.':currentLanguage==='ES'?'Esta función requiere Smart Air-AI o superior.':'Эта функция доступна с подпиской Smart Air-AI и выше.');return;}
+  const modal=document.getElementById('countryInfoModal');
+  modal.classList.add('show');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+  setCountryInfoText();
+  document.getElementById('countryInfoLoading').hidden=false;
+  document.getElementById('countryInfoContent').hidden=true;
+  document.getElementById('countryInfoLoading').textContent=countryInfoLang().loading;
+  document.getElementById('countryInfoVisaResult').classList.remove('show');
+  try{
+    const selected=String(selectedBoardAirport||'LED').toUpperCase();
+    const airport=(boardAirports||[]).find(a=>String(a.code).toUpperCase()===selected);
+    if(!airport)throw new Error('airport');
+    const city=airport.cityEn||airport.cityRu||airport.en||airport.ru||selected;
+    const r=await fetch('/api/country-info?airport='+encodeURIComponent(selected)+'&city='+encodeURIComponent(city));
+    const data=await r.json();if(!r.ok)throw new Error(data.error||'country-info');
+    countryInfoData=data;
+    const cur=data.currency;
+    document.getElementById('countryInfoCurrency').textContent=cur?.code?(cur.code==='USD'?'1 USD = 1 USD':`1 USD = ${Number(cur.rate).toLocaleString(currentLanguage==='RU'?'ru-RU':currentLanguage==='ES'?'es-ES':'en-US',{maximumFractionDigits:4})} ${cur.code}`):countryInfoLang().currencyFail;
+    document.getElementById('countryInfoCurrencyNote').textContent=cur?.date?`${data.country.name} · ${cur.date}`:(cur?.code||'');
+    const w=data.weather;
+    const wx=countryInfoLang().weatherCode[String(w?.weather_code)]||countryInfoLang().unknown;
+    document.getElementById('countryInfoWeather').textContent=w?.temperature_2m!=null?`${Math.round(w.temperature_2m)} °C · ${wx}`:countryInfoLang().weatherFail;
+    const weatherParts=[];
+    if(w?.apparent_temperature!=null)weatherParts.push((currentLanguage==='RU'?'Ощущается как ':currentLanguage==='ES'?'Sensación térmica: ':'Feels like ')+Math.round(w.apparent_temperature)+' °C');
+    if(w?.precipitation!=null)weatherParts.push((currentLanguage==='RU'?'Осадки: ':currentLanguage==='ES'?'Precipitación: ':'Precipitation: ')+w.precipitation+' mm');
+    if(w?.cloud_cover!=null)weatherParts.push((currentLanguage==='RU'?'Облачность: ':currentLanguage==='ES'?'Nubosidad: ':'Cloud cover: ')+w.cloud_cover+'%');
+    if(w?.wind_speed_10m!=null)weatherParts.push((currentLanguage==='RU'?'Ветер: ':currentLanguage==='ES'?'Viento: ':'Wind: ')+w.wind_speed_10m+' km/h');
+    document.getElementById('countryInfoWeatherNote').textContent=weatherParts.join(' · ');
+    document.getElementById('countryInfoLocation').textContent=`${data.airport?.name||selected} · ${data.country.name}`;
+    document.getElementById('countryInfoContent').hidden=false;
+    document.getElementById('countryInfoLoading').hidden=true;
+    const select=document.getElementById('countryInfoPassport');
+    if(!select.dataset.loaded){
+      select.innerHTML=`<option value="">${countryInfoLang().select}</option>`;
+      const countries=await loadCountryInfoCountries();
+      countries.forEach(c=>{const o=document.createElement('option');o.value=c.alpha3Code;o.textContent=`${c.flag||''} ${c.name}`;select.appendChild(o);});
+      select.dataset.loaded='1';
+    }
+    const existing=select.value;
+    if(!existing){const russian=countriesByCode(select,'RUS');if(russian)select.value='RUS';}
+  }catch(err){
+    console.error('Country information failed:',err);
+    document.getElementById('countryInfoLoading').textContent=currentLanguage==='EN'?'Could not load country data. Please try again.':currentLanguage==='ES'?'No se pudieron cargar los datos. Inténtalo de nuevo.':'Не удалось загрузить данные. Попробуйте ещё раз.';
+    document.getElementById('countryInfoLoading').hidden=false;
+  }
+}
+function countriesByCode(select,code){return Array.from(select.options).find(o=>o.value===code);}
+function closeCountryInfoModal(){const m=document.getElementById('countryInfoModal');if(!m)return;m.classList.remove('show');m.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+async function checkCountryVisa(){
+  const t=countryInfoLang(),select=document.getElementById('countryInfoPassport'),button=document.getElementById('countryInfoVisaButton'),result=document.getElementById('countryInfoVisaResult');
+  const passport=select.value; if(!passport){result.textContent=t.select;result.classList.add('show');return;}
+  if(!countryInfoData?.country?.alpha3Code){result.textContent=t.visaFail;result.classList.add('show');return;}
+  button.disabled=true;button.textContent=t.checking;result.classList.remove('show');
+  try{
+    const r=await fetch(`/api/visa/check?passport=${encodeURIComponent(passport)}&destination=${encodeURIComponent(countryInfoData.country.alpha3Code)}`);
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error||'visa');
+    const type=t.visaTypes[data.requirement]||t.visaTypes.unknown;
+    let message=`${select.options[select.selectedIndex].text}\n${type}`;
+    if(data.visa_free_days!=null)message+=`\n${t.visaDays}${data.visa_free_days}${t.days}`;
+    if(data.last_verified)message+=`\n${t.verified}${data.last_verified}`;
+    result.textContent=message;
+  }catch(err){console.error('Visa check failed:',err);result.textContent=t.visaFail+(err.message?` (${err.message})`:'');}
+  finally{button.disabled=false;button.textContent=t.check;result.classList.add('show');}
+}
+
 document.getElementById('airAiLoad')?.addEventListener('click',loadAirAiModel);
 applyLanguage();
 try{renderAiSubscriptionAccess();}catch(err){}
