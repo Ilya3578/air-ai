@@ -461,6 +461,7 @@ footer{background:#101c1e;color:white;padding:45px 5vw 105px}
 .airport-nav-frame{position:relative;width:100% !important;height:100% !important;min-width:0 !important;min-height:0 !important;max-width:none !important;max-height:none !important;border:0;background:#f7faf9;display:block;z-index:1}
 .airport-nav-fallback{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted);font-size:15px;font-weight:650}.airport-nav-fallback-box{max-width:460px;padding:22px 26px;border:1px solid rgba(25,183,177,.28);border-radius:18px;background:#f8fbfb;box-shadow:0 8px 24px rgba(15,50,55,.06)}
 @media(max-width:700px){.airport-picker-list{grid-template-columns:1fr}.airport-picker-card{max-height:88vh}.airport-nav-card{width:100vw;height:100vh;border-radius:0}.airport-nav-title{font-size:17px}}
+.airport-faq-link{display:block;width:fit-content;max-width:100%;margin:0 auto 12px;padding:8px 12px;border:1px solid rgba(25,183,177,.35);border-radius:11px;background:rgba(25,183,177,.08);color:var(--azure-dark);font-size:13px;font-weight:800;cursor:pointer;transition:background .2s,border-color .2s}.airport-faq-link:hover{background:rgba(25,183,177,.15);border-color:var(--azure)}
 .upgrade-wrap{text-align:center;margin-top:30px}
 .upgrade-btn{border:2px solid var(--azure);background:#fff;color:var(--azure-dark);border-radius:15px;padding:13px 20px;font-weight:850}
 .detailed-sub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
@@ -611,6 +612,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
       </div>
       </div>
       <div id="aiSmartLocked" class="ai-subscription-note" style="display:none;margin-top:18px">
+        <button type="button" id="selectedAirportFaqButton" class="airport-faq-link" onclick="openSelectedAirportFaq()" data-i18n="airportFaqLabel">Вопросы и ответы для выбранного аэропорта</button>
         <span id="aiSmartLockedText">Спроси AI доступен с подпиской Smart Air-AI и выше.</span>
         <button type="button" class="upgrade-btn" style="display:block;margin:12px auto 0" onclick="showPage('subscriptions')" id="aiSmartUpgrade">Посмотреть подписки</button>
       </div>
@@ -666,7 +668,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
   <section>
     <div class="container">
       <div class="section-head">
-        <h2 data-i18n="airportsTitle">Наши Аэропорты-Партнёры</h2>
+        <h2 data-i18n="airportsTitle">Крупные Аэропорты-Партнёры</h2>
         <p data-i18n="airportsText"></p>
       </div>
       <div class="airports">
@@ -1131,7 +1133,7 @@ const translations = {
     smartText:"Больше удобства во время поездки.", smart1:"• Расширенная навигация", smart2:"• Больше AI-возможностей", smart3:"• Персональные уведомления",
     proText:"Расширенный цифровой консьерж.", pro1:"• Приоритетные сервисы", pro2:"• Лаунжи и fast track", pro3:"• Персональный AI-сопроводитель",
     firstText:"Максимальный уровень сопровождения.", first1:"• VIP-сервисы", first2:"• Трансферы и специальные услуги", first3:"• Максимум возможностей AI",
-    airportsTitle:"Наши Аэропорты-Партнёры", airportsText:"и другие международные аэропорты",
+    airportFaqLabel:"Вопросы и ответы для выбранного аэропорта", airportsTitle:"Крупные Аэропорты-Партнёры", airportsText:"и другие международные аэропорты",
     whyTitle:"Почему Air-AI?",
     downloadAppButton:"Скачать приложение", downloadAppNotice:"Приложение пока в разработке. Используйте эту веб-версию",
     accountTitle:"Мой аккаунт",
@@ -1189,7 +1191,7 @@ const translations = {
     smartText:"More convenience during your trip.", smart1:"• Advanced navigation", smart2:"• More AI features", smart3:"• Personal notifications",
     proText:"Extended digital concierge.", pro1:"• Priority services", pro2:"• Lounges and fast track", pro3:"• Personal AI companion",
     firstText:"Maximum level of assistance.", first1:"• VIP services", first2:"• Transfers and special services", first3:"• Maximum AI capabilities",
-    airportsTitle:"Our Partner Airports", airportsText:"and other international airports",
+    airportFaqLabel:"Questions and answers for the selected airport", airportsTitle:"Major Partner Airports", airportsText:"and other international airports",
     whyTitle:"Why Air-AI?",
     downloadAppButton:"Download the app", downloadAppNotice:"The app is still in development. Please use this web version.",
     accountTitle:"My account",
@@ -1233,7 +1235,7 @@ const translations = {
     smartText:"Más comodidad durante tu viaje.", smart1:"• Navegación avanzada", smart2:"• Más funciones de IA", smart3:"• Notificaciones personales",
     proText:"Conserjería digital ampliada.", pro1:"• Servicios prioritarios", pro2:"• Salas VIP y fast track", pro3:"• Asistente personal de IA",
     firstText:"Máximo nivel de asistencia.", first1:"• Servicios VIP", first2:"• Traslados y servicios especiales", first3:"• Máximas capacidades de IA",
-    airportsTitle:"Nuestros Aeropuertos Socios", airportsText:"",
+    airportFaqLabel:"Preguntas y respuestas del aeropuerto seleccionado", airportsTitle:"Principales aeropuertos asociados", airportsText:"",
     learnMore_DXB:"Más información sobre DXB", learnMore_IST:"Más información sobre IST", learnMore_DOH:"Más información sobre DOH", learnMore_AUH:"Más información sobre AUH",
     learnMore_LHR:"Más información sobre LHR", learnMore_SIN:"Más información sobre SIN", learnMore_HND:"Más información sobre HND", learnMore_CDG:"Más información sobre CDG",
     learnMore_FRA:"Más información sobre FRA", learnMore_AMS:"Más información sobre AMS", learnMore_LED:"Más información sobre LED", learnMore_SVO:"Más información sobre SVO",
@@ -2176,9 +2178,36 @@ function hasFlightSearchAccess(){
   try{return ['smart','family','pro','first'].includes(String(localStorage.getItem(AIR_AI_PLAN_KEY)||'').toLowerCase());}
   catch(err){return false;}
 }
-// Official services pages where a direct URL is known. For every other airport
-// in the selector, open a targeted search for that airport's official services page
-// instead of showing an unavailable message or sending the passenger to another airport.
+// Official FAQ pages where verified direct URLs are known. If no FAQ page is configured,
+// open the selected airport's official homepage instead.
+const airportFaqUrls = {
+  LED: 'https://pulkovoairport.ru/passengers/faq/'
+};
+const airportHomepages = {
+  LED: 'https://pulkovoairport.ru/', SVO: 'https://www.svo.aero/', DME: 'https://www.dme.ru/', VKO: 'https://www.vnukovo.ru/',
+  DXB: 'https://www.dubaiairports.ae/', DWC: 'https://www.dubaiairports.ae/', IST: 'https://www.istairport.com/', SAW: 'https://www.sabihagokcen.aero/',
+  DOH: 'https://dohahamadairport.com/', AUH: 'https://www.abudhabiairport.ae/', SHJ: 'https://www.sharjahairport.ae/',
+  FRA: 'https://www.frankfurt-airport.com/', MUC: 'https://www.munich-airport.com/', BER: 'https://ber.berlin-airport.de/',
+  AMS: 'https://www.schiphol.nl/', LHR: 'https://www.heathrow.com/', LGW: 'https://www.gatwickairport.com/', MAN: 'https://www.manchesterairport.co.uk/',
+  SIN: 'https://www.changiairport.com/', HND: 'https://tokyo-haneda.com/en/', NRT: 'https://www.narita-airport.jp/en/',
+  CDG: 'https://www.parisaeroport.fr/', ORY: 'https://www.parisaeroport.fr/', MAD: 'https://www.aena.es/', BCN: 'https://www.aena.es/',
+  FCO: 'https://www.adr.it/', MXP: 'https://www.milanomalpensa-airport.com/', ZRH: 'https://www.flughafen-zuerich.ch/', VIE: 'https://www.viennaairport.com/',
+  ATH: 'https://www.aia.gr/', BEG: 'https://beg.aero/', JFK: 'https://www.jfkairport.com/', EWR: 'https://www.newarkairport.com/',
+  EZE: 'https://www.aa2000.com.ar/', GRU: 'https://www.gru.com.br/', GIG: 'https://www.riogaleao.com/', AKL: 'https://www.aucklandairport.co.nz/',
+  BNE: 'https://www.bne.com.au/', PER: 'https://www.perthairport.com.au/', YVR: 'https://www.yvr.ca/', YUL: 'https://www.admtl.com/',
+  MIA: 'https://www.miami-airport.com/', BOS: 'https://www.massport.com/logan-airport', SEA: 'https://www.portseattle.org/sea-tac',
+  IAD: 'https://www.flydulles.com/', DFW: 'https://www.dfwairport.com/', IAH: 'https://www.fly2houston.com/iah', DEN: 'https://www.flydenver.com/'
+};
+function openSelectedAirportFaq(){
+  const code=String(selectedBoardAirport||'LED').toUpperCase();
+  const url=airportFaqUrls[code] || airportHomepages[code] || airportServicesUrls[code];
+  if(url){ window.open(url,'_blank','noopener,noreferrer'); return; }
+  const lang=String(currentLanguage||'RU').toUpperCase();
+  const message=lang==='EN'?'The official website for this airport is not configured yet.':lang==='ES'?'El sitio web oficial de este aeropuerto aún no está configurado.':'Сайт выбранного аэропорта пока не настроен.';
+  if(typeof toast==='function')toast(message); else alert(message);
+}
+
+// Official services pages for airport-specific services.
 const airportServicesUrls = {
   LED: 'https://pulkovoairport.ru/passengers/services/',
   SVO: 'https://www.svo.aero/en/services',
