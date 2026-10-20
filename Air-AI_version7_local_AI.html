@@ -2646,7 +2646,6 @@ function renderAccountCountriesSection(){
   const choose=currentLanguage==='RU'?'Нажмите, чтобы выбрать несколько':currentLanguage==='ES'?'Toca para seleccionar varios':'Tap to select multiple';
   const empty=currentLanguage==='RU'?'Пока ничего не выбрано':currentLanguage==='ES'?'Todavía no hay nada seleccionado':'Nothing selected yet';
   const removeText=currentLanguage==='RU'?'Удалить':currentLanguage==='ES'?'Eliminar':'Remove';
-  const countryChips=countries.map(flag=>`<button type="button" class="account-selected-chip" data-remove-country="${flag}" title="${removeText}">${flag} <span>×</span></button>`).join('');
   const airportChips=airports.map(name=>{const a=(boardAirports||[]).find(x=>(x.en||x.ru||x.code)===name);const label=a?accountAirportDisplayName(a):name;return `<button type="button" class="account-selected-chip" data-remove-airport="${encodeURIComponent(name)}" title="${removeText}">${label} <span>×</span></button>`}).join('');
   const mapSelected=getAccountArray('airAiCountriesMapSelected');
   const mapLang=currentLanguage==='RU'?1:currentLanguage==='ES'?2:0;
@@ -2660,8 +2659,6 @@ function renderAccountCountriesSection(){
     <h3>${currentLanguage==='RU'?'Выберите страны':currentLanguage==='ES'?'Selecciona países':'Select countries'}</h3><div class="account-countries-country-options">${mapOptions}</div>
     <h3>${currentLanguage==='RU'?'Выбранные страны':currentLanguage==='ES'?'Países seleccionados':'Selected countries'}</h3><div class="dream-selected-list">${mapChips||`<small>${currentLanguage==='RU'?'Пока ничего не выбрано':currentLanguage==='ES'?'Aún no hay países seleccionados':'No countries selected yet'}</small>`}</div>
     <button type="button" class="account-save-changes" id="accountMapSaveChanges">${currentLanguage==='RU'?'Сохранить изменения':currentLanguage==='ES'?'Guardar cambios':'Save changes'}</button>
-    <button type="button" class="account-collection-row" id="accountCountriesRow" aria-expanded="${accountCountryPickerOpen}"><span><strong>🌍 ${flagLabel}</strong><small>${choose}</small><span class="account-selected-items">${countryChips||`<small>${empty}</small>`}</span></span><span class="menu-chevron">⌄</span></button>
-    <div id="accountCountryPicker" class="account-collection-picker account-country-picker ${accountCountryPickerOpen?'open':''}" aria-label="${flagLabel}"><div class="account-flag-grid" id="accountFlagGrid"></div></div>
     <button type="button" class="account-collection-row" id="accountAirportsRow" aria-expanded="${accountAirportPickerOpen}"><span><strong>✈️ ${airportLabel}</strong><small>${choose}</small><span class="account-selected-items">${airportChips||`<small>${empty}</small>`}</span></span><span class="menu-chevron">⌄</span></button>
     <div id="accountAirportPicker" class="account-collection-picker ${accountAirportPickerOpen?'open':''}" aria-label="${airportLabel}"><div class="account-airport-options" id="accountAirportOptions"></div></div>
     <button type="button" class="account-save-changes" id="accountSaveChanges">${currentLanguage==='RU'?'Сохранить изменения':currentLanguage==='ES'?'Guardar cambios':'Save changes'}</button>`;
@@ -2681,29 +2678,17 @@ function renderAccountCountriesSection(){
       return `<button type="button" class="account-airport-option ${chosen?'selected':''}" data-airport-name="${encodeURIComponent(name)}" aria-pressed="${chosen}"><span>${chosen?'☑':'☐'}</span><span><strong>${display}</strong>${location?`<small>${location}</small>`:''}</span><span class="account-airport-code">${a.code}</span></button>`;
     }).join('');
   };
-  renderFlags();renderAirports();
+  renderAirports();
   const toggleAccountMapCountry=name=>{let selected=getAccountArray('airAiCountriesMapSelected');selected=selected.includes(name)?selected.filter(x=>x!==name):[...selected,name];saveAccountArray('airAiCountriesMapSelected',selected);renderAccountCountriesSection();};
   document.querySelectorAll('[data-account-map-option]').forEach(b=>b.onclick=()=>toggleAccountMapCountry(b.dataset.accountMapOption));
   document.querySelectorAll('[data-account-map-country]').forEach(p=>p.onclick=()=>toggleAccountMapCountry(p.dataset.accountMapCountry));
   document.querySelectorAll('[data-account-map-remove]').forEach(b=>b.onclick=()=>{saveAccountArray('airAiCountriesMapSelected',getAccountArray('airAiCountriesMapSelected').filter(x=>x!==b.dataset.accountMapRemove));renderAccountCountriesSection();});
   document.getElementById('accountMapSaveChanges').onclick=()=>{const b=document.getElementById('accountMapSaveChanges');b.textContent=currentLanguage==='RU'?'Изменения сохранены':currentLanguage==='ES'?'Cambios guardados':'Changes saved';b.classList.add('saved');};
-  document.getElementById('accountCountriesRow').onclick=e=>{
-    if(e.target.closest('[data-remove-country]'))return;
-    accountCountryPickerOpen=!accountCountryPickerOpen;
-    document.getElementById('accountCountryPicker').classList.toggle('open',accountCountryPickerOpen);
-    document.getElementById('accountCountriesRow').setAttribute('aria-expanded',String(accountCountryPickerOpen));
-  };
   document.getElementById('accountAirportsRow').onclick=e=>{
     if(e.target.closest('[data-remove-airport]'))return;
     accountAirportPickerOpen=!accountAirportPickerOpen;
     document.getElementById('accountAirportPicker').classList.toggle('open',accountAirportPickerOpen);
     document.getElementById('accountAirportsRow').setAttribute('aria-expanded',String(accountAirportPickerOpen));
-  };
-  document.getElementById('accountFlagGrid').onclick=e=>{
-    const b=e.target.closest('[data-country-flag]');if(!b)return;
-    const flag=b.dataset.countryFlag;const i=accountDraftCountries.indexOf(flag);
-    if(i<0)accountDraftCountries.push(flag);else accountDraftCountries.splice(i,1);
-    renderAccountCountriesSection();
   };
   document.getElementById('accountAirportOptions').onclick=e=>{
     const b=e.target.closest('[data-airport-name]');if(!b)return;
