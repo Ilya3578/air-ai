@@ -1317,7 +1317,7 @@ const translations = {
   }
 };
 
-let currentLanguage = 'EN';
+let currentLanguage = 'RU';
 
 function toggleLanguages(){
   const m=document.getElementById('languageMenu');
@@ -1325,12 +1325,10 @@ function toggleLanguages(){
 }
 
 function chooseLanguage(code){
-  currentLanguage=String(code||'EN').toUpperCase();
-  try{localStorage.setItem('airAiLanguage',currentLanguage);}catch(err){}
-  document.documentElement.lang=currentLanguage.toLowerCase();
-  const langButton=document.querySelector('.lang');if(langButton)langButton.textContent=currentLanguage+' ▾';
-  const langMenu=document.getElementById('languageMenu');if(langMenu)langMenu.style.display='none';
-  applyLanguage();
+  currentLanguage=code;
+  document.documentElement.lang=code.toLowerCase();
+  document.querySelector('.lang').textContent=code+' ▾';
+  document.getElementById('languageMenu').style.display='none';
   
 
 function setAccountAvatar(src){
@@ -1432,7 +1430,7 @@ if(countryInput){
 
 const travelerInput = document.getElementById('travelerValue');
 if(travelerInput){
-  const saveTravelerExperience=()=>{try{const n=travelerInput.value===''?'0':String(Math.max(0,Math.min(99,Math.trunc(Number(travelerInput.value)||0))));localStorage.setItem('airAiTravelerExperience',n);}catch(err){}};
+  const saveTravelerExperience=()=>{try{if(travelerInput.value!=='')localStorage.setItem('airAiTravelerExperience',String(Math.max(0,Math.min(99,Math.trunc(Number(travelerInput.value)||0)))));}catch(err){}};
   travelerInput.addEventListener('input', function(){
     let n = Number(this.value);
     if(this.value !== ""){
@@ -1522,14 +1520,9 @@ try{
 }catch(err){}
 
 if(document.getElementById('accountName')){
-  const persistName=function(){try{localStorage.setItem('airAiAccountName',this.value);}catch(err){}};
-  document.getElementById('accountName').addEventListener('input',persistName);
-  document.getElementById('accountName').addEventListener('change',persistName);
-}
-if(document.getElementById('accountCountry')){
-  const persistCountry=function(){try{localStorage.setItem('airAiAccountCountry',this.value);}catch(err){}};
-  document.getElementById('accountCountry').addEventListener('input',persistCountry);
-  document.getElementById('accountCountry').addEventListener('change',persistCountry);
+  document.getElementById('accountName').addEventListener('change', function(){
+    try{ localStorage.setItem('airAiAccountName', this.value); }catch(err){}
+  });
 }
 
 
@@ -2686,18 +2679,16 @@ function renderAccountCountriesSection(){
     const b=e.target.closest('[data-country-flag]');if(!b)return;
     const flag=b.dataset.countryFlag;const i=accountDraftCountries.indexOf(flag);
     if(i<0)accountDraftCountries.push(flag);else accountDraftCountries.splice(i,1);
-    saveAccountArray(ACCOUNT_COUNTRIES_KEY,accountDraftCountries);
     renderAccountCountriesSection();
   };
   document.getElementById('accountAirportOptions').onclick=e=>{
     const b=e.target.closest('[data-airport-name]');if(!b)return;
     const name=decodeURIComponent(b.dataset.airportName);const i=accountDraftAirports.indexOf(name);
     if(i<0)accountDraftAirports.push(name);else accountDraftAirports.splice(i,1);
-    saveAccountArray(ACCOUNT_AIRPORTS_KEY,accountDraftAirports);
     renderAccountCountriesSection();
   };
-  document.querySelectorAll('[data-remove-country]').forEach(b=>b.onclick=e=>{e.stopPropagation();accountDraftCountries=accountDraftCountries.filter(x=>x!==b.dataset.removeCountry);saveAccountArray(ACCOUNT_COUNTRIES_KEY,accountDraftCountries);renderAccountCountriesSection();});
-  document.querySelectorAll('[data-remove-airport]').forEach(b=>b.onclick=e=>{e.stopPropagation();const name=decodeURIComponent(b.dataset.removeAirport);accountDraftAirports=accountDraftAirports.filter(x=>x!==name);saveAccountArray(ACCOUNT_AIRPORTS_KEY,accountDraftAirports);renderAccountCountriesSection();});
+  document.querySelectorAll('[data-remove-country]').forEach(b=>b.onclick=e=>{e.stopPropagation();accountDraftCountries=accountDraftCountries.filter(x=>x!==b.dataset.removeCountry);renderAccountCountriesSection();});
+  document.querySelectorAll('[data-remove-airport]').forEach(b=>b.onclick=e=>{e.stopPropagation();const name=decodeURIComponent(b.dataset.removeAirport);accountDraftAirports=accountDraftAirports.filter(x=>x!==name);renderAccountCountriesSection();});
   document.getElementById('accountSaveChanges').onclick=()=>{
     saveAccountArray(ACCOUNT_COUNTRIES_KEY,accountDraftCountries);
     saveAccountArray(ACCOUNT_AIRPORTS_KEY,accountDraftAirports);
@@ -2965,9 +2956,6 @@ async function checkCountryVisa(){
 }
 
 document.getElementById('airAiLoad')?.addEventListener('click',loadAirAiModel);
-try{const savedLang=localStorage.getItem('airAiLanguage');currentLanguage=['EN','RU','ES'].includes(savedLang)?savedLang:'EN';}catch(err){currentLanguage='EN';}
-document.documentElement.lang=currentLanguage.toLowerCase();
-const startupLangButton=document.querySelector('.lang');if(startupLangButton)startupLangButton.textContent=currentLanguage+' ▾';
 applyLanguage();
 try{renderAiSubscriptionAccess();}catch(err){}
 </script>
