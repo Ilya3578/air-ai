@@ -239,9 +239,10 @@ section{padding:65px 5vw}
 
 .account-name-line{
   display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;max-width:100%;min-width:0;flex-wrap:wrap;
 }
 .account-name-input{
-  width:auto;min-width:260px;flex:0 1 620px;
+  width:100%;min-width:0;max-width:100%;flex:1 1 300px;
 }
 .name-language-flag{
   display:inline-flex;align-items:center;justify-content:center;
@@ -381,7 +382,11 @@ footer{background:#101c1e;color:white;padding:45px 5vw 105px}
 
 
 .account-page{padding:48px 5vw 120px}
-.account-screen{max-width:760px;margin:0 auto;text-align:center}
+.account-screen{width:100%;max-width:760px;margin:0 auto;text-align:center;min-width:0}
+.account-page,.account-screen,.account-name-wrap,.account-menu{box-sizing:border-box;min-width:0;max-width:100%}
+.account-page{width:100%;overflow-x:hidden}
+.account-menu-row{min-width:0;overflow-wrap:anywhere}
+@media(max-width:620px){.account-name-line{flex-direction:column;align-items:stretch}.account-name-input{flex:1 1 auto;min-width:0}.country-field-wrap{width:100%;min-width:0;flex:1 1 auto}.account-identity-fixed{max-width:100%;overflow-wrap:anywhere}}
 .account-title{
   display:inline-block;margin:0 0 26px;padding:10px 22px;
   border:2px solid var(--azure);border-radius:14px;background:#fff;
@@ -1366,21 +1371,27 @@ async function updateCountryFlag(){
   }catch(e){if(requestId===countryRequestId){setCountryFlag('');const fixedFlag=document.getElementById('countryFlagFixed');if(fixedFlag)fixedFlag.textContent='';}}
 }
 if(countryInput){
-  countryInput.addEventListener('input',()=>{clearTimeout(countryTimer);countryTimer=setTimeout(updateCountryFlag,180);});
-  countryInput.addEventListener('change',updateCountryFlag);
-  countryInput.addEventListener('blur',()=>{try{localStorage.setItem('airAiAccountCountry',countryInput.value);}catch(err){}});
+  const saveAccountCountry=()=>{try{localStorage.setItem('airAiAccountCountry',countryInput.value);}catch(err){}};
+  countryInput.addEventListener('input',()=>{saveAccountCountry();clearTimeout(countryTimer);countryTimer=setTimeout(updateCountryFlag,180);});
+  countryInput.addEventListener('change',()=>{saveAccountCountry();updateCountryFlag();});
+  countryInput.addEventListener('blur',saveAccountCountry);
 }
 
 
 const travelerInput = document.getElementById('travelerValue');
 if(travelerInput){
+  const saveTravelerExperience=()=>{try{if(travelerInput.value!=='')localStorage.setItem('airAiTravelerExperience',String(Math.max(0,Math.min(99,Math.trunc(Number(travelerInput.value)||0)))));}catch(err){}};
   travelerInput.addEventListener('input', function(){
     let n = Number(this.value);
-    if(this.value === "") return;
-    if(!Number.isInteger(n)) this.value = Math.trunc(n);
-    if(n < 0) this.value = 0;
-    if(n > 99) this.value = 99;
+    if(this.value !== ""){
+      if(!Number.isInteger(n)) this.value = String(Math.trunc(n));
+      if(n < 0) this.value = 0;
+      if(n > 99) this.value = 99;
+    }
+    saveTravelerExperience();
   });
+  travelerInput.addEventListener('change',saveTravelerExperience);
+  travelerInput.addEventListener('blur',saveTravelerExperience);
 }
 
 
@@ -1451,7 +1462,7 @@ try{
   const savedCountry = localStorage.getItem('airAiAccountCountry');
   if(savedCountry && document.getElementById('accountCountry')){document.getElementById('accountCountry').value=savedCountry;updateCountryFlag();}
   setTimeout(restoreAccountIdentity, 250);
-  if(document.getElementById('accountCountry')) document.getElementById('accountCountry').addEventListener('change',function(){try{localStorage.setItem('airAiAccountCountry',this.value);}catch(err){}});
+  
   const savedExperience = localStorage.getItem('airAiTravelerExperience');
   if(savedExperience !== null && document.getElementById('travelerValue')){
     document.getElementById('travelerValue').value = savedExperience;
@@ -1463,12 +1474,7 @@ if(document.getElementById('accountName')){
     try{ localStorage.setItem('airAiAccountName', this.value); }catch(err){}
   });
 }
-if(document.getElementById('travelerValue')){
-  document.getElementById('travelerValue').addEventListener('change', function(){
-    try{ localStorage.setItem('airAiTravelerExperience', this.value); }catch(err){}
-  });
-}
-if(document.getElementById('accountCountry')){document.getElementById('accountCountry').addEventListener('change',function(){try{localStorage.setItem('airAiAccountCountry',this.value);}catch(err){}});}
+
 
 applyLanguage();
 }
