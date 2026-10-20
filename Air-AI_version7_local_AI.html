@@ -2581,10 +2581,36 @@ let accountDraftCountries=[], accountDraftAirports=[];
 function getAccountArray(key){try{const value=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(value)?value:[]}catch(e){return []}}
 function saveAccountArray(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){}}
 function accountFlagCatalog(){
-  const flags=new Map();
+  // Ordered flag-only catalogue requested for the Countries picker.
+  const orderedFlags=`🇦🇫 🇦🇱 🇩🇿 🇦🇩 🇦🇴 🇦🇬 🇦🇷 🇦🇲 🇦🇺 🇦🇹 🇦🇿
+🇧🇸 🇧🇭 🇧🇩 🇧🇧 🇧🇾 🇧🇪 🇧🇿 🇧🇯 🇧🇹 🇧🇴 🇧🇦 🇧🇼 🇧🇷 🇧🇳 🇧🇬 🇧🇫 🇧🇮
+🇨🇻 🇰🇭 🇨🇲 🇨🇦 🇨🇫 🇹🇩 🇨🇱 🇨🇳 🇨🇴 🇰🇲 🇨🇬 🇨🇩 🇨🇷 🇨🇮 🇭🇷 🇨🇺 🇨🇾 🇨🇿
+🇩🇰 🇩🇯 🇩🇲 🇩🇴
+🇪🇨 🇪🇬 🇸🇻 🇬🇶 🇪🇷 🇪🇪 🇸🇿 🇪🇹
+🇫🇯 🇫🇮 🇫🇷
+🇬🇦 🇬🇲 🇬🇪 🇩🇪 🇬🇭 🇬🇷 🇬🇩 🇬🇹 🇬🇳 🇬🇼 🇬🇾
+🇭🇹 🇭🇳 🇭🇺
+🇮🇸 🇮🇳 🇮🇩 🇮🇷 🇮🇶 🇮🇪 🇮🇱 🇮🇹
+🇯🇲 🇯🇵 🇯🇴
+🇰🇿 🇰🇪 🇰🇮 🇰🇵 🇰🇷 🇰🇼 🇰🇬
+🇱🇦 🇱🇻 🇱🇧 🇱🇸 🇱🇷 🇱🇾 🇱🇮 🇱🇹 🇱🇺
+🇲🇬 🇲🇼 🇲🇾 🇲🇻 🇲🇱 🇲🇹 🇲🇭 🇲🇷 🇲🇺 🇲🇽 🇫🇲 🇲🇩 🇲🇨 🇲🇳 🇲🇪 🇲🇦 🇲🇿 🇲🇲
+🇳🇦 🇳🇷 🇳🇵 🇳🇱 🇳🇿 🇳🇮 🇳🇪 🇳🇬 🇲🇰 🇳🇴
+🇴🇲
+🇵🇰 🇵🇼 🇵🇸 🇵🇦 🇵🇬 🇵🇾 🇵🇪 🇵🇭 🇵🇱 🇵🇹
+🇶🇦
+🇷🇴 🇷🇺 🇷🇼
+🇰🇳 🇱🇨 🇻🇨 🇼🇸 🇸🇲 🇸🇹 🇸🇦 🇸🇳 🇷🇸 🇸🇨 🇸🇱 🇸🇬 🇸🇰 🇸🇮 🇸🇧 🇸🇴 🇿🇦 🇸🇸 🇪🇸 🇱🇰 🇸🇩 🇸🇷 🇸🇪 🇨🇭 🇸🇾
+🇹🇯 🇹🇿 🇹🇭 🇹🇱 🇹🇬 🇹🇴 🇹🇹 🇹🇳 🇹🇷 🇹🇲 🇹🇻
+🇺🇬 🇺🇦 🇦🇪 🇬🇧 🇺🇸 🇺🇾 🇺🇿
+🇻🇺 🇻🇦 🇻🇪 🇻🇳
+🇾🇪
+🇿🇲 🇿🇼`;
+  return orderedFlags.trim().split(/\s+/).map(flag=>({flag,name:accountCountryNameForFlagSafe(flag)}));
+}
+function accountCountryNameForFlagSafe(flag){
   const names=typeof localCountryFallback==='object'?localCountryFallback:{};
-  Object.entries(names).forEach(([name,flag])=>{if(flag&&!flags.has(flag))flags.set(flag,name)});
-  return [...flags.entries()].map(([flag,name])=>({flag,name})).sort((a,b)=>a.name.localeCompare(b.name));
+  return Object.entries(names).find(([name,value])=>value===flag)?.[0]||flag;
 }
 function accountCountryNameForFlag(flag){
   const code=[...flag].map(c=>c.codePointAt(0)-127397).map(n=>String.fromCharCode(n)).join('');
