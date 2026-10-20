@@ -2474,11 +2474,16 @@ function selectPayment(btn){
   const form=document.getElementById('bankCardPaymentForm');
   const unsupported=document.getElementById('paymentUnsupported');
   const balanceInfo=document.getElementById('paymentBalanceInfo');
+  const isWalletFlow=paymentFlowMode==='wallet-topup'||paymentFlowMode==='wallet-withdraw';
+  const flowAmount=document.getElementById('walletFlowAmount');
+  if(flowAmount)flowAmount.hidden=true;
+  const balanceBtn=document.querySelector('.payment-method[data-payment-type="balance"]');
+  if(balanceBtn)balanceBtn.hidden=isWalletFlow;
   const unsupportedType=type!=='card'&&type!=='balance';
   if(form)form.hidden=type!=='card';
   fields.forEach(field=>field.hidden=type!=='card');
   if(unsupported)unsupported.hidden=!unsupportedType;
-  if(balanceInfo){balanceInfo.hidden=type!=='balance';if(type==='balance')writeWalletBalance(readWalletBalance());}
+  if(balanceInfo){balanceInfo.hidden=isWalletFlow||type!=='balance';if(type==='balance'&&!isWalletFlow)writeWalletBalance(readWalletBalance());}
 }
 function paySmartWithBalance(){
   if(activeAirAiPlan()==='smart'){toast((translations[currentLanguage]||translations.RU).smartAlreadyActive||'Smart Air-AI уже активен.');return;}
@@ -2558,22 +2563,17 @@ function openWalletAmount(mode){
   const back=document.querySelector('#payment .back-btn span');if(back)back.textContent=currentLanguage==='en'?'Back to Wallet':currentLanguage==='es'?'Volver a la cartera':'Вернуться в Кошелёк';
   const balanceBtn=document.querySelector('.payment-method[data-payment-type="balance"]');if(balanceBtn)balanceBtn.hidden=true;
   const balanceInfo=document.getElementById('paymentBalanceInfo');if(balanceInfo)balanceInfo.hidden=true;
-  const amountBox=document.getElementById('walletFlowAmount');if(amountBox)amountBox.hidden=false;
-  const amountLabel=document.getElementById('walletFlowAmountLabel');if(amountLabel)amountLabel.textContent=currentLanguage==='en'?'Amount':currentLanguage==='es'?'Importe':'Сумма';
+  const amountBox=document.getElementById('walletFlowAmount');if(amountBox)amountBox.hidden=true;
   const amountInput=document.getElementById('walletFlowAmountInput');if(amountInput)amountInput.value='';
   const err=document.getElementById('walletFlowError');if(err)err.textContent='';
-  const confirm=document.getElementById('walletFlowConfirm');if(confirm)confirm.textContent=currentLanguage==='en'?'Continue':currentLanguage==='es'?'Continuar':'Продолжить';
   const firstMethod=document.querySelector('.payment-method[data-payment-type="card"]');if(firstMethod)selectPayment(firstMethod);
   showPage('payment');
 }
 function closeWalletAmount(){const m=document.getElementById('walletAmountModal');m.classList.remove('show');m.setAttribute('aria-hidden','true');}
 function confirmWalletAmount(){const input=document.getElementById('walletAmountInput');const amount=Number(input.value);const error=document.getElementById('walletAmountError');const t=translations[currentLanguage]||translations.RU;if(!Number.isInteger(amount)||amount<1||amount>99){error.textContent=t.walletAmountError;return;}const current=readWalletBalance();if(walletAmountMode==='subtract'&&amount>current){error.textContent=t.walletInsufficient;return;}const next=walletAmountMode==='add'?current+amount:current-amount;writeWalletBalance(next);closeWalletAmount();}
 function confirmWalletFlow(){
-  const amount=Number(document.getElementById('walletFlowAmountInput')?.value);
   const error=document.getElementById('walletFlowError');
   const t=translations[currentLanguage]||translations.RU;
-  if(!Number.isFinite(amount)||amount<=0||amount>9999){if(error)error.textContent=currentLanguage==='en'?'Enter a valid amount.':currentLanguage==='es'?'Introduce un importe válido.':'Введите корректную сумму.';return;}
-  if(paymentFlowMode==='wallet-withdraw'&&amount>readWalletBalance()){if(error)error.textContent=t.walletInsufficient||'Недостаточно средств на балансе.';return;}
   const type=document.querySelector('.payment-method.active')?.dataset.paymentType||'card';
   const unsupported=document.getElementById('paymentUnsupported');
   if(type!=='card'){
