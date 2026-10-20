@@ -854,7 +854,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
       </div>
 
       <div class="payment-balance-info" id="paymentBalanceInfo">
-        <div><span data-i18n="walletBalanceLabel">Баланс кошелька</span>: <strong id="paymentBalanceValue">9,8$</strong></div>
+        <div><span data-i18n="walletBalanceLabel">Баланс кошелька</span>: <strong id="paymentBalanceValue">0$</strong></div>
         <p id="paymentBalanceMessage" data-i18n="smartPriceLabel">К оплате: $4,99</p>
         <button class="wallet-amount-confirm" id="payWithBalanceButton" type="button" onclick="paySmartWithBalance()" data-i18n="paySmartWithBalance">Оплатить $4,99 с баланса</button>
       </div>
@@ -924,7 +924,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
   <section>
     <div class="wallet-screen">
       <div class="wallet-title" data-i18n="walletTitle">Air-AI баланс</div>
-      <div class="wallet-balance" id="walletBalance">9,8$</div>
+      <div class="wallet-balance" id="walletBalance">0$</div>
       <div class="wallet-arrows">
         <button class="wallet-arrow-btn" type="button" aria-label="Баланс пополнен" onclick="openWalletAmount('add')">↑</button>
         <button class="wallet-arrow-btn" type="button" aria-label="Вывод средств" onclick="openWalletAmount('subtract')">↓</button>
@@ -2166,7 +2166,7 @@ function readWalletBalance(){
     if(saved!==null && saved.trim()!=='' && Number.isFinite(Number(saved))) return Math.max(0,Math.round(Number(saved)*100)/100);
   }catch(err){}
   const parsed=el ? Number(String(el.textContent).replace(',', '.').replace('$','').trim()) : NaN;
-  const initial=Number.isFinite(parsed) ? Math.max(0,Math.round(parsed*100)/100) : 9.8;
+  const initial=0;
   try{localStorage.setItem(AIR_AI_WALLET_KEY,String(initial));}catch(err){}
   return initial;
 }
@@ -2603,7 +2603,7 @@ function closeAutopayModal(fromHistory=false){
 function openBenefitsModal(){const m=document.getElementById('walletBenefitsModal');m.classList.add('show');m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
 function openPromoModal(){const m=document.getElementById('walletPromoModal');document.getElementById('walletPromoInput').value='';document.getElementById('walletPromoError').textContent='';m.classList.add('show');m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>document.getElementById('walletPromoInput').focus(),30);}
 function closeWalletInfoModal(id){const m=document.getElementById(id);if(!m)return;m.classList.remove('show');m.setAttribute('aria-hidden','true');document.body.style.overflow='';}
-function submitPromoCode(event){event.preventDefault();const input=document.getElementById('walletPromoInput');const error=document.getElementById('walletPromoError');const code=input.value.trim();if(!/^[A-Za-zА-Яа-яЁё0-9]{10}$/.test(code)){error.textContent=currentLanguage==='en'?'Enter exactly 10 letters or numbers, without special characters.':'Введите ровно 10 букв или цифр без специальных символов.';return;}const current=readWalletBalance();writeWalletBalance(current+10);closeWalletInfoModal('walletPromoModal');}
+function submitPromoCode(event){event.preventDefault();const input=document.getElementById('walletPromoInput');const error=document.getElementById('walletPromoError');const code=input.value.trim().toUpperCase();if(code!=='STARTAIRAI'){error.textContent=currentLanguage==='en'?'Invalid promo code. Enter STARTAIRAI.':currentLanguage==='es'?'Código promocional no válido. Introduce STARTAIRAI.':'Неверный промокод. Введите STARTAIRAI.';return;}const usedKey='airAiPromoSTARTAIRAIUsed';let alreadyUsed=false;try{alreadyUsed=localStorage.getItem(usedKey)==='true';}catch(err){}if(alreadyUsed){error.textContent=currentLanguage==='en'?'This promo code has already been used.':currentLanguage==='es'?'Este código promocional ya se ha utilizado.':'Этот промокод уже использован';return;}try{localStorage.setItem(usedKey,'true');}catch(err){error.textContent=currentLanguage==='en'?'Unable to verify promo code usage. Please try again.':currentLanguage==='es'?'No se puede verificar el uso del código. Inténtalo de nuevo.':'Не удалось проверить использование промокода. Попробуйте ещё раз.';return;}const current=readWalletBalance();writeWalletBalance(current+10);closeWalletInfoModal('walletPromoModal');}
 document.getElementById('autopayModal')?.addEventListener('click',e=>{if(e.target.id==='autopayModal')closeAutopayModal();});
 document.getElementById('walletBenefitsModal')?.addEventListener('click',e=>{if(e.target.id==='walletBenefitsModal')closeWalletInfoModal('walletBenefitsModal');});
 document.getElementById('walletPromoModal')?.addEventListener('click',e=>{if(e.target.id==='walletPromoModal')closeWalletInfoModal('walletPromoModal');});
