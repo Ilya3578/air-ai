@@ -303,6 +303,14 @@ section{padding:65px 5vw}
 .dream-map-svg{display:block;width:100%;height:auto;max-height:250px}
 .dream-map-land{fill:#dce9e9;stroke:#fff;stroke-width:1.2;stroke-linejoin:round;transition:fill .2s}
 .dream-map-land.selected{fill:#19b7b1}
+.account-countries-map-wrap{border:1px solid rgba(25,183,177,.35);border-radius:16px;background:#19b7b1;padding:10px;overflow:hidden;margin-bottom:14px}
+.account-countries-map-wrap .dream-map-land{fill:rgba(255,255,255,.24);stroke:rgba(255,255,255,.8);stroke-width:1.2;stroke-linejoin:round;transition:fill .2s}
+.account-countries-map-wrap .dream-map-land.selected{fill:#fff;stroke:#fff}
+.account-countries-map-wrap .dream-map-caption{color:#fff}
+.account-countries-country-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:14px;max-height:230px;overflow:auto}
+.account-countries-country-option{border:1px solid rgba(25,183,177,.28);border-radius:10px;background:#fff;color:var(--text);padding:9px 10px;text-align:left;font:inherit;font-size:13px;cursor:pointer}
+.account-countries-country-option.selected{background:#e9fbfa;border-color:#19b7b1;color:#087f7b}
+@media(max-width:480px){.account-countries-country-options{grid-template-columns:1fr}}
 .dream-map-caption{font-size:12px;color:var(--muted);margin:7px 2px 0}
 .dream-country-select{width:100%;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--text);padding:12px 14px;font:inherit}
 .dream-country-options{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:5px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
@@ -2640,7 +2648,18 @@ function renderAccountCountriesSection(){
   const removeText=currentLanguage==='RU'?'Удалить':currentLanguage==='ES'?'Eliminar':'Remove';
   const countryChips=countries.map(flag=>`<button type="button" class="account-selected-chip" data-remove-country="${flag}" title="${removeText}">${flag} <span>×</span></button>`).join('');
   const airportChips=airports.map(name=>{const a=(boardAirports||[]).find(x=>(x.en||x.ru||x.code)===name);const label=a?accountAirportDisplayName(a):name;return `<button type="button" class="account-selected-chip" data-remove-airport="${encodeURIComponent(name)}" title="${removeText}">${label} <span>×</span></button>`}).join('');
+  const mapSelected=getAccountArray('airAiCountriesMapSelected');
+  const mapLang=currentLanguage==='RU'?1:currentLanguage==='ES'?2:0;
+  const mapEsc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const mapAliases={'United States of America':'United States','Republic of Serbia':'Serbia','Czech Republic':'Czechia','Democratic Republic of the Congo':'Democratic Republic of the Congo','Republic of the Congo':'Congo','The Bahamas':'Bahamas','The Gambia':'Gambia','Ivory Coast':"Côte d'Ivoire",'eSwatini':'Eswatini'};
+  const mapFeatures=DREAM_MAP_FEATURES.map(f=>{const key=mapAliases[f.name]||f.name;return `<path class="dream-map-land ${mapSelected.includes(key)?'selected':''}" data-account-map-country="${mapEsc(key)}" d="${f.d}" vector-effect="non-scaling-stroke"><title>${mapEsc(DREAM_COUNTRIES.find(c=>c[0]===key)?.[mapLang]||f.name)}</title></path>`}).join('');
+  const mapOptions=DREAM_COUNTRIES.slice().sort((a,b)=>a[mapLang].localeCompare(b[mapLang],currentLanguage==='RU'?'ru':currentLanguage==='ES'?'es':'en')).map(c=>`<button type="button" class="account-countries-country-option ${mapSelected.includes(c[0])?'selected':''}" data-account-map-option="${mapEsc(c[0])}">${mapSelected.includes(c[0])?'✓ ':''}${mapEsc(c[mapLang])}</button>`).join('');
+  const mapChips=mapSelected.map(name=>{const c=DREAM_COUNTRIES.find(x=>x[0]===name);return `<button type="button" class="dream-selected-chip" data-account-map-remove="${mapEsc(name)}">${mapEsc(c?c[mapLang]:name)} ×</button>`}).join('');
   document.getElementById('accountSectionContent').innerHTML=`
+    <div class="account-countries-map-wrap"><svg class="dream-map-svg" viewBox="0 0 720 340" role="img" aria-label="World map"><rect width="720" height="340" rx="12" fill="#19b7b1"/>${mapFeatures}</svg><div class="dream-map-caption">${currentLanguage==='RU'?'Выбранные страны отмечены белым цветом':currentLanguage==='ES'?'Los países seleccionados aparecen en blanco':'Selected countries are highlighted in white'}</div></div>
+    <h3>${currentLanguage==='RU'?'Выберите страны':currentLanguage==='ES'?'Selecciona países':'Select countries'}</h3><div class="account-countries-country-options">${mapOptions}</div>
+    <h3>${currentLanguage==='RU'?'Выбранные страны':currentLanguage==='ES'?'Países seleccionados':'Selected countries'}</h3><div class="dream-selected-list">${mapChips||`<small>${currentLanguage==='RU'?'Пока ничего не выбрано':currentLanguage==='ES'?'Aún no hay países seleccionados':'No countries selected yet'}</small>`}</div>
+    <button type="button" class="account-save-changes" id="accountMapSaveChanges">${currentLanguage==='RU'?'Сохранить изменения':currentLanguage==='ES'?'Guardar cambios':'Save changes'}</button>
     <button type="button" class="account-collection-row" id="accountCountriesRow" aria-expanded="${accountCountryPickerOpen}"><span><strong>🌍 ${flagLabel}</strong><small>${choose}</small><span class="account-selected-items">${countryChips||`<small>${empty}</small>`}</span></span><span class="menu-chevron">⌄</span></button>
     <div id="accountCountryPicker" class="account-collection-picker account-country-picker ${accountCountryPickerOpen?'open':''}" aria-label="${flagLabel}"><div class="account-flag-grid" id="accountFlagGrid"></div></div>
     <button type="button" class="account-collection-row" id="accountAirportsRow" aria-expanded="${accountAirportPickerOpen}"><span><strong>✈️ ${airportLabel}</strong><small>${choose}</small><span class="account-selected-items">${airportChips||`<small>${empty}</small>`}</span></span><span class="menu-chevron">⌄</span></button>
@@ -2663,6 +2682,11 @@ function renderAccountCountriesSection(){
     }).join('');
   };
   renderFlags();renderAirports();
+  const toggleAccountMapCountry=name=>{let selected=getAccountArray('airAiCountriesMapSelected');selected=selected.includes(name)?selected.filter(x=>x!==name):[...selected,name];saveAccountArray('airAiCountriesMapSelected',selected);renderAccountCountriesSection();};
+  document.querySelectorAll('[data-account-map-option]').forEach(b=>b.onclick=()=>toggleAccountMapCountry(b.dataset.accountMapOption));
+  document.querySelectorAll('[data-account-map-country]').forEach(p=>p.onclick=()=>toggleAccountMapCountry(p.dataset.accountMapCountry));
+  document.querySelectorAll('[data-account-map-remove]').forEach(b=>b.onclick=()=>{saveAccountArray('airAiCountriesMapSelected',getAccountArray('airAiCountriesMapSelected').filter(x=>x!==b.dataset.accountMapRemove));renderAccountCountriesSection();});
+  document.getElementById('accountMapSaveChanges').onclick=()=>{const b=document.getElementById('accountMapSaveChanges');b.textContent=currentLanguage==='RU'?'Изменения сохранены':currentLanguage==='ES'?'Cambios guardados':'Changes saved';b.classList.add('saved');};
   document.getElementById('accountCountriesRow').onclick=e=>{
     if(e.target.closest('[data-remove-country]'))return;
     accountCountryPickerOpen=!accountCountryPickerOpen;
