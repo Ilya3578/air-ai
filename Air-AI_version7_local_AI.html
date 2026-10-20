@@ -265,7 +265,7 @@ section{padding:65px 5vw}
 .account-country-input:placeholder-shown{color:#a5adb0}
 .country-placeholder{font-weight:500}
 .account-country-input:focus{border-color:var(--azure);box-shadow:0 0 0 3px rgba(25,183,177,.08)}
-.country-flag{position:absolute;right:12px;font-size:25px;line-height:1}
+.country-flag{position:absolute;right:12px;font-size:25px;line-height:1}.identity-country-flag{position:static;display:inline-block;flex:0 0 auto;margin-left:6px;vertical-align:middle;font-size:22px;line-height:1}
 .account-action{width:100%;font:inherit;text-align:left;cursor:pointer;background:#fff;color:var(--text);border:0;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;transition:.18s}
 .account-action:hover{background:#f4fbfa;color:var(--azure-dark);padding-left:22px}
 .menu-chevron{font-size:24px;color:#a5adb0}
@@ -1461,7 +1461,7 @@ try{
   }
   const savedCountry = localStorage.getItem('airAiAccountCountry');
   if(savedCountry && document.getElementById('accountCountry')){document.getElementById('accountCountry').value=savedCountry;updateCountryFlag();}
-  setTimeout(restoreAccountIdentity, 250);
+  setTimeout(()=>{restoreAccountIdentity();updateCountryFlag();}, 300);
   
   const savedExperience = localStorage.getItem('airAiTravelerExperience');
   if(savedExperience !== null && document.getElementById('travelerValue')){
