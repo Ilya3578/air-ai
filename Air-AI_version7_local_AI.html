@@ -75,8 +75,8 @@ button{cursor:pointer}
 .airport-location-wrap{position:absolute;left:50%;transform:translateX(-50%);top:78px;z-index:18;display:flex;align-items:center;gap:7px;max-width:82vw;background:rgba(255,255,255,.92);padding:3px 6px;border-radius:8px}
 .airport-location-link{display:inline-flex;align-items:center;gap:7px;min-width:0;color:#111;text-decoration:underline;text-underline-offset:4px;font-size:13px;font-weight:300;letter-spacing:.05px;white-space:nowrap}
 .airport-location-link:hover{color:#333}
-.airport-board-arrow{flex:0 0 auto;border:0;background:transparent;color:#19b7e7;font-size:22px;line-height:1;font-weight:800;padding:0 2px;cursor:pointer;border-radius:6px;transition:transform .18s ease,background .18s ease}
-.airport-board-arrow:hover{background:rgba(37,189,231,.12);transform:translateX(2px)}
+.airport-board-arrow{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:38px;height:32px;margin-left:1px;margin-right:-3px;border:0;background:rgba(25,183,231,.10);color:#19b7e7;font-size:25px;line-height:1;font-weight:800;padding:0 5px;cursor:pointer;border-radius:10px;transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
+.airport-board-arrow:hover{background:rgba(25,183,231,.19);transform:translateX(3px);box-shadow:0 3px 10px rgba(25,183,231,.12)}
 .airport-board-arrow:focus-visible{outline:2px solid #19b7e7;outline-offset:2px}
 .location-pin{width:13px;height:16px;display:inline-block;position:relative;flex:0 0 13px}
 .location-pin:before{content:'';position:absolute;left:2px;top:0;width:9px;height:9px;border:1.3px solid #111;border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
@@ -98,7 +98,7 @@ button{cursor:pointer}
 @media(max-width:620px){
   .airport-location-wrap{top:72px;max-width:86vw;gap:5px}
   .airport-location-link{font-size:11px;max-width:calc(86vw - 38px);overflow:hidden;text-overflow:ellipsis}
-  .airport-board-arrow{font-size:20px}
+  .airport-board-arrow{width:35px;height:30px;font-size:23px;padding:0 4px}
   .airport-board-page{padding:62px 18px 110px}
   .airport-board-title{font-size:25px}
   .airport-board-search{border-radius:15px}
@@ -567,7 +567,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
     <a href="javascript:void(0)" class="airport-location-link" onclick="openBoardAirportPicker();return false;" aria-label="Select airport">
       <span class="location-pin" aria-hidden="true"></span><span data-i18n="airportLocation">Аэропорт Ст.-Петербург Пулково</span>
     </a>
-    <button type="button" class="airport-board-arrow" onclick="openSelectedAirportBoard()" aria-label="Open selected airport flight board" title="Open flight board">›</button>
+    <button type="button" class="airport-board-arrow" onclick="openSelectedAirportBoard()" aria-label="Open selected airport flight board" title="Open flight board">✈</button>
   </div>
   <div style="position:relative">
     <button class="lang" onclick="toggleLanguages()" aria-label="Language">RU ▾</button>
