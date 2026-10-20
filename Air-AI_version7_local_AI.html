@@ -527,6 +527,12 @@ html:lang(en) .home-banner-ru{display:none!important;}
 .board-airport-empty{padding:18px 12px;color:#71808a;text-align:center;font-size:14px}
 @media(max-width:600px){.board-airport-modal{padding:10px}.board-airport-dialog{max-height:88vh;border-radius:16px}.board-airport-dialog-head{padding:16px 16px 10px}.board-airport-search-wrap{padding:0 16px 12px}.board-airport-dialog-title{font-size:18px}}
 
+
+.wallet-flow-amount{max-width:520px;margin:18px auto 0;padding:18px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.92)}
+.wallet-flow-amount label{display:block;font-weight:700;margin-bottom:10px;color:var(--text)}
+.wallet-flow-amount .wallet-amount-entry{margin-bottom:8px}
+.wallet-flow-amount .wallet-amount-entry input{width:100%;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:20px;color:var(--text)}
+.wallet-flow-amount[hidden]{display:none!important}
 </style>
 
 <style>
@@ -817,7 +823,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
 <main id="payment" class="page">
   <section>
     <div class="container payment-wrap">
-      <button class="back-btn" onclick="showPage('subscriptions')">← <span data-i18n="backSubscriptions">Подписки</span></button>
+      <button class="back-btn" onclick="showPage(paymentFlowMode.startsWith('wallet-')?'wallet':'subscriptions')">← <span data-i18n="backSubscriptions">Подписки</span></button>
       <div class="plan-title" id="paymentPlanTitle">Smart Air-AI Assistent</div>
       <div class="payment-photo" id="paymentPhoto"></div>
       <p class="payment-subtitle" data-i18n="paymentSubtitle">Улучшите возможности Assistant</p>
@@ -838,6 +844,13 @@ html:lang(en) .home-banner-ru{display:none!important;}
         <button class="payment-method" data-payment-type="qr" onclick="selectPayment(this)">
           <span class="payment-icon">▦</span><span data-i18n="qrPayment">QR код</span>
         </button>
+      </div>
+
+      <div class="wallet-flow-amount" id="walletFlowAmount" hidden>
+        <label id="walletFlowAmountLabel" for="walletFlowAmountInput">Сумма</label>
+        <div class="wallet-amount-entry"><input id="walletFlowAmountInput" type="number" min="1" max="9999" step="0.01" inputmode="decimal" placeholder="0.00"><span>$</span></div>
+        <p class="wallet-amount-error" id="walletFlowError" role="alert"></p>
+        <button class="wallet-amount-confirm" id="walletFlowConfirm" type="button" onclick="confirmWalletFlow()">Продолжить</button>
       </div>
 
       <div class="payment-balance-info" id="paymentBalanceInfo">
@@ -2438,8 +2451,13 @@ function handleSubscriptionPlanCard(plan){
 
 function openPayment(planName, photoUrl){
   if(!/smart/i.test(String(planName||''))){showUnavailablePlan();return;}
+  paymentFlowMode='subscription';
+  const balanceBtn=document.querySelector('.payment-method[data-payment-type="balance"]');if(balanceBtn)balanceBtn.hidden=false;
+  const flowAmount=document.getElementById('walletFlowAmount');if(flowAmount)flowAmount.hidden=true;
+  const photoEl=document.getElementById('paymentPhoto');if(photoEl){photoEl.style.display='';photoEl.style.backgroundImage="url('" + photoUrl + "')";}
+  const back=document.querySelector('#payment .back-btn span');if(back)back.textContent=(translations[currentLanguage]||translations.RU).backSubscriptions||'Подписки';
+  const subtitle=document.querySelector('.payment-subtitle');if(subtitle)subtitle.textContent=(translations[currentLanguage]||translations.RU).paymentSubtitle||'Улучшите возможности Assistant';
   document.getElementById('paymentPlanTitle').textContent=planName;
-  document.getElementById('paymentPhoto').style.backgroundImage="url('" + photoUrl + "')";
   writeWalletBalance(readWalletBalance());
   const balanceMessage=document.getElementById('paymentBalanceMessage');
   if(balanceMessage)balanceMessage.textContent=(translations[currentLanguage]||translations.RU).smartPriceLabel||'К оплате: $4,99';
@@ -2528,9 +2546,43 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape' && document.getEleme
 
 
 let walletAmountMode='add';
-function openWalletAmount(mode){walletAmountMode=mode;const t=translations[currentLanguage];document.getElementById('walletAmountTitle').textContent=t[mode==='add'?'walletAddTitle':'walletSubtractTitle'];document.getElementById('walletAmountInput').value='';document.getElementById('walletAmountError').textContent='';const m=document.getElementById('walletAmountModal');m.classList.add('show');m.setAttribute('aria-hidden','false');setTimeout(()=>document.getElementById('walletAmountInput').focus(),30);}
+let paymentFlowMode='subscription';
+function openWalletAmount(mode){
+  walletAmountMode=mode;
+  paymentFlowMode=mode==='add'?'wallet-topup':'wallet-withdraw';
+  const t=translations[currentLanguage]||translations.RU;
+  const title=mode==='add'?(t.walletAddTitle||'Пополнить баланс'):(currentLanguage==='en'?'Choose where to withdraw money':currentLanguage==='es'?'Elige dónde retirar el dinero':'Выберите, куда вывести деньги');
+  document.getElementById('paymentPlanTitle').textContent=title;
+  const photo=document.getElementById('paymentPhoto');if(photo)photo.style.display='none';
+  const subtitle=document.querySelector('.payment-subtitle');if(subtitle){subtitle.textContent=mode==='add'?(currentLanguage==='en'?'Choose a top-up method':currentLanguage==='es'?'Elige un método de recarga':'Выберите способ пополнения'):(currentLanguage==='en'?'Choose a withdrawal method':currentLanguage==='es'?'Elige un método de retirada':'Выберите способ вывода средств');}
+  const back=document.querySelector('#payment .back-btn span');if(back)back.textContent=currentLanguage==='en'?'Back to Wallet':currentLanguage==='es'?'Volver a la cartera':'Вернуться в Кошелёк';
+  const balanceBtn=document.querySelector('.payment-method[data-payment-type="balance"]');if(balanceBtn)balanceBtn.hidden=true;
+  const balanceInfo=document.getElementById('paymentBalanceInfo');if(balanceInfo)balanceInfo.hidden=true;
+  const amountBox=document.getElementById('walletFlowAmount');if(amountBox)amountBox.hidden=false;
+  const amountLabel=document.getElementById('walletFlowAmountLabel');if(amountLabel)amountLabel.textContent=currentLanguage==='en'?'Amount':currentLanguage==='es'?'Importe':'Сумма';
+  const amountInput=document.getElementById('walletFlowAmountInput');if(amountInput)amountInput.value='';
+  const err=document.getElementById('walletFlowError');if(err)err.textContent='';
+  const confirm=document.getElementById('walletFlowConfirm');if(confirm)confirm.textContent=currentLanguage==='en'?'Continue':currentLanguage==='es'?'Continuar':'Продолжить';
+  const firstMethod=document.querySelector('.payment-method[data-payment-type="card"]');if(firstMethod)selectPayment(firstMethod);
+  showPage('payment');
+}
 function closeWalletAmount(){const m=document.getElementById('walletAmountModal');m.classList.remove('show');m.setAttribute('aria-hidden','true');}
 function confirmWalletAmount(){const input=document.getElementById('walletAmountInput');const amount=Number(input.value);const error=document.getElementById('walletAmountError');const t=translations[currentLanguage]||translations.RU;if(!Number.isInteger(amount)||amount<1||amount>99){error.textContent=t.walletAmountError;return;}const current=readWalletBalance();if(walletAmountMode==='subtract'&&amount>current){error.textContent=t.walletInsufficient;return;}const next=walletAmountMode==='add'?current+amount:current-amount;writeWalletBalance(next);closeWalletAmount();}
+function confirmWalletFlow(){
+  const amount=Number(document.getElementById('walletFlowAmountInput')?.value);
+  const error=document.getElementById('walletFlowError');
+  const t=translations[currentLanguage]||translations.RU;
+  if(!Number.isFinite(amount)||amount<=0||amount>9999){if(error)error.textContent=currentLanguage==='en'?'Enter a valid amount.':currentLanguage==='es'?'Introduce un importe válido.':'Введите корректную сумму.';return;}
+  if(paymentFlowMode==='wallet-withdraw'&&amount>readWalletBalance()){if(error)error.textContent=t.walletInsufficient||'Недостаточно средств на балансе.';return;}
+  const type=document.querySelector('.payment-method.active')?.dataset.paymentType||'card';
+  const unsupported=document.getElementById('paymentUnsupported');
+  if(type!=='card'){
+    if(unsupported){unsupported.hidden=false;unsupported.textContent=t.paymentUnsupported||'Данный тип оплаты пока что не поддерживается';}
+    return;
+  }
+  // Card processing is not connected to a payment provider yet; never change the balance before confirmation from a provider.
+  if(unsupported){unsupported.hidden=false;unsupported.textContent=currentLanguage==='en'?'Card processing is not connected yet. No funds have been moved.':currentLanguage==='es'?'El procesamiento de tarjetas aún no está conectado. No se han movido fondos.':'Обработка банковских карт пока не подключена. Деньги не были перемещены.';}
+}
 document.getElementById('walletAmountModal')?.addEventListener('click',e=>{if(e.target.id==='walletAmountModal')closeWalletAmount();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('walletAmountModal')?.classList.contains('show'))closeWalletAmount();});
 try{writeWalletBalance(readWalletBalance());renderSubscriptionState();}catch(err){}
