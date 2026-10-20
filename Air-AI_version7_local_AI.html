@@ -276,6 +276,17 @@ section{padding:65px 5vw}
 .account-section-card p{color:var(--muted);line-height:1.65;margin:0 0 18px}
 .account-section-content{display:grid;gap:10px}
 .account-section-content .info-row{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fafcfc}
+.account-settings-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;border:1px solid var(--line);border-radius:16px;background:#fbfdfd;color:var(--ink)}
+.account-settings-row .settings-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.account-settings-row .settings-copy strong{font-size:16px;font-weight:600}
+.account-settings-row .settings-copy small{font-size:13px;color:var(--muted);line-height:1.4}
+.account-settings-language{border:1px solid rgba(25,183,177,.45);border-radius:12px;padding:9px 12px;background:#fff;color:var(--ink);font:inherit;min-width:120px}
+.account-ios-switch{position:relative;display:inline-flex;flex:0 0 auto;width:52px;height:32px;border:0;border-radius:99px;background:#d5dadd;padding:3px;cursor:pointer;transition:background .2s}
+.account-ios-switch::after{content:"";width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s}
+.account-ios-switch[aria-checked="true"]{background:#00bcd4}
+.account-ios-switch[aria-checked="true"]::after{transform:translateX(20px)}
+.account-ios-switch:focus-visible,.account-settings-language:focus-visible{outline:3px solid rgba(0,188,212,.3);outline-offset:2px}
+
 .account-collection-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;border:1.5px solid rgba(25,183,177,.55);border-radius:14px;padding:14px;background:#fff;color:var(--text);font:inherit;cursor:pointer}
 .account-collection-row strong{display:block;font-size:15px;margin-bottom:6px}
 .account-collection-row small{display:block;color:var(--muted);font-size:12px;line-height:1.4}
@@ -303,14 +314,6 @@ section{padding:65px 5vw}
 .dream-map-svg{display:block;width:100%;height:auto;max-height:250px}
 .dream-map-land{fill:#dce9e9;stroke:#fff;stroke-width:1.2;stroke-linejoin:round;transition:fill .2s}
 .dream-map-land.selected{fill:#19b7b1}
-.account-countries-map-wrap{border:1px solid rgba(25,183,177,.35);border-radius:16px;background:#19b7b1;padding:10px;overflow:hidden;margin-bottom:14px}
-.account-countries-map-wrap .dream-map-land{fill:rgba(255,255,255,.24);stroke:rgba(255,255,255,.8);stroke-width:1.2;stroke-linejoin:round;transition:fill .2s}
-.account-countries-map-wrap .dream-map-land.selected{fill:#fff;stroke:#fff}
-.account-countries-map-wrap .dream-map-caption{color:#fff}
-.account-countries-country-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:14px;max-height:230px;overflow:auto}
-.account-countries-country-option{border:1px solid rgba(25,183,177,.28);border-radius:10px;background:#fff;color:var(--text);padding:9px 10px;text-align:left;font:inherit;font-size:13px;cursor:pointer}
-.account-countries-country-option.selected{background:#e9fbfa;border-color:#19b7b1;color:#087f7b}
-@media(max-width:480px){.account-countries-country-options{grid-template-columns:1fr}}
 .dream-map-caption{font-size:12px;color:var(--muted);margin:7px 2px 0}
 .dream-country-select{width:100%;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--text);padding:12px 14px;font:inherit}
 .dream-country-options{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:5px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
@@ -2646,19 +2649,11 @@ function renderAccountCountriesSection(){
   const choose=currentLanguage==='RU'?'Нажмите, чтобы выбрать несколько':currentLanguage==='ES'?'Toca para seleccionar varios':'Tap to select multiple';
   const empty=currentLanguage==='RU'?'Пока ничего не выбрано':currentLanguage==='ES'?'Todavía no hay nada seleccionado':'Nothing selected yet';
   const removeText=currentLanguage==='RU'?'Удалить':currentLanguage==='ES'?'Eliminar':'Remove';
+  const countryChips=countries.map(flag=>`<button type="button" class="account-selected-chip" data-remove-country="${flag}" title="${removeText}">${flag} <span>×</span></button>`).join('');
   const airportChips=airports.map(name=>{const a=(boardAirports||[]).find(x=>(x.en||x.ru||x.code)===name);const label=a?accountAirportDisplayName(a):name;return `<button type="button" class="account-selected-chip" data-remove-airport="${encodeURIComponent(name)}" title="${removeText}">${label} <span>×</span></button>`}).join('');
-  const mapSelected=getAccountArray('airAiCountriesMapSelected');
-  const mapLang=currentLanguage==='RU'?1:currentLanguage==='ES'?2:0;
-  const mapEsc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const mapAliases={'United States of America':'United States','Republic of Serbia':'Serbia','Czech Republic':'Czechia','Democratic Republic of the Congo':'Democratic Republic of the Congo','Republic of the Congo':'Congo','The Bahamas':'Bahamas','The Gambia':'Gambia','Ivory Coast':"Côte d'Ivoire",'eSwatini':'Eswatini'};
-  const mapFeatures=DREAM_MAP_FEATURES.map(f=>{const key=mapAliases[f.name]||f.name;return `<path class="dream-map-land ${mapSelected.includes(key)?'selected':''}" data-account-map-country="${mapEsc(key)}" d="${f.d}" vector-effect="non-scaling-stroke"><title>${mapEsc(DREAM_COUNTRIES.find(c=>c[0]===key)?.[mapLang]||f.name)}</title></path>`}).join('');
-  const mapOptions=DREAM_COUNTRIES.slice().sort((a,b)=>a[mapLang].localeCompare(b[mapLang],currentLanguage==='RU'?'ru':currentLanguage==='ES'?'es':'en')).map(c=>`<button type="button" class="account-countries-country-option ${mapSelected.includes(c[0])?'selected':''}" data-account-map-option="${mapEsc(c[0])}">${mapSelected.includes(c[0])?'✓ ':''}${mapEsc(c[mapLang])}</button>`).join('');
-  const mapChips=mapSelected.map(name=>{const c=DREAM_COUNTRIES.find(x=>x[0]===name);return `<button type="button" class="dream-selected-chip" data-account-map-remove="${mapEsc(name)}">${mapEsc(c?c[mapLang]:name)} ×</button>`}).join('');
   document.getElementById('accountSectionContent').innerHTML=`
-    <div class="account-countries-map-wrap"><svg class="dream-map-svg" viewBox="0 0 720 340" role="img" aria-label="World map"><rect width="720" height="340" rx="12" fill="#19b7b1"/>${mapFeatures}</svg><div class="dream-map-caption">${currentLanguage==='RU'?'Выбранные страны отмечены белым цветом':currentLanguage==='ES'?'Los países seleccionados aparecen en blanco':'Selected countries are highlighted in white'}</div></div>
-    <h3>${currentLanguage==='RU'?'Выберите страны':currentLanguage==='ES'?'Selecciona países':'Select countries'}</h3><div class="account-countries-country-options">${mapOptions}</div>
-    <h3>${currentLanguage==='RU'?'Выбранные страны':currentLanguage==='ES'?'Países seleccionados':'Selected countries'}</h3><div class="dream-selected-list">${mapChips||`<small>${currentLanguage==='RU'?'Пока ничего не выбрано':currentLanguage==='ES'?'Aún no hay países seleccionados':'No countries selected yet'}</small>`}</div>
-    <button type="button" class="account-save-changes" id="accountMapSaveChanges">${currentLanguage==='RU'?'Сохранить изменения':currentLanguage==='ES'?'Guardar cambios':'Save changes'}</button>
+    <button type="button" class="account-collection-row" id="accountCountriesRow" aria-expanded="${accountCountryPickerOpen}"><span><strong>🌍 ${flagLabel}</strong><small>${choose}</small><span class="account-selected-items">${countryChips||`<small>${empty}</small>`}</span></span><span class="menu-chevron">⌄</span></button>
+    <div id="accountCountryPicker" class="account-collection-picker account-country-picker ${accountCountryPickerOpen?'open':''}" aria-label="${flagLabel}"><div class="account-flag-grid" id="accountFlagGrid"></div></div>
     <button type="button" class="account-collection-row" id="accountAirportsRow" aria-expanded="${accountAirportPickerOpen}"><span><strong>✈️ ${airportLabel}</strong><small>${choose}</small><span class="account-selected-items">${airportChips||`<small>${empty}</small>`}</span></span><span class="menu-chevron">⌄</span></button>
     <div id="accountAirportPicker" class="account-collection-picker ${accountAirportPickerOpen?'open':''}" aria-label="${airportLabel}"><div class="account-airport-options" id="accountAirportOptions"></div></div>
     <button type="button" class="account-save-changes" id="accountSaveChanges">${currentLanguage==='RU'?'Сохранить изменения':currentLanguage==='ES'?'Guardar cambios':'Save changes'}</button>`;
@@ -2678,17 +2673,24 @@ function renderAccountCountriesSection(){
       return `<button type="button" class="account-airport-option ${chosen?'selected':''}" data-airport-name="${encodeURIComponent(name)}" aria-pressed="${chosen}"><span>${chosen?'☑':'☐'}</span><span><strong>${display}</strong>${location?`<small>${location}</small>`:''}</span><span class="account-airport-code">${a.code}</span></button>`;
     }).join('');
   };
-  renderAirports();
-  const toggleAccountMapCountry=name=>{let selected=getAccountArray('airAiCountriesMapSelected');selected=selected.includes(name)?selected.filter(x=>x!==name):[...selected,name];saveAccountArray('airAiCountriesMapSelected',selected);renderAccountCountriesSection();};
-  document.querySelectorAll('[data-account-map-option]').forEach(b=>b.onclick=()=>toggleAccountMapCountry(b.dataset.accountMapOption));
-  document.querySelectorAll('[data-account-map-country]').forEach(p=>p.onclick=()=>toggleAccountMapCountry(p.dataset.accountMapCountry));
-  document.querySelectorAll('[data-account-map-remove]').forEach(b=>b.onclick=()=>{saveAccountArray('airAiCountriesMapSelected',getAccountArray('airAiCountriesMapSelected').filter(x=>x!==b.dataset.accountMapRemove));renderAccountCountriesSection();});
-  document.getElementById('accountMapSaveChanges').onclick=()=>{const b=document.getElementById('accountMapSaveChanges');b.textContent=currentLanguage==='RU'?'Изменения сохранены':currentLanguage==='ES'?'Cambios guardados':'Changes saved';b.classList.add('saved');};
+  renderFlags();renderAirports();
+  document.getElementById('accountCountriesRow').onclick=e=>{
+    if(e.target.closest('[data-remove-country]'))return;
+    accountCountryPickerOpen=!accountCountryPickerOpen;
+    document.getElementById('accountCountryPicker').classList.toggle('open',accountCountryPickerOpen);
+    document.getElementById('accountCountriesRow').setAttribute('aria-expanded',String(accountCountryPickerOpen));
+  };
   document.getElementById('accountAirportsRow').onclick=e=>{
     if(e.target.closest('[data-remove-airport]'))return;
     accountAirportPickerOpen=!accountAirportPickerOpen;
     document.getElementById('accountAirportPicker').classList.toggle('open',accountAirportPickerOpen);
     document.getElementById('accountAirportsRow').setAttribute('aria-expanded',String(accountAirportPickerOpen));
+  };
+  document.getElementById('accountFlagGrid').onclick=e=>{
+    const b=e.target.closest('[data-country-flag]');if(!b)return;
+    const flag=b.dataset.countryFlag;const i=accountDraftCountries.indexOf(flag);
+    if(i<0)accountDraftCountries.push(flag);else accountDraftCountries.splice(i,1);
+    renderAccountCountriesSection();
   };
   document.getElementById('accountAirportOptions').onclick=e=>{
     const b=e.target.closest('[data-airport-name]');if(!b)return;
@@ -2729,7 +2731,26 @@ function renderDreamSection(){
  document.querySelectorAll('[data-dream-remove]').forEach(b=>b.onclick=()=>{saveAccountArray('airAiDreamCountries',getAccountArray('airAiDreamCountries').filter(x=>x!==b.dataset.dreamRemove));renderDreamSection();});
  document.getElementById('dreamSaveChanges').onclick=()=>{saveAccountArray('airAiDreamCountries',getAccountArray('airAiDreamCountries'));const b=document.getElementById('dreamSaveChanges');b.textContent=currentLanguage==='RU'?'Изменения сохранены':currentLanguage==='ES'?'Cambios guardados':'Changes saved';b.classList.add('saved');};
 }
-function openAccountSection(key){const d=accountSectionData[key],t=translations[currentLanguage]||translations.RU;if(!d)return;document.getElementById('accountSectionTitle').textContent=t[d[0]]||'';document.getElementById('accountSectionText').textContent=t[d[1]]||'';accountCountryPickerOpen=false;accountAirportPickerOpen=false;if(key==='countries'){accountDraftCountries=getAccountArray(ACCOUNT_COUNTRIES_KEY).filter(x=>accountFlagCatalog().some(f=>f.flag===x));accountDraftAirports=normalizeAccountAirportSelections(getAccountArray(ACCOUNT_AIRPORTS_KEY));renderAccountCountriesSection();}else if(key==='dream'){renderDreamSection();}else document.getElementById('accountSectionContent').innerHTML='<div class="info-row">'+(t[d[2]]||'')+'</div>';const m=document.getElementById('accountSectionModal');m.classList.add('show');m.setAttribute('aria-hidden','false');window.history.pushState({airAi:true,type:'modal',id:'accountSectionModal',key:key},'',window.location.href);}
+function renderAccountSettingsSection(){
+  const lang=currentLanguage==='RU'?'RU':currentLanguage==='ES'?'ES':'EN';
+  const labels={
+    RU:{language:'Язык приложения',languageHint:'Выберите язык интерфейса',notifications:'Уведомления',notificationsHint:'Разрешить уведомления от приложения',theme:'Тема приложения',themeHint:'Переключение светлой и тёмной темы',light:'Светлая',dark:'Тёмная',on:'Включены',off:'Выключены'},
+    EN:{language:'App language',languageHint:'Choose the interface language',notifications:'Notifications',notificationsHint:'Allow notifications from the app',theme:'App theme',themeHint:'Switch between light and dark appearance',light:'Light',dark:'Dark',on:'On',off:'Off'},
+    ES:{language:'Idioma de la aplicación',languageHint:'Elige el idioma de la interfaz',notifications:'Notificaciones',notificationsHint:'Permitir notificaciones de la aplicación',theme:'Tema de la aplicación',themeHint:'Cambiar entre tema claro y oscuro',light:'Claro',dark:'Oscuro',on:'Activadas',off:'Desactivadas'}
+  }[lang];
+  let notifications=true;try{const v=localStorage.getItem('airAiNotificationsEnabled');if(v!==null)notifications=v==='true';}catch(e){}
+  let themeToggle=false;try{themeToggle=localStorage.getItem('airAiDarkThemeDemo')==='true';}catch(e){}
+  const content=document.getElementById('accountSectionContent');
+  content.innerHTML=`
+    <div class="account-settings-row"><div class="settings-copy"><strong>${labels.language}</strong><small>${labels.languageHint}</small></div><select id="accountSettingsLanguage" class="account-settings-language" aria-label="${labels.language}"><option value="EN" ${lang==='EN'?'selected':''}>🇬🇧 English</option><option value="RU" ${lang==='RU'?'selected':''}>🇷🇺 Русский</option><option value="ES" ${lang==='ES'?'selected':''}>🇪🇸 Español</option><option value="ZH" disabled>🇨🇳 中文 — Coming soon</option></select></div>
+    <div class="account-settings-row"><div class="settings-copy"><strong>${labels.notifications}</strong><small>${labels.notificationsHint}</small></div><button type="button" id="accountNotificationsToggle" class="account-ios-switch" role="switch" aria-checked="${notifications}" aria-label="${labels.notifications}" title="${notifications?labels.on:labels.off}"></button></div>
+    <div class="account-settings-row"><div class="settings-copy"><strong>${labels.theme}</strong><small>${labels.themeHint}</small></div><button type="button" id="accountThemeToggle" class="account-ios-switch" role="switch" aria-checked="${themeToggle}" aria-label="${labels.theme}" title="${themeToggle?labels.dark:labels.light}"></button></div>`;
+  document.getElementById('accountSettingsLanguage').onchange=e=>{chooseLanguage(e.target.value);openAccountSection('settings');};
+  document.getElementById('accountNotificationsToggle').onclick=e=>{const b=e.currentTarget;const next=b.getAttribute('aria-checked')!=='true';b.setAttribute('aria-checked',String(next));b.title=next?labels.on:labels.off;try{localStorage.setItem('airAiNotificationsEnabled',String(next));}catch(err){}};
+  document.getElementById('accountThemeToggle').onclick=e=>{const b=e.currentTarget;const next=b.getAttribute('aria-checked')!=='true';b.setAttribute('aria-checked',String(next));b.title=next?labels.dark:labels.light;try{localStorage.setItem('airAiDarkThemeDemo',String(next));}catch(err){}};
+}
+
+function openAccountSection(key){const d=accountSectionData[key],t=translations[currentLanguage]||translations.RU;if(!d)return;document.getElementById('accountSectionTitle').textContent=t[d[0]]||'';document.getElementById('accountSectionText').textContent=t[d[1]]||'';accountCountryPickerOpen=false;accountAirportPickerOpen=false;if(key==='countries'){accountDraftCountries=getAccountArray(ACCOUNT_COUNTRIES_KEY).filter(x=>accountFlagCatalog().some(f=>f.flag===x));accountDraftAirports=normalizeAccountAirportSelections(getAccountArray(ACCOUNT_AIRPORTS_KEY));renderAccountCountriesSection();}else if(key==='dream'){renderDreamSection();}else if(key==='settings'){renderAccountSettingsSection();}else document.getElementById('accountSectionContent').innerHTML='<div class="info-row">'+(t[d[2]]||'')+'</div>';const m=document.getElementById('accountSectionModal');m.classList.add('show');m.setAttribute('aria-hidden','false');window.history.pushState({airAi:true,type:'modal',id:'accountSectionModal',key:key},'',window.location.href);}
 function closeAccountSection(fromHistory=false){if(!fromHistory){window.history.back();return;}const m=document.getElementById('accountSectionModal');m.classList.remove('show');m.setAttribute('aria-hidden','true');accountCountryPickerOpen=false;accountAirportPickerOpen=false;}
 document.getElementById('accountSectionModal')?.addEventListener('click',e=>{if(e.target.id==='accountSectionModal')closeAccountSection();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape' && document.getElementById('accountSectionModal')?.classList.contains('show'))closeAccountSection();});
