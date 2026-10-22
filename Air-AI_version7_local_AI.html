@@ -1742,15 +1742,17 @@ function closeAirportPicker(event, fromHistory=false){
 }
 function openAirportNavigation(code){
   const a=partnerAirports.find(x=>x.code===code); if(!a)return;
-  const t=translations[currentLanguage];
   closeAirportPicker(null,true);
-  document.getElementById('airportNavTitle').textContent=(t[a.key]||a.name)+' — '+(t.airportNavTitle||'Navigation');
-  const frame=document.getElementById('airportNavFrame');
-  if(a.map){ frame.hidden=false; frame.src=a.map; }
-  else{ frame.hidden=true; frame.src='about:blank'; }
-  document.getElementById('airportNavModal').classList.add('show');
-  document.body.style.overflow='hidden';
-  window.history.pushState({airAi:true,type:'modal',id:'airportNav',airportCode:code},'',window.location.href);
+  if(a.map){
+    // Most airport websites block iframe embedding (CSP / X-Frame-Options).
+    // Open the official map/site directly in a new tab instead of showing a blank iframe.
+    const opened=window.open(a.map,'_blank','noopener,noreferrer');
+    if(!opened){
+      const link=document.createElement('a');
+      link.href=a.map; link.target='_blank'; link.rel='noopener noreferrer';
+      link.style.display='none'; document.body.appendChild(link); link.click(); link.remove();
+    }
+  }
 }
 function closeAirportNavigation(event, fromHistory=false){
   if(event && event.target && event.target.id!=='airportNavModal')return;
