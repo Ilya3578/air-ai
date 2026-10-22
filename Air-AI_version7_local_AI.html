@@ -626,6 +626,8 @@ html:lang(en) .home-banner-ru{display:none!important;}
 .contact-modal-close{position:absolute;top:8px;right:12px;border:0;background:transparent;color:#52636b;font-size:27px;line-height:1.2;cursor:pointer;padding:4px 8px}
 .contact-modal-row{display:block;padding:13px 8px;color:#17212b;text-decoration:none;font-size:16px;overflow-wrap:anywhere}.contact-modal-row+.contact-modal-row{border-top:1px solid #e5eef0}.contact-modal-row.instagram{color:#009fb5;font-weight:600}.contact-modal-row:hover{color:#00a8bd}
 
+
+.news-modal[hidden]{display:none!important}.news-modal{position:fixed;inset:0;z-index:100001;background:rgba(10,25,30,.45);display:flex;align-items:center;justify-content:center;padding:18px}.news-modal-card{width:min(980px,100%);max-height:min(88vh,900px);overflow:auto;background:#fff;border-radius:22px;box-shadow:0 24px 80px rgba(0,0,0,.22);padding:22px}.news-modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:-22px;background:#fff;padding:2px 0 14px;z-index:1;border-bottom:1px solid #e4ebeb}.news-modal-title{font-size:24px;font-weight:750;margin:0}.news-modal-close{border:0;border-radius:50%;width:38px;height:38px;font-size:25px;background:#f1f5f5;cursor:pointer}.news-status{color:#71808a;padding:24px 4px;text-align:center}.news-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;padding-top:18px}.news-card{min-width:0;border:1px solid #e4ebeb;border-radius:16px;overflow:hidden;background:#fff}.news-card img,.news-card video{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#f4f7f7}.news-card-body{padding:13px}.news-caption{white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;line-height:1.45}.news-meta{font-size:12px;color:#71808a;margin:10px 0}.news-open{display:inline-block;color:#009fb5;font-weight:650;text-decoration:none}.news-open:hover{text-decoration:underline}@media(max-width:560px){.news-modal{padding:8px}.news-modal-card{padding:15px;border-radius:16px;max-height:94vh}.news-modal-header{top:-15px}.news-modal-title{font-size:21px}}
 .policy-page[hidden]{display:none!important}.policy-page{position:fixed;inset:0;z-index:100000;background:#fff;color:#17212b;overflow-y:auto;display:flex;flex-direction:column}
 .policy-page-header{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px clamp(16px,5vw,60px);background:#fff;border-bottom:1px solid #e5eef0;min-height:60px}
 .policy-back,.policy-close{border:0;background:transparent;color:#17212b;cursor:pointer;font:inherit;font-weight:600;padding:10px}.policy-close{font-size:28px}
@@ -1150,6 +1152,13 @@ html:lang(en) .home-banner-ru{display:none!important;}
   </div>
 </footer>
 
+<section id="newsModal" class="news-modal" aria-hidden="true" hidden>
+  <div class="news-modal-card" role="dialog" aria-modal="true" aria-labelledby="newsModalTitle">
+    <header class="news-modal-header"><h2 id="newsModalTitle" class="news-modal-title">Air-AI News</h2><button type="button" class="news-modal-close" onclick="closeNewsModal()" aria-label="Close">×</button></header>
+    <div id="newsStatus" class="news-status" role="status">Loading news…</div>
+    <div id="newsGrid" class="news-grid"></div>
+  </div>
+</section>
 <section id="contactModal" class="contact-modal" aria-hidden="true" hidden>
   <div class="contact-modal-card" role="dialog" aria-modal="true" aria-label="Contact us">
     <button type="button" class="contact-modal-close" aria-label="Close" onclick="closeContactModal()">×</button>
@@ -3120,11 +3129,44 @@ function openPolicyPage(type){
 
 function openContactModal(){const m=document.getElementById('contactModal');if(m){m.hidden=false;m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}}
 function closeContactModal(){const m=document.getElementById('contactModal');if(m){m.hidden=true;m.setAttribute('aria-hidden','true');document.body.style.overflow='';}}
+const newsCopy={
+  EN:{title:'Air-AI News',loading:'Loading news…',empty:'There are no posts available right now.',error:'News is temporarily unavailable. Please try again later.',open:'View on Instagram',retry:'Try again'},
+  RU:{title:'Новости Air-AI',loading:'Загружаем новости…',empty:'Пока нет доступных публикаций.',error:'Новости временно недоступны. Попробуйте позже.',open:'Открыть в Instagram',retry:'Повторить'}
+};
+function currentNewsLanguage(){try{if(typeof currentLanguage!=='undefined')return String(currentLanguage).toUpperCase().startsWith('RU')?'RU':'EN';}catch(err){}return 'EN';}
+function openNewsModal(){const m=document.getElementById('newsModal');if(!m)return;m.hidden=false;m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';loadAirAiNews();}
+function closeNewsModal(){const m=document.getElementById('newsModal');if(m){m.hidden=true;m.setAttribute('aria-hidden','true');document.body.style.overflow='';}}
+function escapeNewsHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+async function loadAirAiNews(){
+  const status=document.getElementById('newsStatus'),grid=document.getElementById('newsGrid'),lang=currentNewsLanguage(),copy=newsCopy[lang];
+  if(!status||!grid)return;status.textContent=copy.loading;status.hidden=false;grid.replaceChildren();
+  try{
+    const response=await fetch('/api/instagram-feed',{headers:{Accept:'application/json'},cache:'no-store'});
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(payload.error||'Feed unavailable');
+    const items=Array.isArray(payload.items)?payload.items:[];
+    if(!items.length){status.textContent=copy.empty;return;}
+    status.hidden=true;
+    for(const item of items){
+      if(!item||!item.permalink)continue;
+      const card=document.createElement('article');card.className='news-card';
+      const mediaUrl=item.mediaType==='VIDEO'?(item.thumbnailUrl||item.mediaUrl):(item.mediaUrl||item.thumbnailUrl);
+      if(mediaUrl){const img=document.createElement('img');img.src=mediaUrl;img.alt='Air-AI Instagram post';img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>img.remove();card.appendChild(img);}
+      const body=document.createElement('div');body.className='news-card-body';
+      const caption=document.createElement('div');caption.className='news-caption';caption.textContent=item.caption||'Air-AI';body.appendChild(caption);
+      if(item.timestamp){const date=document.createElement('div');date.className='news-meta';const parsed=new Date(item.timestamp);date.textContent=Number.isNaN(parsed.getTime())?'':parsed.toLocaleDateString(lang==='RU'?'ru-RU':'en-GB');body.appendChild(date);}
+      const link=document.createElement('a');link.className='news-open';link.href=item.permalink;link.target='_blank';link.rel='noopener noreferrer';link.textContent=copy.open;body.appendChild(link);card.appendChild(body);grid.appendChild(card);
+    }
+    if(!grid.children.length){status.hidden=false;status.textContent=copy.empty;}
+  }catch(error){console.error('Air-AI News failed to load:',error);status.hidden=false;status.textContent=copy.error;const retry=document.createElement('button');retry.type='button';retry.textContent=copy.retry;retry.style.cssText='display:block;margin:14px auto 0;border:0;border-radius:12px;padding:10px 16px;background:#19b7b1;color:white;cursor:pointer;font-weight:650';retry.addEventListener('click',loadAirAiNews);status.appendChild(retry);}
+}
+document.querySelector('[data-i18n="footerNews"]')?.addEventListener('click',e=>{e.preventDefault();openNewsModal();});
+document.getElementById('newsModal')?.addEventListener('click',e=>{if(e.target.id==='newsModal')closeNewsModal();});
 document.getElementById('footerContactLink')?.addEventListener('click',e=>{e.preventDefault();openContactModal();});
 document.getElementById('contactModal')?.addEventListener('click',e=>{if(e.target.id==='contactModal')closeContactModal();});
 function closePolicyPage(){const p=document.getElementById('policyPage');if(p){p.hidden=true;p.setAttribute('aria-hidden','true');document.body.style.overflow='';}}
 document.querySelectorAll('[data-policy]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openPolicyPage(a.dataset.policy);}));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePolicyPage();closeContactModal();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePolicyPage();closeContactModal();closeNewsModal();}});
 
 document.getElementById('airAiLoad')?.addEventListener('click',loadAirAiModel);
 applyLanguage();
