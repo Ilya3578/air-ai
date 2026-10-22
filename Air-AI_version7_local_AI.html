@@ -637,6 +637,22 @@ html:lang(zh) .home-banner-en,html:lang(zh) .home-banner-ru,html:lang(zh) .home-
 .policy-page-content h1{font-size:clamp(26px,4vw,36px);line-height:1.2;margin:0 0 8px}.policy-page-content .policy-updated{color:#657781;font-size:14px;margin:0 0 28px}
 .policy-page-content h2{font-size:19px;line-height:1.35;margin:28px 0 10px}.policy-page-content p{margin:0 0 14px}.policy-page-content ul{padding-left:24px;margin:0 0 18px}.policy-page-content li{margin:5px 0}
 @media(max-width:600px){.policy-page-content{width:calc(100% - 32px);padding-top:24px;font-size:15px}}
+
+/* Air-AI dark theme: only active when the App theme switch is enabled */
+html.air-ai-dark, html.air-ai-dark body { color:#fff !important; background:#000 !important; }
+html.air-ai-dark { color-scheme:dark; }
+html.air-ai-dark body::before { background-color:#000 !important; background-image:radial-gradient(ellipse at 20% 0%, #101719 0%, #000 68%) !important; }
+html.air-ai-dark :is(header,nav,footer,section,main,article,.card,.modal,.modal-content,.popup,.dropdown,.menu,.panel,.account-panel,.account-section,.settings-panel,.app-settings-list,.app-settings-row,.subscription-card,.sub-body,.feature-card,.flight-board,.board-airport-modal,.airport-modal,.language-menu,.profile-menu,.account-modal,.search-box,.search-container,.input-wrap,.form-group,.faq-item,.accordion-item,.country-picker,.airport-picker,.notification-panel,.chat-container,.chat-message,.message,.info-card,.content-card,.settings-card,.service-card,.airport-card,.footer-content,.navbar,.topbar,.bottom-nav,.mobile-menu) {
+  background-color:#000 !important; color:#fff !important; border-color:#333 !important;
+}
+html.air-ai-dark :is(h1,h2,h3,h4,h5,h6,p,span,label,small,strong,b,li,dt,dd,legend,summary,figcaption,.muted,.subtitle,.description,.account-settings-label,.app-settings-label,.app-settings-note) { color:#fff; }
+html.air-ai-dark :is(input,textarea,select,option) { background-color:#000 !important; color:#fff !important; border-color:#444 !important; }
+html.air-ai-dark :is(button:not(.app-settings-switch),.button,.btn) { border-color:#333; }
+html.air-ai-dark .home-language-banner img { filter:brightness(.72) contrast(1.08); }
+html.air-ai-dark .app-settings-switch::after { background:#fff; }
+html.air-ai-dark a { color:var(--azure); }
+html.air-ai-dark :is(.pill,.badge,.lang,.avatar-circle,[class*="azure"],[class*="cyan"],[class*="colorful"]) { /* preserve brand/color accents */ }
+
 </style>
 
 <style>
@@ -1235,6 +1251,8 @@ html:lang(zh) .home-banner-en,html:lang(zh) .home-banner-ru,html:lang(zh) .home-
 </div>
 
 <script>
+try{if(localStorage.getItem('airAiDarkThemeDemo')==='true')document.documentElement.classList.add('air-ai-dark');}catch(e){}
+
 let toastTimer;
 
 const translations = {
@@ -2877,8 +2895,9 @@ function renderAppSettingsSection(){
   const labels={
     RU:{language:'Язык приложения',notifications:'Уведомления',theme:'Тема приложения',light:'Светлая',dark:'Тёмная',note:'Переключение тёмной темы пока демонстрационное.'},
     EN:{language:'App language',notifications:'Notifications',theme:'App theme',light:'Light',dark:'Dark',note:'The dark-theme switch is currently a demo only.'},
-    ES:{language:'Idioma de la aplicación',notifications:'Notificaciones',theme:'Tema de la aplicación',light:'Claro',dark:'Oscuro',note:'El interruptor del tema oscuro es solo una demostración.'}
-  }[lang];
+    ES:{language:'Idioma de la aplicación',notifications:'Notificaciones',theme:'Tema de la aplicación',light:'Claro',dark:'Oscuro',note:'El interruptor del tema oscuro es solo una demostración.'},
+    ZH:{language:'应用语言',notifications:'通知',theme:'应用主题',light:'关闭',dark:'开启',note:'启用后使用深色主题。'}
+  }[currentLanguage==='ZH'?'ZH':lang];
   let notificationEnabled=true;
   let themeEnabled=false;
   try{const saved=localStorage.getItem('airAiNotificationsEnabled');if(saved!==null)notificationEnabled=saved==='true';}catch(e){}
@@ -2891,7 +2910,7 @@ function renderAppSettingsSection(){
   </div><p class="app-settings-note">${labels.note}</p>`;
   document.getElementById('appSettingsLanguage').addEventListener('change',e=>{if(['EN','RU','ES'].includes(e.target.value))chooseLanguage(e.target.value);});
   document.getElementById('appSettingsNotifications').addEventListener('click',e=>{const b=e.currentTarget;const next=b.getAttribute('aria-checked')!=='true';b.setAttribute('aria-checked',String(next));try{localStorage.setItem('airAiNotificationsEnabled',String(next));}catch(err){}});
-  document.getElementById('appSettingsTheme').addEventListener('click',e=>{const b=e.currentTarget;const next=b.getAttribute('aria-checked')!=='true';b.setAttribute('aria-checked',String(next));try{localStorage.setItem('airAiDarkThemeDemo',String(next));}catch(err){}});
+  document.getElementById('appSettingsTheme').addEventListener('click',e=>{const b=e.currentTarget;const next=b.getAttribute('aria-checked')!=='true';b.setAttribute('aria-checked',String(next));document.documentElement.classList.toggle('air-ai-dark',next);try{localStorage.setItem('airAiDarkThemeDemo',String(next));}catch(err){}});
 }
 
 function openAccountSection(key){const d=accountSectionData[key],t=translations[currentLanguage]||translations.RU;if(!d)return;document.getElementById('accountSectionTitle').textContent=t[d[0]]||'';document.getElementById('accountSectionText').textContent=t[d[1]]||'';accountCountryPickerOpen=false;accountAirportPickerOpen=false;if(key==='countries'){accountDraftCountries=getAccountArray(ACCOUNT_COUNTRIES_KEY).filter(x=>accountFlagCatalog().some(f=>f.flag===x));accountDraftAirports=normalizeAccountAirportSelections(getAccountArray(ACCOUNT_AIRPORTS_KEY));renderAccountCountriesSection();}else if(key==='dream'){renderDreamSection();}else if(key==='settings'){renderAppSettingsSection();}else if(key==='security'){document.getElementById('accountSectionContent').innerHTML='<div class="info-row">Email</div><div class="info-row">Password</div>';}else document.getElementById('accountSectionContent').innerHTML='<div class="info-row">'+(t[d[2]]||'')+'</div>';const m=document.getElementById('accountSectionModal');m.classList.add('show');m.setAttribute('aria-hidden','false');window.history.pushState({airAi:true,type:'modal',id:'accountSectionModal',key:key},'',window.location.href);}
