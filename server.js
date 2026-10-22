@@ -1,67 +1,9 @@
 
 import express from "express";
 import { readFile } from "node:fs/promises";
-import { timingSafeEqual } from "node:crypto";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SITE_PASSWORD = process.env.SITE_PASSWORD;
-
-if (!SITE_PASSWORD) {
-  throw new Error("SITE_PASSWORD is not configured on Render");
-}
-
-app.use((req, res, next) => {
-  const auth = req.headers.authorization || "";
-  const match = auth.match(/^Basic\s+(.+)$/i);
-
-  if (!match) {
-    res.set(
-      "WWW-Authenticate",
-      'Basic realm="Air-AI Assistant", charset="UTF-8"'
-    );
-    return res.status(401).send("Enter password to access Air-AI Assistant.");
-  }
-
-  let credentials;
-
-  try {
-    credentials = Buffer.from(match[1], "base64").toString("utf8");
-  } catch {
-    res.set(
-      "WWW-Authenticate",
-      'Basic realm="Air-AI Assistant"'
-    );
-    return res.status(401).send("Invalid credentials.");
-  }
-
-  const separator = credentials.indexOf(":");
-
-  if (separator < 0) {
-    return res.status(401).send("Invalid credentials.");
-  }
-
-  const username = credentials.slice(0, separator);
-  const password = credentials.slice(separator + 1);
-
-  const expected = Buffer.from(SITE_PASSWORD, "utf8");
-  const supplied = Buffer.from(password, "utf8");
-
-  const validPassword =
-    expected.length === supplied.length &&
-    timingSafeEqual(expected, supplied);
-
-  if (username !== "airai" || !validPassword) {
-    res.set(
-      "WWW-Authenticate",
-      'Basic realm="Air-AI Assistant"'
-    );
-    return res.status(401).send("Incorrect username or password.");
-  }
-
-  next();
-});
-
 app.use(express.static("."));
 
 app.get("/", async (req, res) => {
@@ -1075,6 +1017,9 @@ app.get('/api/instagram-feed', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Air-AI Aviationstack API listening on :${PORT}`);
 });
+
+
+
 
 
 
