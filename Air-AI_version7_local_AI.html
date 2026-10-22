@@ -1696,6 +1696,7 @@ function applyLanguage(){
     const key=el.getAttribute('data-i18n-placeholder');
     if(t[key]!==undefined) el.placeholder=t[key];
   });
+  document.querySelectorAll('.sub-grid .price small').forEach(el=>{el.textContent='/ '+(currentLanguage==='EN'?'month':currentLanguage==='ES'?'mes':currentLanguage==='ZH'?'月':'месяц');});
   updateSubscriptionsBackButton();
   try { writeWalletBalance(readWalletBalance()); renderSubscriptionState(); } catch (err) { /* subscription or wallet UI may not be ready yet */ }
   // Restore the user's selected airport after generic translations reset labels to defaults.
@@ -2800,7 +2801,7 @@ function openSubscriptionDetails(plan){
   const t=translations[currentLanguage];
   if(!data) return;
   document.getElementById('subscriptionModalPill').textContent=data.pill;
-  document.getElementById('subscriptionModalTitle').innerHTML=data.price.replace(' / месяц',' <small>/ месяц</small>');
+  document.getElementById('subscriptionModalTitle').innerHTML=data.price.replace(' / месяц',' <small>/ '+(currentLanguage==='EN'?'month':currentLanguage==='ES'?'mes':currentLanguage==='ZH'?'月':'месяц')+'</small>');
   document.getElementById('subscriptionModalDetail').innerHTML=t[data.detailKey] || '';
   document.getElementById('subscriptionModalImage').style.backgroundImage="url('"+data.photo+"')";
   document.getElementById('subscriptionModal').classList.add('show');
