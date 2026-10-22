@@ -2314,6 +2314,8 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeBoardAi
 
 const AIR_AI_WALLET_KEY = 'airAiWalletBalance';
 const AIR_AI_PLAN_KEY = 'airAiActivePlan';
+const AIR_AI_PLAN_EXPIRES_KEY = 'airAiPlanExpiresAt';
+const AIR_AI_PLAN_PERIOD_MS = 30 * 24 * 60 * 60 * 1000;
 const SMART_AIR_AI_PRICE = 4.99;
 
 function readWalletBalance(){
@@ -2340,11 +2342,32 @@ function writeWalletBalance(amount){
   if(paymentBalance)paymentBalance.textContent=formatWalletBalance(safe);
   return safe;
 }
+function normalizeAirAiSubscription(){
+  try{
+    const plan=String(localStorage.getItem(AIR_AI_PLAN_KEY)||'hello').toLowerCase();
+    if(plan!=='smart'){
+      localStorage.removeItem(AIR_AI_PLAN_EXPIRES_KEY);
+      return;
+    }
+    let expiresAt=Number(localStorage.getItem(AIR_AI_PLAN_EXPIRES_KEY));
+    // Existing Smart users without an expiry receive one 30-day period from first use.
+    if(!Number.isFinite(expiresAt)||expiresAt<=0){
+      expiresAt=Date.now()+AIR_AI_PLAN_PERIOD_MS;
+      localStorage.setItem(AIR_AI_PLAN_EXPIRES_KEY,String(expiresAt));
+    }
+    if(Date.now()>=expiresAt){
+      localStorage.setItem(AIR_AI_PLAN_KEY,'hello');
+      localStorage.removeItem(AIR_AI_PLAN_EXPIRES_KEY);
+    }
+  }catch(err){}
+}
 function activeAirAiPlan(){
+  normalizeAirAiSubscription();
   try{return localStorage.getItem(AIR_AI_PLAN_KEY)==='smart'?'smart':'hello';}catch(err){return 'hello';}
 }
 function hasFlightSearchAccess(){
   // Smart and higher tiers can use flight search; Hello Air-AI cannot.
+  normalizeAirAiSubscription();
   try{return ['smart','family','pro','first'].includes(String(localStorage.getItem(AIR_AI_PLAN_KEY)||'').toLowerCase());}
   catch(err){return false;}
 }
@@ -2581,7 +2604,7 @@ function renderSubscriptionState(){
 }
 function returnToHelloSubscription(){
   const t=translations[currentLanguage]||translations.RU;
-  try{localStorage.setItem(AIR_AI_PLAN_KEY,'hello');}
+  try{localStorage.setItem(AIR_AI_PLAN_KEY,'hello');localStorage.removeItem(AIR_AI_PLAN_EXPIRES_KEY);}
   catch(err){toast(currentLanguage==='EN'?'Could not change subscription.':'Не удалось изменить подписку.');return;}
   renderSubscriptionState();
   toast(currentLanguage==='EN'?'Returned to Hello Air-AI.':'Вы вернулись на подписку Hello Air-AI.');
@@ -2658,10 +2681,12 @@ function paySmartWithBalance(){
     previousPlan=localStorage.getItem(AIR_AI_PLAN_KEY);
     localStorage.setItem(AIR_AI_WALLET_KEY,String(next));
     localStorage.setItem(AIR_AI_PLAN_KEY,'smart');
+    localStorage.setItem(AIR_AI_PLAN_EXPIRES_KEY,String(Date.now()+AIR_AI_PLAN_PERIOD_MS));
   }catch(err){
     // Roll back any partial localStorage write so a failed activation never charges the wallet.
     try{if(previousWallet===null)localStorage.removeItem(AIR_AI_WALLET_KEY);else localStorage.setItem(AIR_AI_WALLET_KEY,previousWallet);}catch(rollbackErr){}
     try{if(previousPlan===null)localStorage.removeItem(AIR_AI_PLAN_KEY);else localStorage.setItem(AIR_AI_PLAN_KEY,previousPlan);}catch(rollbackErr){}
+    try{localStorage.removeItem(AIR_AI_PLAN_EXPIRES_KEY);}catch(rollbackErr){}
     toast((translations[currentLanguage]||translations.RU).paymentUnsupported||'Не удалось провести оплату.');return;
   }
   writeWalletBalance(next);
