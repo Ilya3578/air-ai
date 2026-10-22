@@ -1393,8 +1393,7 @@ function chooseLanguage(code){
   document.documentElement.lang=code.toLowerCase();
   document.querySelector('.lang').textContent=code+' ▾';
   document.getElementById('languageMenu').style.display='none';
-  applyLanguage();
-}
+  
 
 function setAccountAvatar(src){
   const avatar = document.querySelector('.avatar-circle');
@@ -1592,6 +1591,7 @@ if(document.getElementById('accountName')){
 
 
 applyLanguage();
+}
 
 function toggleDownloadNotice(){
   const notice=document.getElementById('downloadAppNotice');
