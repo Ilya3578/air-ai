@@ -1012,9 +1012,70 @@ app.get("/api/flight", async (req, res) => {
   }
 });
 
+
+// Instagram feed for the Air-AI News page. Keep the access token server-side.
+let instagramFeedCache = { at: 0, items: null };
+const INSTAGRAM_FEED_CACHE_TTL = 5 * 60 * 1000;
+
+app.get('/api/instagram-feed', async (req, res) => {
+  try {
+    const token = process.env.INSTAGRAM_ACCESS_TOKEN;
+    if (!token) {
+      return res.status(503).json({
+        error: 'Instagram feed is not configured on the server.'
+      });
+    }
+
+    if (instagramFeedCache.items && Date.now() - instagramFeedCache.at < INSTAGRAM_FEED_CACHE_TTL) {
+      res.set('Cache-Control', 'private, max-age=60');
+      return res.json({ items: instagramFeedCache.items });
+    }
+
+    const url = new URL('https://graph.instagram.com/v25.0/me/media');
+    url.searchParams.set('fields', 'id,caption,media_type,media_url,permalink,timestamp,thumbnail_url');
+    url.searchParams.set('limit', '12');
+    url.searchParams.set('access_token', token);
+
+    const response = await fetch(url, { headers: { Accept: 'application/json' } });
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok || payload.error) {
+      console.error('Instagram feed API error:', {
+        status: response.status,
+        message: payload?.error?.message || 'Instagram API request failed'
+      });
+      return res.status(502).json({
+        error: 'Instagram posts are temporarily unavailable.'
+      });
+    }
+
+    const items = (Array.isArray(payload.data) ? payload.data : [])
+      .filter(item => item && item.id && item.permalink)
+      .map(item => ({
+        id: String(item.id),
+        caption: typeof item.caption === 'string' ? item.caption : '',
+        mediaType: String(item.media_type || 'IMAGE'),
+        mediaUrl: typeof item.media_url === 'string' ? item.media_url : null,
+        thumbnailUrl: typeof item.thumbnail_url === 'string' ? item.thumbnail_url : null,
+        permalink: String(item.permalink),
+        timestamp: typeof item.timestamp === 'string' ? item.timestamp : null
+      }));
+
+    instagramFeedCache = { at: Date.now(), items };
+    res.set('Cache-Control', 'private, max-age=60');
+    return res.json({ items });
+  } catch (error) {
+    console.error('Instagram feed route failed:', error.message);
+    return res.status(502).json({
+      error: 'Instagram posts are temporarily unavailable.'
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Air-AI Aviationstack API listening on :${PORT}`);
 });
+
 
 
 
