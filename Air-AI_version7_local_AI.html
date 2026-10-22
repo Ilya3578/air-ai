@@ -627,6 +627,28 @@ html:lang(en) .home-banner-ru{display:none!important;}
 .policy-page-content h1{font-size:clamp(26px,4vw,36px);line-height:1.2;margin:0 0 8px}.policy-page-content .policy-updated{color:#657781;font-size:14px;margin:0 0 28px}
 .policy-page-content h2{font-size:19px;line-height:1.35;margin:28px 0 10px}.policy-page-content p{margin:0 0 14px}.policy-page-content ul{padding-left:24px;margin:0 0 18px}.policy-page-content li{margin:5px 0}
 @media(max-width:600px){.policy-page-content{width:calc(100% - 32px);padding-top:24px;font-size:15px}}
+
+/* Air-AI News / Instagram feed */
+.news-page[hidden]{display:none!important}
+.news-page{position:fixed;inset:0;z-index:100001;background:#f4f7f7;color:#17212b;overflow-y:auto;display:flex;flex-direction:column}
+.news-page-header{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px clamp(16px,5vw,60px);background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-bottom:1px solid #e5eef0;min-height:64px}
+.news-page-header strong{font-size:17px}
+.news-page-content{width:min(1100px,calc(100% - 32px));margin:0 auto;padding:26px 0 60px}
+.news-page-title{font-size:clamp(28px,4vw,40px);letter-spacing:-.03em;margin:0 0 8px}
+.news-page-subtitle{color:#657781;margin:0 0 24px;line-height:1.5}
+.news-feed-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.news-feed-card{background:#fff;border:1px solid #e4ebeb;border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(15,50,55,.06);display:flex;flex-direction:column;min-width:0}
+.news-feed-image-wrap{aspect-ratio:4/3;background:#eaf1f1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.news-feed-image{width:100%;height:100%;object-fit:cover;display:block}
+.news-feed-placeholder{color:#71808a;font-size:13px;padding:16px;text-align:center}
+.news-feed-body{padding:16px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;flex:1}
+.news-feed-date{font-size:12px;color:#71808a}
+.news-feed-caption{font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.news-feed-open{display:inline-flex;align-items:center;justify-content:center;margin-top:auto;text-decoration:none;background:#19b7b1;color:white;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:650}
+.news-feed-state{padding:22px;border:1px solid #e4ebeb;border-radius:16px;background:#fff;color:#657781;line-height:1.6}
+@media(max-width:760px){.news-feed-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.news-feed-body{padding:12px}}
+@media(max-width:480px){.news-feed-grid{grid-template-columns:1fr}.news-feed-image-wrap{aspect-ratio:16/10}}
+
 </style>
 
 <style>
@@ -1145,6 +1167,21 @@ html:lang(en) .home-banner-ru{display:none!important;}
 </footer>
 
 <section id="policyPage" class="policy-page" aria-hidden="true" hidden><header class="policy-page-header"><button type="button" onclick="closePolicyPage()" class="policy-back">← Back</button><strong>Air-AI Assistant</strong><button type="button" onclick="closePolicyPage()" class="policy-close">×</button></header><article id="policyPageContent" class="policy-page-content"></article></section>
+
+<section id="newsPage" class="news-page" aria-hidden="true" hidden>
+  <header class="news-page-header">
+    <button type="button" onclick="closeNewsPage()" class="policy-back" id="newsBackButton">← Назад</button>
+    <strong>Air-AI Assistant</strong>
+    <button type="button" onclick="closeNewsPage()" class="policy-close" aria-label="Close news">×</button>
+  </header>
+  <main class="news-page-content">
+    <h1 class="news-page-title" id="newsPageTitle">Новости Air-AI</h1>
+    <p class="news-page-subtitle" id="newsPageSubtitle">Последние публикации из Instagram Air-AI Assistant.</p>
+    <div id="newsFeedState" class="news-feed-state" role="status" aria-live="polite">Загружаем публикации…</div>
+    <div id="newsFeedGrid" class="news-feed-grid"></div>
+  </main>
+</section>
+
 <nav class="bottom-nav">
   <div class="nav-inner">
     <button class="nav-btn active" onclick="goHome(this)"><span class="nav-icon">⌂</span><span data-i18n="navHome">Home</span></button>
@@ -3026,6 +3063,53 @@ async function checkCountryVisa(){
 }
 
 
+
+const airAiNewsText = {
+ RU: { title:'Новости Air-AI', subtitle:'Последние публикации из Instagram Air-AI Assistant.', back:'← Назад', loading:'Загружаем публикации…', empty:'Пока нет публикаций Instagram для отображения.', failed:'Не удалось загрузить публикации. Попробуйте позже.', open:'Открыть в Instagram', noImage:'Медиа недоступно', updated:'Опубликовано' },
+ EN: { title:'Air-AI News', subtitle:'Latest posts from the Air-AI Assistant Instagram account.', back:'← Back', loading:'Loading posts…', empty:'There are no Instagram posts to display yet.', failed:'Could not load posts. Please try again later.', open:'View on Instagram', noImage:'Media unavailable', updated:'Published' },
+ ES: { title:'Noticias de Air-AI', subtitle:'Publicaciones recientes de Instagram de Air-AI Assistant.', back:'← Volver', loading:'Cargando publicaciones…', empty:'Todavía no hay publicaciones de Instagram para mostrar.', failed:'No se pudieron cargar las publicaciones. Inténtalo más tarde.', open:'Ver en Instagram', noImage:'Contenido multimedia no disponible', updated:'Publicado' }
+};
+function newsText(){return airAiNewsText[currentLanguage]||airAiNewsText.EN;}
+function openNewsPage(){
+  const page=document.getElementById('newsPage');
+  if(!page)return;
+  page.hidden=false;page.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+  renderInstagramNews();
+}
+function closeNewsPage(){
+  const page=document.getElementById('newsPage');
+  if(page){page.hidden=true;page.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+}
+function renderInstagramNews(){
+  const t=newsText(),title=document.getElementById('newsPageTitle'),subtitle=document.getElementById('newsPageSubtitle'),
+    back=document.getElementById('newsBackButton'),state=document.getElementById('newsFeedState'),grid=document.getElementById('newsFeedGrid');
+  if(!state||!grid)return;
+  title.textContent=t.title;subtitle.textContent=t.subtitle;back.textContent=t.back;
+  grid.replaceChildren();state.hidden=false;state.textContent=t.loading;
+  fetch('/api/instagram-feed',{headers:{Accept:'application/json'}})
+    .then(async response=>{const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||'Instagram feed unavailable');return data;})
+    .then(data=>{
+      const items=Array.isArray(data.items)?data.items:[];
+      state.hidden=items.length>0;state.textContent=items.length?'':t.empty;
+      if(!items.length){state.hidden=false;return;}
+      for(const item of items){
+        const card=document.createElement('article');card.className='news-feed-card';
+        const imageWrap=document.createElement('div');imageWrap.className='news-feed-image-wrap';
+        const imageUrl=item.mediaType==='VIDEO'?(item.thumbnailUrl||item.mediaUrl):(item.mediaUrl||item.thumbnailUrl);
+        if(imageUrl){
+          const img=document.createElement('img');img.className='news-feed-image';img.loading='lazy';img.alt='';
+          img.src=imageUrl;img.onerror=()=>{img.remove();const fallback=document.createElement('div');fallback.className='news-feed-placeholder';fallback.textContent=t.noImage;imageWrap.append(fallback);};imageWrap.append(img);
+        }else{const fallback=document.createElement('div');fallback.className='news-feed-placeholder';fallback.textContent=t.noImage;imageWrap.append(fallback);}
+        const body=document.createElement('div');body.className='news-feed-body';
+        if(item.timestamp){const date=document.createElement('div');date.className='news-feed-date';const parsed=new Date(item.timestamp);date.textContent=Number.isNaN(parsed.getTime())?'':`${t.updated}: ${parsed.toLocaleDateString(currentLanguage==='RU'?'ru-RU':currentLanguage==='ES'?'es-ES':'en-GB',{day:'numeric',month:'short',year:'numeric'})}`;body.append(date);}
+        if(item.caption){const caption=document.createElement('div');caption.className='news-feed-caption';caption.textContent=item.caption;body.append(caption);}
+        const link=document.createElement('a');link.className='news-feed-open';link.href=item.permalink;link.target='_blank';link.rel='noopener noreferrer';link.textContent=t.open;body.append(link);
+        card.append(imageWrap,body);grid.append(card);
+      }
+    })
+    .catch(error=>{console.error('Air-AI News failed:',error);grid.replaceChildren();state.hidden=false;state.textContent=t.failed;});
+}
+
 const airAiPolicyTexts = {"privacy": "AIR-AI ASSISTANT\nPRIVACY POLICY\n\nLast updated: 20 October 2026\n\n1. ABOUT THIS POLICY\n\nThis Privacy Policy explains how Air-AI Assistant (“Air-AI”, “we”, “our” or “the website”) handles information when you visit or use the Air-AI Assistant website.\n\nAir-AI Assistant provides travel-related information and tools, including flight lookup, airport selection, airport-related information and an AI assistant. The website is currently under development. Some account, subscription and payment screens may be demonstrations and may not represent live services.\n\n2. INFORMATION YOU PROVIDE OR USE\n\nDepending on the features you use, information may include:\n- A flight number entered to look up flight information.\n- The airport you select and interface preferences, such as language.\n- Text you enter into the AI assistant.\n- Information you send to our support email.\n\nPlease do not enter passport numbers, payment card details, passwords or other sensitive personal information into features that do not specifically require them.\n\n3. AI ASSISTANT\n\nThe AI assistant uses the Llama 3.2 1B Instruct model with the MLC WebLLM engine. The model is designed to run in the user's browser. Your prompts may be processed in the browser to generate a response. We do not intentionally use AI prompts to create user profiles.\n\nThe model and its output may be inaccurate, incomplete or out of date. Do not rely on AI-generated information as the sole source for important travel, safety, immigration or legal decisions. Verify important information with the relevant airport, airline or official authority.\n\n4. FLIGHT AND AIRPORT INFORMATION\n\nWhen you request flight information, the website may use third-party aviation data services, including Avionio and Aviationstack. The flight number and information needed to perform the requested lookup may be sent to the relevant service. Those services process information under their own terms and privacy policies.\n\nThe website may also link to or display content from airports, mapping services and other third parties. When you open or interact with third-party services, their own privacy policies and practices apply.\n\n5. BROWSER STORAGE AND COOKIES\n\nAir-AI Assistant currently does not use cookie files. The website may store settings such as your selected language, airport or other interface preferences in your browser so that the site can remember them. Browser storage is different from cookies.\n\nThe website does not currently report using analytics or advertising trackers. If these practices change, this policy should be updated accordingly.\n\n6. ACCOUNTS, SUBSCRIPTIONS AND PAYMENTS\n\nRegistration, account credentials, subscription purchases and Air-AI Balance/payment features are currently not connected to a live account or payment system. Do not assume that entering information into a demonstration interface creates a secure account, stores credentials, or completes a real payment. Do not enter real payment-card details into demonstration fields.\n\nIf live registration or payment functionality is introduced, this policy will be updated to explain the information involved and how it is handled.\n\n7. HOSTING AND WEBSITE OPERATIONS\n\nThe website is hosted and deployed through Render. Website code and deployment changes are managed through the hosting and deployment workflow. Render may process technical information needed to deliver, secure and operate the website, such as request and diagnostic logs, in accordance with its own terms and policies. We do not claim that Render stores every item you enter into the website.\n\nThe website's source code is maintained in a GitHub repository. Please refer to the relevant providers' privacy documentation for their own processing practices.\n\n8. DATA RETENTION AND SECURITY\n\nWe do not intentionally maintain a separate Air-AI user account database through the current website interface. Settings stored in your browser may remain there until you clear the relevant browser data or the site changes how it stores settings. Third-party providers may retain information under their own policies.\n\nWe take reasonable steps appropriate to a website under development, but no website or method of transmission can be guaranteed to be completely secure.\n\n9. CHILDREN\n\nAir-AI Assistant is intended for use subject to applicable laws and age requirements. If you are a parent or guardian and believe a child has sent personal information to us through support, please contact us so that we can review the request.\n\n10. YOUR CHOICES AND RIGHTS\n\nDepending on where you live, you may have legal rights concerning personal information. You can clear browser-stored site settings through your browser controls. For privacy questions or requests, contact us at the address below. Requests relating to third-party services may need to be directed to those providers.\n\n11. CHANGES TO THIS POLICY\n\nWe may update this Privacy Policy as the website's features and data practices change. The “Last updated” date above indicates the latest revision. Please review this page periodically.\n\n12. CONTACT\n\nPrivacy and support: air.ai.assistant.support@gmail.com\n", "cookies": "AIR-AI ASSISTANT\nCOOKIES POLICY\n\nLast updated: 20 October 2026\n\n1. OVERVIEW\n\nAir-AI Assistant currently does not use cookie files on its website.\n\n2. BROWSER STORAGE\n\nTo keep the website convenient to use, Air-AI Assistant may store interface settings in your browser, such as your selected language, selected airport or other preferences. This type of browser storage is not the same as a cookie file.\n\nYou can remove browser-stored site data through your browser's settings. Removing it may reset saved preferences.\n\n3. THIRD-PARTY SERVICES\n\nAir-AI Assistant may use or link to third-party aviation data services, airport websites, mapping services or other external content. Those third parties may use their own technologies and data practices when you visit or interact with their services. Their practices are governed by their own policies, not this Cookies Policy.\n\n4. ANALYTICS AND ADVERTISING\n\nAir-AI Assistant does not currently report using analytics cookies or advertising cookies. If cookie use, analytics or advertising technologies are introduced in the future, this policy will be updated as appropriate.\n\n5. CHANGES TO THIS POLICY\n\nThis policy may be updated if the website's technology or functionality changes. The “Last updated” date above indicates the latest revision.\n\n6. CONTACT\n\nQuestions about this policy: air.ai.assistant.support@gmail.com\n", "accessibility": "AIR-AI ASSISTANT\nACCESSIBILITY STATEMENT\n\nLast updated: 20 October 2026\n\n1. OUR COMMITMENT\n\nAir-AI Assistant aims to make its website and travel-related tools usable by as many people as possible. We are working to improve accessibility as the website develops.\n\n2. CURRENT STATUS\n\nThe website's functionality has been checked. Keyboard operation has been tested. However, a comprehensive accessibility audit has not been completed, and we do not claim full conformance with WCAG or any other formal accessibility standard at this time.\n\nSome pages, interactive controls, embedded third-party content or visual elements may not yet be fully accessible to every user or assistive technology.\n\n3. ONGOING IMPROVEMENTS\n\nAs the website develops, we aim to improve:\n- Keyboard navigation and visible focus indicators.\n- Clear labels, headings and instructions for interactive controls.\n- Readability, contrast and responsive layouts.\n- Compatibility with screen readers and other assistive technologies.\n- Accessibility of third-party content where we can influence its presentation.\n\nThird-party websites, maps, aviation data services and embedded content may have their own accessibility limitations that are outside our direct control.\n\n4. REPORT AN ACCESSIBILITY ISSUE\n\nIf you encounter a barrier while using Air-AI Assistant, please contact us. If possible, include the page or feature involved, what you were trying to do, and the assistive technology or browser you were using. Please do not include passwords, payment details or other sensitive information.\n\nWe will review accessibility feedback and use it to guide improvements.\n\n5. CONTACT\n\nAccessibility and support: air.ai.assistant.support@gmail.com\n"};
 function openPolicyPage(type){
  const page=document.getElementById('policyPage'),content=document.getElementById('policyPageContent');if(!page||!content||!airAiPolicyTexts[type])return;
@@ -3040,7 +3124,8 @@ function openPolicyPage(type){
 }
 function closePolicyPage(){const p=document.getElementById('policyPage');if(p){p.hidden=true;p.setAttribute('aria-hidden','true');document.body.style.overflow='';}}
 document.querySelectorAll('[data-policy]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openPolicyPage(a.dataset.policy);}));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closePolicyPage();});
+document.querySelector('[data-i18n="footerNews"]')?.addEventListener('click',e=>{e.preventDefault();openNewsPage();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePolicyPage();closeNewsPage();}});
 
 document.getElementById('airAiLoad')?.addEventListener('click',loadAirAiModel);
 applyLanguage();
