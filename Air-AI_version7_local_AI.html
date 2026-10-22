@@ -1593,24 +1593,6 @@ if(document.getElementById('accountName')){
 
 applyLanguage();
 
-// Restore these two account fields after the interface language has been applied.
-function restorePersistentAccountFields(){
-  try{
-    const savedCountry=localStorage.getItem('airAiAccountCountry');
-    const countryField=document.getElementById('accountCountry');
-    if(savedCountry!==null && countryField){
-      countryField.value=savedCountry;
-      updateCountryFlag();
-    }
-    const savedExperience=localStorage.getItem('airAiTravelerExperience');
-    const experienceField=document.getElementById('travelerValue');
-    if(savedExperience!==null && experienceField) experienceField.value=savedExperience;
-  }catch(err){}
-}
-restorePersistentAccountFields();
-window.addEventListener('pageshow',restorePersistentAccountFields);
-document.addEventListener('DOMContentLoaded',restorePersistentAccountFields,{once:true});
-
 function toggleDownloadNotice(){
   const notice=document.getElementById('downloadAppNotice');
   if(notice) notice.hidden=!notice.hidden;
