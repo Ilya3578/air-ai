@@ -725,7 +725,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
       <div class="sub-grid">
         <article class="card">
           <div class="sub-img" style="background-image:url('assets/subscriptions/01_hello_air_ai.jpg')"></div>
-          <div class="sub-body"><span class="pill">HELLO AIR-AI</span><div class="price">0 ₽ <small>/ месяц</small></div><p data-i18n="helloText">Essential features for every passenger.</p><ul><li data-i18n="hello1">• Flight information</li><li data-i18n="hello2">• Basic navigation</li><li data-i18n="hello3">• AI questions</li></ul><button class="sub-more-btn" type="button" onclick="openSubscriptionDetails('hello')" data-i18n="learnMoreSubscription">Узнать более подробно</button></div>
+          <div class="sub-body"><span class="pill">HELLO AIR-AI</span><div class="price">0 $ <small>/ месяц</small></div><p data-i18n="helloText">Essential features for every passenger.</p><ul><li data-i18n="hello1">• Flight information</li><li data-i18n="hello2">• Basic navigation</li><li data-i18n="hello3">• AI questions</li></ul><button class="sub-more-btn" type="button" onclick="openSubscriptionDetails('hello')" data-i18n="learnMoreSubscription">Узнать более подробно</button></div>
         </article>
         <article class="card">
           <div class="sub-img" style="background-image:url('assets/subscriptions/02_smart_air_ai.jpg')"></div>
@@ -867,12 +867,12 @@ html:lang(en) .home-banner-ru{display:none!important;}
 
         <article class="card detailed-sub" onclick="handleSubscriptionPlanCard('hello')" style="cursor:pointer" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleSubscriptionPlanCard('hello')}">
           <div class="sub-img" style="background-image:url('assets/subscriptions/01_hello_air_ai.jpg')"></div>
-          <div class="sub-body"><span class="pill">HELLO AIR-AI</span><div class="price">0 ₽ <small>/ месяц</small></div><p data-i18n="helloDetail">Стартовый пакет услуг для пассажира с доступом к онлайн-навигации.</p></div>
+          <div class="sub-body"><span class="pill">HELLO AIR-AI</span><div class="price">0 $ <small>/ месяц</small></div><p data-i18n="helloDetail">Стартовый пакет услуг для пассажира с доступом к онлайн-навигации.</p></div>
         </article>
 
         <article class="card detailed-sub" onclick="handleSubscriptionPlanCard('smart')" style="cursor:pointer" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleSubscriptionPlanCard('smart')}">
           <div class="sub-img" style="background-image:url('assets/subscriptions/02_smart_air_ai.jpg')"></div>
-          <div class="sub-body"><span class="pill">SMART AIR-AI ASSISTENT</span><div class="price">$4.99 <small>/ месяц</small></div><p data-i18n="smartDetail">Чат с ответами нейросети (FAQ), информация о рейсе, регистрация, посадка и вылет, изменения выхода, общая информация (валюта, визы, погода, правила въезда), услуги аэропорта, магазины, рестораны и лаунжи.</p></div>
+          <div class="sub-body"><span class="pill">SMART AIR-AI ASSISTANT</span><div class="price">$4.99 <small>/ месяц</small></div><p data-i18n="smartDetail">Чат с ответами нейросети (FAQ), информация о рейсе, регистрация, посадка и вылет, изменения выхода, общая информация (валюта, визы, погода, правила въезда), услуги аэропорта, магазины, рестораны и лаунжи.</p></div>
         </article>
 
         <article class="card detailed-sub" onclick="showUnavailablePlan()" style="cursor:pointer" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showUnavailablePlan()}">
@@ -900,7 +900,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
   <section>
     <div class="container payment-wrap">
       <button class="back-btn" onclick="showPage(paymentFlowMode.startsWith('wallet-')?'wallet':'subscriptions')">← <span data-i18n="backSubscriptions">Подписки</span></button>
-      <div class="plan-title" id="paymentPlanTitle">Smart Air-AI Assistent</div>
+      <div class="plan-title" id="paymentPlanTitle">Smart Air-AI Assistant</div>
       <div class="payment-photo" id="paymentPhoto"></div>
       <p class="payment-subtitle" data-i18n="paymentSubtitle">Улучшите возможности Assistant</p>
 
@@ -1206,7 +1206,7 @@ const translations = {
     familyText:"Все возможности Smart для всей семьи.", family1:"• Семейный режим", family2:"• Навигация для детей", family3:"• Помощь всей семье в поездке",
     backHome:"Главная", backSubscription:"Моя подписка", helloPlanTitle:"Hello Air-AI", returnPreviousSubscription:"Вернуться на предыдущую подписку",
     backSubscriptions:"Подписки", paymentSubtitle:"Улучшите возможности Assistant", cardPayment:"Банковская карта", qrPayment:"QR код",
-    paymentUnsupported:"Данный тип оплаты пока что не поддерживается", airAiBalancePayment:"Air-AI Баланс", walletBalanceLabel:"Баланс кошелька", smartPriceLabel:"К оплате: $4,99", paySmartWithBalance:"Оплатить $4,99 с баланса", insufficientForSmart:"Недостаточно средств. Пополните Air-AI Баланс или выберите другой способ оплаты.", smartPurchaseSuccess:"Smart Air-AI успешно активирован!", smartAlreadyActive:"Smart Air-AI уже активен.", currentPlan:"Это ваш текущий план", basePlanCannotBuy:"Это базовый тариф — его нельзя купить", unavailablePlan:"Тариф пока нельзя купить", cardNumber:"Введите номер карты", cardExpiry:"Период действия карты", emailAddress:"Ваша электронная почта", cvvCode:"Введите CVV код",
+    paymentUnsupported:"Данный тип оплаты пока что не поддерживается", airAiBalancePayment:"Air-AI Баланс", walletBalanceLabel:"Баланс кошелька", smartPriceLabel:"К оплате: $4,99", paySmartWithBalance:"Оплатить $4,99 с баланса", insufficientForSmart:"Недостаточно средств. Пополните Air-AI Баланс или выберите другой способ оплаты.", smartPurchaseSuccess:"Smart Air-AI успешно активирован!", smartAlreadyActive:"Smart Air-AI уже активен.", currentPlan:"Это ваш текущий план", basePlanCannotBuy:"Это базовый тариф — его нельзя купить", unavailablePlan:"Тариф находится в разработке", cardNumber:"Введите номер карты", cardExpiry:"Период действия карты", emailAddress:"Ваша электронная почта", cvvCode:"Введите CVV код",
     availableServices:"Доступные услуги", onlineNavigation:"Онлайн навигация", selectAirport:"Выбрать аэропорт", airportPickerTitle:"Выберите аэропорт", airportNavTitle:"Навигация",
     lockedServices:"Недоступные услуги", faqService:"Чат с ответами нейросети (FAQ)", flightDataService:"Все данные о вашем рейсе",
     bookingService:"Бронирование услуг в аэропорту", advancedNavService:"Прокачанная навигация", arrivalInfoService:"Информация об аэропорте пребывания", otherServices:"Другие услуги",
@@ -1264,7 +1264,7 @@ const translations = {
     familyText:"All Smart features for the whole family.", family1:"• Family mode", family2:"• Navigation for children", family3:"• Assistance for the whole family",
     backHome:"Home", backSubscription:"My subscription", helloPlanTitle:"Hello Air-AI", returnPreviousSubscription:"Return to previous subscription",
     backSubscriptions:"Subscriptions", paymentSubtitle:"Upgrade your Assistant experience", cardPayment:"Bank card", qrPayment:"QR code",
-    paymentUnsupported:"This payment method is not supported yet.", airAiBalancePayment:"Air-AI Balance", walletBalanceLabel:"Wallet balance", smartPriceLabel:"Amount due: $4.99", paySmartWithBalance:"Pay $4.99 from balance", insufficientForSmart:"Insufficient funds. Top up Air-AI Balance or choose another payment method.", smartPurchaseSuccess:"Smart Air-AI activated successfully!", smartAlreadyActive:"Smart Air-AI is already active.", currentPlan:"This is your current plan", basePlanCannotBuy:"This is the basic plan — it cannot be purchased", unavailablePlan:"This plan is not available for purchase yet.", cardNumber:"Enter card number", cardExpiry:"Card expiry date", emailAddress:"Your email address", cvvCode:"Enter CVV code",
+    paymentUnsupported:"This payment method is not supported yet.", airAiBalancePayment:"Air-AI Balance", walletBalanceLabel:"Wallet balance", smartPriceLabel:"Amount due: $4.99", paySmartWithBalance:"Pay $4.99 from balance", insufficientForSmart:"Insufficient funds. Top up Air-AI Balance or choose another payment method.", smartPurchaseSuccess:"Smart Air-AI activated successfully!", smartAlreadyActive:"Smart Air-AI is already active.", currentPlan:"This is your current plan", basePlanCannotBuy:"This is the basic plan — it cannot be purchased", unavailablePlan:"This plan is under development.", cardNumber:"Enter card number", cardExpiry:"Card expiry date", emailAddress:"Your email address", cvvCode:"Enter CVV code",
     availableServices:"Available services", onlineNavigation:"Online navigation", selectAirport:"Select airport", airportPickerTitle:"Select airport", airportNavTitle:"Navigation",
     lockedServices:"Unavailable services", faqService:"AI answers chat (FAQ)", flightDataService:"All your flight data",
     bookingService:"Airport service booking", advancedNavService:"Advanced navigation", arrivalInfoService:"Information about your destination airport", otherServices:"Other services",
@@ -1309,7 +1309,7 @@ const translations = {
     heroEyebrow:"✈️ Tu asistente digital en el aeropuerto",
     heroTitle:"Bienvenido<br>a un viaje sin estrés.",
     heroText:"Air-AI Assistant reúne la información de tu vuelo, navegación, servicios del aeropuerto y un asistente personal de IA en un solo lugar.",
-    airAiBalancePayment:"Saldo Air-AI", walletBalanceLabel:"Saldo de la cartera", smartPriceLabel:"Importe: $4,99", paySmartWithBalance:"Pagar $4,99 con el saldo", insufficientForSmart:"Saldo insuficiente. Recarga el saldo Air-AI o elige otro método de pago.", smartPurchaseSuccess:"¡Smart Air-AI se ha activado correctamente!", smartAlreadyActive:"Smart Air-AI ya está activo.", currentPlan:"Este es tu plan actual", basePlanCannotBuy:"Este es el plan básico; no se puede comprar", unavailablePlan:"Este plan todavía no se puede comprar.",
+    airAiBalancePayment:"Saldo Air-AI", walletBalanceLabel:"Saldo de la cartera", smartPriceLabel:"Importe: $4,99", paySmartWithBalance:"Pagar $4,99 con el saldo", insufficientForSmart:"Saldo insuficiente. Recarga el saldo Air-AI o elige otro método de pago.", smartPurchaseSuccess:"¡Smart Air-AI se ha activado correctamente!", smartAlreadyActive:"Smart Air-AI ya está activo.", currentPlan:"Este es tu plan actual", basePlanCannotBuy:"Este es el plan básico; no se puede comprar", unavailablePlan:"Este plan está en desarrollo.",
     smartFlightData:"Todos los datos de tu vuelo", smartAirportServices:"Servicios del aeropuerto seleccionado", smartCountryInfo:"Información sobre el país de destino", smartEscort:"Reserva de asistencia", smartChildren:"Servicios para pasajeros con niños", smartDisruption:"Recomendaciones ante retrasos o cancelaciones",
     aiPlaceholder:"Preguntar a la IA", aiButton:"Air-AI",
     benefitsTitle:"Todo para un viaje sin estrés",
@@ -2517,7 +2517,7 @@ function handleSubscriptionPlanCard(plan){
   }
   if(selected==='smart'){
     const data=subscriptionDetails && subscriptionDetails.smart;
-    openPayment('Smart Air-AI Assistent',data?data.photo:'assets/subscriptions/02_smart_air_ai.jpg');
+    openPayment('Smart Air-AI Assistant',data?data.photo:'assets/subscriptions/02_smart_air_ai.jpg');
     return;
   }
   if(selected==='hello'){
@@ -2590,8 +2590,8 @@ function paySmartWithBalance(){
 }
 
 const subscriptionDetails = {
-  hello:{pill:'HELLO AIR-AI',price:'0 ₽ / месяц',photo:'assets/subscriptions/01_hello_air_ai.jpg',detailKey:'helloDetail'},
-  smart:{pill:'SMART AIR-AI ASSISTENT',price:'$4.99 / месяц',photo:'assets/subscriptions/02_smart_air_ai.jpg',detailKey:'smartDetail'},
+  hello:{pill:'HELLO AIR-AI',price:'0 $ / месяц',photo:'assets/subscriptions/01_hello_air_ai.jpg',detailKey:'helloDetail'},
+  smart:{pill:'SMART AIR-AI ASSISTANT',price:'$4.99 / месяц',photo:'assets/subscriptions/02_smart_air_ai.jpg',detailKey:'smartDetail'},
   family:{pill:'FAMILY AIR-AI',price:'$9.99 / месяц',photo:'assets/subscriptions/03_family_air_ai.png',detailKey:'familyDetail'},
   pro:{pill:'PRO AIR-AI ASSISTANT',price:'$14.99 / месяц',photo:'assets/subscriptions/04_pro_air_ai.jpg',detailKey:'proDetail'},
   first:{pill:'FIRST CLASS ASSISTANT',price:'$49.99 / месяц',photo:'assets/subscriptions/05_first_class_assistant.jpg',detailKey:'firstDetail'}
