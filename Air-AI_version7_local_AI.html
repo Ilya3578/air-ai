@@ -1667,18 +1667,59 @@ function goHome(btn){
 
 
 const partnerAirports = [
-  {code:'DXB', key:'dxb', name:'Dubai International', map:'https://dubaiairports.ae/maps-home/pointr-home/open-map'},
-  {code:'IST', key:'ist', name:'Istanbul Airport', map:'https://www.airportinformation.com/IST/map'},
+  {code:'DXB', key:'dxb', name:'Dubai International', map:'https://dubaiairports.ae/express-maps'},
+  {code:'IST', key:'ist', name:'Istanbul Airport', map:'https://www.turkishairlines.com/en-ru/istanbul-airport/terminal-maps/'},
   {code:'DOH', key:'doh', name:'Hamad International', map:'https://www.airportinformation.com/DOH/map'},
-  {code:'AUH', key:'auh', name:'Abu Dhabi Airport', map:'https://www.zayedinternationalairport.ae/plan-and-prepare/at-the-airport/interactive-map'},
-  {code:'LHR', key:'lhr', name:'London Heathrow', map:'https://maps.heathrow.com/?lang=en&s=eyJvbmxpbmUvcG9pVmlldyI6eyJwb2lJZCI6IjUwOSJ9LCJtYXBSZW5kZXJlciI6eyJ2cCI6eyJsYXQiOjUxLjQ3MTY4OSwibG5nIjotMC40ODc5MjcsInpvb20iOjE2LjQzMDE3NSwiYmVhcmluZyI6MCwicGl0Y2giOjB9LCJvcmQiOjN9fQ%3D%3D'},
-  {code:'SIN', key:'sin', name:'Singapore Changi', map:'https://www.changiairport.com/en/at-changi/map.html'},
+  {code:'AUH', key:'auh', name:'Abu Dhabi Airport', map:'https://www.zayedinternationalairport.ae/en/plan-and-prepare/at-the-airport/interactive-map'},
+  {code:'LHR', key:'lhr', name:'London Heathrow', map:'https://www.heathrow.com/at-the-airport/airport-maps'},
+  {code:'SIN', key:'sin', name:'Singapore Changi', map:'https://visitchangiairport.com/digital/interactive-map/'},
   {code:'HND', key:'hnd', name:'Tokyo Haneda', map:'https://tokyo-haneda.com/en/floor/index.html'},
   {code:'CDG', key:'cdg', name:'Paris Charles de Gaulle', map:'https://www.airportinformation.com/CDG/map'},
   {code:'FRA', key:'fra', name:'Frankfurt Airport', map:'https://www.frankfurt-airport.com/en/at-the-airport/orientation/airport-map.html'},
-  {code:'AMS', key:'ams', name:'Amsterdam Schiphol', map:'https://www.schiphol.nl/en/airport-maps/' },
+  {code:'AMS', key:'ams', name:'Amsterdam Schiphol', map:'https://www.schiphol.nl/en/airport-maps/'},
   {code:'LED', key:'led', name:'Pulkovo Airport', map:'https://www.airportinformation.com/LED/map'},
-  {code:'SVO', key:'svo', name:'Sheremetyevo International Airport', map:'https://www.airportinformation.com/SVO/map'}
+  {code:'SVO', key:'svo', name:'Sheremetyevo International Airport', map:'https://www.airportinformation.com/SVO/map'},
+  {code:'JFK', key:'jfk', name:'New York JFK', map:'https://maps.jfkairport.com/?lang=en'},
+  {code:'EWR', key:'ewr', name:'Newark Liberty', map:'https://www.newarkairport.com/explore-ewr/airport-map'},
+  {code:'LAX', key:'lax', name:'Los Angeles International', map:'https://www.flylax.com/lax-terminal-maps?type=dep'},
+  {code:'ATL', key:'atl', name:'Hartsfield-Jackson Atlanta', map:'https://www.atl.com/maps/'},
+  {code:'YYZ', key:'yyz', name:'Toronto Pearson', map:'https://www.torontopearson.com/en/while-you-are-here/terminal-maps'},
+  {code:'YVR', key:'yvr', name:'Vancouver International', map:'https://www.yvr.ca/en/passengers/navigate-yvr/terminal-maps'},
+  {code:'SEA', key:'sea', name:'Seattle-Tacoma', map:'https://maps.flysea.org/'},
+  {code:'DFW', key:'dfw', name:'Dallas Fort Worth', map:'https://www.dfwairport.com/map/'},
+  {code:'SFO', key:'sfo', name:'San Francisco International', map:'https://www.flysfo.com/maps/interactive-maps'},
+  {code:'IAD', key:'iad', name:'Washington Dulles', map:'https://www.flydulles.com/travel-information/airport-and-terminal-maps'},
+  {code:'BOS', key:'bos', name:'Boston Logan', map:'https://www.aa.com/web/i18n/travel-info/airports/airport-information.html'},
+  {code:'ORD', key:'ord', name:'Chicago O’Hare', map:'https://www.aa.com/web/i18n/travel-info/airports/airport-information.html'},
+  {code:'MIA', key:'mia', name:'Miami International', map:'https://www.aa.com/web/i18n/travel-info/airports/airport-information.html'},
+  {code:'LGA', key:'lga', name:'New York LaGuardia', map:'https://www.laguardiaairport.com/'},
+  {code:'LGW', key:'lgw', name:'London Gatwick', map:'https://www.gatwickairport.com/'},
+  {code:'MUC', key:'muc', name:'Munich Airport', map:'https://www.munich-airport.com/airport-map-261352'},
+  {code:'ZRH', key:'zrh', name:'Zurich Airport', map:'https://www.flughafen-zuerich.ch/en/passengers/practical/guidance/interactive-map'},
+  {code:'VIE', key:'vie', name:'Vienna Airport', map:'https://maps.viennaairport.com/apps/index.html?key=118010H0222&rel=en'},
+  {code:'PRG', key:'prg', name:'Prague Airport', map:'https://www.prg.aero/en/map-airport'},
+  {code:'TLL', key:'tll', name:'Tallinn Airport', map:'https://airport.ee/en/airport-map/'},
+  {code:'VNO', key:'vno', name:'Vilnius Airport', map:'https://www.vilnius-airport.lt/en/passenger-guide/airport-information/airport-terminal-map'},
+  {code:'HEL', key:'hel', name:'Helsinki Airport', map:'https://www.finavia.fi/en/airports/helsinki-airport/airport/map'},
+  {code:'CPH', key:'cph', name:'Copenhagen Airport', map:'https://www.cph.dk/en/practical/cph-map'},
+  {code:'DUB', key:'dub', name:'Dublin Airport', map:'https://www.dublinairport.com/at-the-airport/the-map?map=true'},
+  {code:'KRK', key:'krk', name:'Krakow Airport', map:'https://krakowairport.pl/en/terminal-plan'},
+  {code:'MAD', key:'mad', name:'Madrid-Barajas', map:'https://www.aena.es/en/map.html?ca=MAD'},
+  {code:'BCN', key:'bcn', name:'Barcelona-El Prat', map:'https://www.aena.es/en/map.html?ca=BCN'},
+  {code:'FCO', key:'fco', name:'Rome Fiumicino', map:'https://www.adr.it/web/aeroporti-di-roma-en-/pax-fco-airport-map'},
+  {code:'BSL', key:'bsl', name:'EuroAirport Basel-Mulhouse-Freiburg', map:'https://www.euroairport.com/en'},
+  {code:'VCE', key:'vce', name:'Venice Marco Polo', map:'https://www.veneziaairport.it/en_gb/new-kiosks-with-interactive-maps-installed-in-terminal'},
+  {code:'SAW', key:'saw', name:'Istanbul Sabiha Gökçen', map:'https://www.sabihagokcen.aero/passengers-and-visitors/passenger-guide/terminal-plans'},
+  {code:'DWC', key:'dwc', name:'Dubai Al Maktoum', map:'https://dubaiairports.ae/maps-home'},
+  {code:'DEL', key:'del', name:'Delhi Indira Gandhi', map:'https://www.newdelhiairport.in/airport-guide/terminal-maps/'},
+  {code:'HKG', key:'hkg', name:'Hong Kong International', map:'https://www.hongkongairport.com/en/'},
+  {code:'NRT', key:'nrt', name:'Tokyo Narita', map:'https://www.narita-airport.jp/en/'},
+  {code:'LIM', key:'lim', name:'Lima Jorge Chávez', map:'https://www.lima-airport.com/en/herramientas-digitales'},
+  {code:'MEL', key:'mel', name:'Melbourne Airport', map:'https://www.melbourneairport.com.au/corporate/maps'},
+  {code:'KBP', key:'kbp', name:'Kyiv Boryspil', map:'https://kbp.aero/en/airport/map/'},
+  {code:'KEF', key:'kef', name:'Keflavik Airport', map:'https://www.kefairport.com/maps'},
+  {code:'CTA', key:'cta', name:'Catania Airport', map:'https://aeroporto.catania.it/en/map-and-services'},
+  {code:'LGG', key:'lgg', name:'Liège Airport', map:'https://www.liegeairport.com/en/interactive-map'}
 ];
 function openAirportPicker(fromHistory=false){
   const modal=document.getElementById('airportPickerModal');
@@ -1687,9 +1728,7 @@ function openAirportPicker(fromHistory=false){
   if(!modal||!list)return;
   document.getElementById('airportPickerTitle').textContent=t.airportPickerTitle||'Select airport';
   list.innerHTML=partnerAirports.map(a=>{
-    const unavailable=['FRA','AMS','AUH','SIN'].includes(a.code)
-      ? `<span class="airport-unavailable">${currentLanguage==='RU'?'Пока что недоступно':'Not available yet'}</span>`
-      : (a.map?'':`<span class="airport-unavailable">${currentLanguage==='RU'?'недоступно':'unavailable'}</span>`);
+    const unavailable=a.map?'':`<span class="airport-unavailable">${currentLanguage==='RU'?'недоступно':'unavailable'}</span>`;
     return `<button type="button" class="airport-picker-item" onclick="openAirportNavigation('${a.code}')">${a.code} — ${(t[a.key]||a.name)}${unavailable}</button>`;
   }).join('');
   modal.classList.add('show'); document.body.style.overflow='hidden';
