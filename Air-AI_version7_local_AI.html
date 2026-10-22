@@ -420,6 +420,15 @@ footer{background:#101c1e;color:white;padding:45px 5vw 105px}
   opacity:0;pointer-events:none;transition:.25s;box-shadow:var(--shadow);
 }
 .toast.show{opacity:1;transform:translate(-50%,0)}
+.airport-partnership-note{
+  margin:22px auto 0;
+  text-align:center;
+  color:var(--azure);
+  font-weight:700;
+  line-height:1.5;
+  max-width:900px;
+}
+
 
 
 .payment-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
@@ -803,6 +812,7 @@ html:lang(en) .home-banner-ru{display:none!important;}
                  data-airport-code="SVO" data-i18n="learnMore_SVO">Learn more about SVO</a>
             </div></article>
       </div>
+      <p class="airport-partnership-note" data-i18n="airportPartnershipNote">В будущем мы будем развивать партнерские программы по всему миру</p>
     </div>
   </section>
 
@@ -1105,8 +1115,8 @@ html:lang(en) .home-banner-ru{display:none!important;}
     <div>
       <p data-i18n="appLabel" style="color:#aeb9bb;margin-top:0">Приложение</p>
       <div class="store-row">
-        <button class="store"> App Store</button><button class="store">▶ Google Play</button>
-        <button class="store">RuStore</button><button class="store">AppGallery</button>
+        <button class="store" type="button" onclick="showWebOnlyNotice()"> App Store</button><button class="store" type="button" onclick="showWebOnlyNotice()">▶ Google Play</button>
+        <button class="store" type="button" onclick="showWebOnlyNotice()">RuStore</button><button class="store" type="button" onclick="showWebOnlyNotice()">AppGallery</button>
       </div>
     </div>
   </div>
@@ -1221,7 +1231,7 @@ const translations = {
     smartText:"Больше удобства во время поездки.", smart1:"• Расширенная навигация", smart2:"• Больше AI-возможностей", smart3:"• Персональные уведомления",
     proText:"Расширенный цифровой консьерж.", pro1:"• Приоритетные сервисы", pro2:"• Лаунжи и fast track", pro3:"• Персональный AI-сопроводитель",
     firstText:"Максимальный уровень сопровождения.", first1:"• VIP-сервисы", first2:"• Трансферы и специальные услуги", first3:"• Максимум возможностей AI",
-    airportFaqLabel:"Вопросы и ответы для выбранного аэропорта", airportsTitle:"Крупные Аэропорты-Партнёры", airportsText:"и другие международные аэропорты",
+    airportFaqLabel:"Вопросы и ответы для выбранного аэропорта", airportsTitle:"Крупные Аэропорты-Партнёры", airportsText:"и другие международные аэропорты", airportPartnershipNote:"В будущем мы будем развивать партнерские программы по всему миру", webOnlyNotice:"Приложение пока имеет только веб-версию",
     whyTitle:"Почему Air-AI?",
     downloadAppButton:"Скачать приложение", downloadAppNotice:"Приложение пока в разработке. Используйте эту веб-версию",
     accountTitle:"Мой аккаунт",
@@ -1279,7 +1289,7 @@ const translations = {
     smartText:"More convenience during your trip.", smart1:"• Advanced navigation", smart2:"• More AI features", smart3:"• Personal notifications",
     proText:"Extended digital concierge.", pro1:"• Priority services", pro2:"• Lounges and fast track", pro3:"• Personal AI companion",
     firstText:"Maximum level of assistance.", first1:"• VIP services", first2:"• Transfers and special services", first3:"• Maximum AI capabilities",
-    airportFaqLabel:"Questions and answers for the selected airport", airportsTitle:"Major Partner Airports", airportsText:"and other international airports",
+    airportFaqLabel:"Questions and answers for the selected airport", airportsTitle:"Major Partner Airports", airportsText:"and other international airports", airportPartnershipNote:"In the future, we will develop partnership programs around the world", webOnlyNotice:"The app is currently available only as a web version",
     whyTitle:"Why Air-AI?",
     downloadAppButton:"Download the app", downloadAppNotice:"The app is still in development. Please use this web version.",
     accountTitle:"My account",
@@ -1323,7 +1333,7 @@ const translations = {
     smartText:"Más comodidad durante tu viaje.", smart1:"• Navegación avanzada", smart2:"• Más funciones de IA", smart3:"• Notificaciones personales",
     proText:"Conserjería digital ampliada.", pro1:"• Servicios prioritarios", pro2:"• Salas VIP y fast track", pro3:"• Asistente personal de IA",
     firstText:"Máximo nivel de asistencia.", first1:"• Servicios VIP", first2:"• Traslados y servicios especiales", first3:"• Máximas capacidades de IA",
-    airportFaqLabel:"Preguntas y respuestas del aeropuerto seleccionado", airportsTitle:"Principales aeropuertos asociados", airportsText:"",
+    airportFaqLabel:"Preguntas y respuestas del aeropuerto seleccionado", airportsTitle:"Principales aeropuertos asociados", airportsText:"", airportPartnershipNote:"En el futuro desarrollaremos programas de colaboración en todo el mundo", webOnlyNotice:"Por ahora, la aplicación solo está disponible en versión web",
     learnMore_DXB:"Más información sobre DXB", learnMore_IST:"Más información sobre IST", learnMore_DOH:"Más información sobre DOH", learnMore_AUH:"Más información sobre AUH",
     learnMore_LHR:"Más información sobre LHR", learnMore_SIN:"Más información sobre SIN", learnMore_HND:"Más información sobre HND", learnMore_CDG:"Más información sobre CDG",
     learnMore_FRA:"Más información sobre FRA", learnMore_AMS:"Más información sobre AMS", learnMore_LED:"Más información sobre LED", learnMore_SVO:"Más información sobre SVO",
@@ -1552,6 +1562,11 @@ applyLanguage();
 function toggleDownloadNotice(){
   const notice=document.getElementById('downloadAppNotice');
   if(notice) notice.hidden=!notice.hidden;
+}
+
+function showWebOnlyNotice(){
+  const t=translations[currentLanguage] || translations.RU;
+  toast(t.webOnlyNotice || "Приложение пока имеет только веб-версию");
 }
 
 function applyLanguage(){
