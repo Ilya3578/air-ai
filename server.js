@@ -9,7 +9,7 @@ app.use(express.static("."));
 app.get("/", async (req, res) => {
   try {
     const html = await readFile(
-      process.cwd() + "/Air-AI_version7_local_AI.html",
+      process.cwd() + "/Air-AI_version7_local_AI-20.html",
       "utf8"
     );
 
@@ -1017,6 +1017,13 @@ app.get('/api/instagram-feed', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Air-AI Aviationstack API listening on :${PORT}`);
 });
+
+
+
+
+
+
+
 
 
 
