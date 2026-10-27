@@ -9,7 +9,7 @@ app.use(express.static("."));
 app.get("/", async (req, res) => {
   try {
     const html = await readFile(
-      process.cwd() + "/Air-AI_version7_local_AI-19.html",
+      process.cwd() + "/Air-AI_version7_local_AI.html",
       "utf8"
     );
 
