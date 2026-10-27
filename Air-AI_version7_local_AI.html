@@ -3306,6 +3306,96 @@ try{renderAiSubscriptionAccess();}catch(err){}
   let mode = 'signin';
   let client = null;
   let busy = false;
+  let activeProfileUserId = null;
+  let profileSaveTimer = null;
+  let applyingRemoteProfile = false;
+  const profileFields = {
+    name: $('accountName'),
+    country: $('accountCountry'),
+    experience: $('travelerValue')
+  };
+  function currentProfile() {
+    const rawExperience = profileFields.experience?.value;
+    const experience = rawExperience === '' || rawExperience == null ? null : Math.max(0, Math.min(99, Math.trunc(Number(rawExperience) || 0)));
+    return {
+      air_ai_account_name: (profileFields.name?.value || '').trim(),
+      air_ai_account_country: (profileFields.country?.value || '').trim(),
+      air_ai_traveler_experience: experience
+    };
+  }
+  function updateFixedIdentity() {
+    const name = (profileFields.name?.value || '').trim();
+    const country = (profileFields.country?.value || '').trim();
+    const flag = $('countryFlag')?.textContent || '';
+    if ($('accountNameFixed')) $('accountNameFixed').textContent = name;
+    if ($('accountCountryFixed')) $('accountCountryFixed').textContent = country;
+    if ($('countryFlagFixed')) $('countryFlagFixed').textContent = flag;
+    const editor = $('accountIdentityEditor');
+    const fixed = $('accountIdentityFixed');
+    if (name || country) {
+      if (editor) editor.style.display = 'none';
+      if (fixed) fixed.hidden = false;
+    }
+  }
+  function persistProfileLocally(profile) {
+    try {
+      if (profile.air_ai_account_name) localStorage.setItem('airAiAccountName', profile.air_ai_account_name);
+      else localStorage.removeItem('airAiAccountName');
+      if (profile.air_ai_account_country) localStorage.setItem('airAiAccountCountry', profile.air_ai_account_country);
+      else localStorage.removeItem('airAiAccountCountry');
+      if (profile.air_ai_traveler_experience !== null) localStorage.setItem('airAiTravelerExperience', String(profile.air_ai_traveler_experience));
+    } catch (_) {}
+  }
+  async function hydrateProfile(user) {
+    if (!user || activeProfileUserId === user.id) return;
+    activeProfileUserId = user.id;
+    const metadata = user.user_metadata || {};
+    const hasRemoteProfile = ['air_ai_account_name','air_ai_account_country','air_ai_traveler_experience'].some(k => metadata[k] !== undefined && metadata[k] !== null);
+    applyingRemoteProfile = true;
+    try {
+      if (hasRemoteProfile) {
+        if (profileFields.name && metadata.air_ai_account_name !== undefined) profileFields.name.value = metadata.air_ai_account_name || '';
+        if (profileFields.country && metadata.air_ai_account_country !== undefined) profileFields.country.value = metadata.air_ai_account_country || '';
+        if (profileFields.experience && metadata.air_ai_traveler_experience !== undefined && metadata.air_ai_traveler_experience !== null) profileFields.experience.value = String(Math.max(0, Math.min(99, Math.trunc(Number(metadata.air_ai_traveler_experience) || 0))));
+        persistProfileLocally(currentProfile());
+      }
+      if (typeof updateNameLanguageFlag === 'function') updateNameLanguageFlag();
+      if (typeof updateCountryFlag === 'function') await updateCountryFlag();
+      updateFixedIdentity();
+    } finally { applyingRemoteProfile = false; }
+    // For a brand-new account, copy any already-entered local profile values into its Supabase profile.
+    if (!hasRemoteProfile) {
+      const profile = currentProfile();
+      if (profile.air_ai_account_name || profile.air_ai_account_country || profile.air_ai_traveler_experience !== null) {
+        try { const { error } = await client.auth.updateUser({ data: profile }); if (error) console.warn('Air-AI profile initial sync failed:', error.message); } catch (e) { console.warn('Air-AI profile initial sync failed:', e); }
+      }
+    }
+  }
+  async function saveProfileToSupabase() {
+    if (!client || !activeProfileUserId || applyingRemoteProfile) return;
+    const profile = currentProfile();
+    persistProfileLocally(profile);
+    try {
+      const { data, error } = await client.auth.updateUser({ data: profile });
+      if (error) throw error;
+      updateFixedIdentity();
+    } catch (error) {
+      console.warn('Air-AI profile cloud save failed:', error?.message || error);
+      say(lang().profileSaveError || 'Profile could not be synced. Check your connection and try again.', 'error');
+    }
+  }
+  function scheduleProfileSave() {
+    if (applyingRemoteProfile) return;
+    persistProfileLocally(currentProfile());
+    clearTimeout(profileSaveTimer);
+    profileSaveTimer = setTimeout(saveProfileToSupabase, 650);
+  }
+  Object.values(profileFields).forEach(field => {
+    if (!field) return;
+    field.addEventListener('input', scheduleProfileSave);
+    field.addEventListener('change', scheduleProfileSave);
+    field.addEventListener('blur', scheduleProfileSave);
+  });
   const labels = {
     RU: {title:'Вход в Air-AI Assistant',desc:'Создайте аккаунт или войдите, чтобы пользоваться аккаунтом Air-AI.',email:'Email',password:'Пароль',signin:'Войти',signup:'Зарегистрироваться',switchToSignup:'Нет аккаунта? Зарегистрироваться',switchToSignin:'Уже есть аккаунт? Войти',signout:'Выйти',confirm:'Проверьте почту и подтвердите адрес, затем войдите.',signed:'Вы вошли как',needEmail:'Введите корректный адрес электронной почты.',needPassword:'Пароль должен содержать не менее 6 символов.',missing:'Не удалось загрузить модуль авторизации. Обновите страницу и попробуйте ещё раз.',generic:'Не удалось выполнить запрос. Попробуйте ещё раз позже.',reset:'Письмо для восстановления пароля отправлено, если адрес зарегистрирован.'},
     EN: {title:'Sign in to Air-AI Assistant',desc:'Create an account or sign in to your Air-AI account.',email:'Email',password:'Password',signin:'Sign in',signup:'Create account',switchToSignup:'No account? Create one',switchToSignin:'Already have an account? Sign in',signout:'Sign out',confirm:'Check your inbox and confirm your email, then sign in.',signed:'Signed in as',needEmail:'Enter a valid email address.',needPassword:'Password must contain at least 6 characters.',missing:'Could not load the authentication module. Refresh and try again.',generic:'The request failed. Please try again later.',reset:'If the address is registered, a password reset email has been sent.'},
@@ -3330,7 +3420,9 @@ try{renderAiSubscriptionAccess();}catch(err){}
       $('airAuthUserLabel').textContent = t.signed + ': ' + (user.email || '');
       $('airAuthSignOut').textContent = t.signout;
       say('', '');
+      hydrateProfile(user).catch(error => console.warn('Air-AI profile restore failed:', error));
     } else {
+      activeProfileUserId = null;
       signedInBox.hidden = true; form.hidden = false; renderMode();
     }
   }
@@ -3370,7 +3462,19 @@ try{renderAiSubscriptionAccess();}catch(err){}
   $('airAuthSignOut').addEventListener('click', async () => { if(!client) return; try { const {error} = await client.auth.signOut(); if(error) throw error; say(''); } catch(error) { say(error?.message || lang().generic,'error'); } });
   document.addEventListener('click', event => { if(event.target.closest('[data-language], .language-option, .lang-option')) setTimeout(localize, 0); });
   const oldApplyLanguage = window.applyLanguage;
-  if(typeof oldApplyLanguage === 'function') { window.applyLanguage = function() { const result = oldApplyLanguage.apply(this, arguments); localize(); return result; }; }
+  if(typeof oldApplyLanguage === 'function') {
+    window.applyLanguage = function() {
+      const result = oldApplyLanguage.apply(this, arguments);
+      localize();
+      // Repaint the account identity after translated labels are applied; do not require a second language switch.
+      requestAnimationFrame(() => {
+        if (typeof updateNameLanguageFlag === 'function') updateNameLanguageFlag();
+        if (typeof updateCountryFlag === 'function') updateCountryFlag().then(updateFixedIdentity).catch(updateFixedIdentity);
+        else updateFixedIdentity();
+      });
+      return result;
+    };
+  }
   renderMode();
 })();
 </script>
