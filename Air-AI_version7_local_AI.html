@@ -1501,9 +1501,12 @@ function toggleLanguages(){
 function chooseLanguage(code){
   currentLanguage=code;
   document.documentElement.lang=code.toLowerCase();
-  document.querySelector('.lang').textContent=code+' ▾';
-  document.getElementById('languageMenu').style.display='none';
-  
+  const langButton=document.querySelector('.lang');
+  if(langButton) langButton.textContent=code+' ▾';
+  const languageMenu=document.getElementById('languageMenu');
+  if(languageMenu) languageMenu.style.display='none';
+  applyLanguage();
+}
 
 function setAccountAvatar(src){
   const avatar = document.querySelector('.avatar-circle');
@@ -1536,11 +1539,33 @@ if(accountPhotoInput){
   accountPhotoInput.addEventListener('change', function(){
     const file = this.files && this.files[0];
     if(!file) return;
+    if(!file.type || !file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = function(e){
-      const src = e.target.result;
-      saveAccountAvatar(src);
-      setAccountAvatar(src);
+      const img = new Image();
+      img.onload = function(){
+        // Keep the avatar small enough for cross-device profile sync through Supabase Auth metadata.
+        const maxSide = 192;
+        const scale = Math.min(1, maxSide / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
+        canvas.height = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
+        const ctx = canvas.getContext('2d');
+        if(!ctx) return;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        let src;
+        try { src = canvas.toDataURL('image/jpeg', 0.68); } catch(err) { src = e.target.result; }
+        saveAccountAvatar(src);
+        setAccountAvatar(src);
+        document.dispatchEvent(new CustomEvent('airai:profile-change', {detail:{field:'photo'}}));
+      };
+      img.onerror = function(){
+        const src = e.target.result;
+        saveAccountAvatar(src);
+        setAccountAvatar(src);
+        document.dispatchEvent(new CustomEvent('airai:profile-change', {detail:{field:'photo'}}));
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   });
@@ -1697,10 +1722,6 @@ if(document.getElementById('accountName')){
   document.getElementById('accountName').addEventListener('change', function(){
     try{ localStorage.setItem('airAiAccountName', this.value); }catch(err){}
   });
-}
-
-
-applyLanguage();
 }
 
 function toggleDownloadNotice(){
@@ -3320,7 +3341,8 @@ try{renderAiSubscriptionAccess();}catch(err){}
     return {
       air_ai_account_name: (profileFields.name?.value || '').trim(),
       air_ai_account_country: (profileFields.country?.value || '').trim(),
-      air_ai_traveler_experience: experience
+      air_ai_traveler_experience: experience,
+      air_ai_account_photo: getSavedAccountAvatar() || ''
     };
   }
   function updateFixedIdentity() {
@@ -3343,33 +3365,62 @@ try{renderAiSubscriptionAccess();}catch(err){}
       else localStorage.removeItem('airAiAccountName');
       if (profile.air_ai_account_country) localStorage.setItem('airAiAccountCountry', profile.air_ai_account_country);
       else localStorage.removeItem('airAiAccountCountry');
-      if (profile.air_ai_traveler_experience !== null) localStorage.setItem('airAiTravelerExperience', String(profile.air_ai_traveler_experience));
+      if (profile.air_ai_traveler_experience !== null && profile.air_ai_traveler_experience !== undefined) localStorage.setItem('airAiTravelerExperience', String(profile.air_ai_traveler_experience));
+      else localStorage.removeItem('airAiTravelerExperience');
+      if (profile.air_ai_account_photo) {
+        localStorage.setItem('airAiAccountPhoto', profile.air_ai_account_photo);
+        sessionStorage.setItem('airAiAccountPhoto', profile.air_ai_account_photo);
+      } else {
+        localStorage.removeItem('airAiAccountPhoto');
+        sessionStorage.removeItem('airAiAccountPhoto');
+      }
     } catch (_) {}
   }
   async function hydrateProfile(user) {
-    if (!user || activeProfileUserId === user.id) return;
+    if (!user) return;
+    if (activeProfileUserId === user.id) return;
     activeProfileUserId = user.id;
     const metadata = user.user_metadata || {};
-    const hasRemoteProfile = ['air_ai_account_name','air_ai_account_country','air_ai_traveler_experience'].some(k => metadata[k] !== undefined && metadata[k] !== null);
+    const profileKeys = ['air_ai_account_name','air_ai_account_country','air_ai_traveler_experience','air_ai_account_photo'];
+    const hasRemoteProfile = profileKeys.some(k => Object.prototype.hasOwnProperty.call(metadata, k));
     applyingRemoteProfile = true;
     try {
       if (hasRemoteProfile) {
-        if (profileFields.name && metadata.air_ai_account_name !== undefined) profileFields.name.value = metadata.air_ai_account_name || '';
-        if (profileFields.country && metadata.air_ai_account_country !== undefined) profileFields.country.value = metadata.air_ai_account_country || '';
-        if (profileFields.experience && metadata.air_ai_traveler_experience !== undefined && metadata.air_ai_traveler_experience !== null) profileFields.experience.value = String(Math.max(0, Math.min(99, Math.trunc(Number(metadata.air_ai_traveler_experience) || 0))));
-        persistProfileLocally(currentProfile());
+        // Remote profile is authoritative on every browser/device. Never leave stale local fields behind.
+        if (profileFields.name) profileFields.name.value = metadata.air_ai_account_name || '';
+        if (profileFields.country) profileFields.country.value = metadata.air_ai_account_country || '';
+        if (profileFields.experience) {
+          const exp = metadata.air_ai_traveler_experience;
+          profileFields.experience.value = exp === null || exp === undefined || exp === '' ? '0' : String(Math.max(0, Math.min(99, Math.trunc(Number(exp) || 0))));
+        }
+        persistProfileLocally({
+          air_ai_account_name: metadata.air_ai_account_name || '',
+          air_ai_account_country: metadata.air_ai_account_country || '',
+          air_ai_traveler_experience: metadata.air_ai_traveler_experience === undefined ? 0 : metadata.air_ai_traveler_experience,
+          air_ai_account_photo: metadata.air_ai_account_photo || ''
+        });
+        if (metadata.air_ai_account_photo) setAccountAvatar(metadata.air_ai_account_photo);
+        else {
+          const avatar = document.querySelector('.avatar-circle');
+          if (avatar) { avatar.style.backgroundImage = ''; avatar.style.color = ''; avatar.textContent = '+'; avatar.removeAttribute('data-has-photo'); }
+        }
+      } else {
+        // One-time migration for accounts whose profile predates cloud sync.
+        const legacy = currentProfile();
+        const photo = getSavedAccountAvatar() || '';
+        if (profileFields.name && !profileFields.name.value) profileFields.name.value = localStorage.getItem('airAiAccountName') || '';
+        if (profileFields.country && !profileFields.country.value) profileFields.country.value = localStorage.getItem('airAiAccountCountry') || '';
+        if (profileFields.experience && (profileFields.experience.value === '' || profileFields.experience.value === '0')) profileFields.experience.value = localStorage.getItem('airAiTravelerExperience') || '0';
+        if (photo) setAccountAvatar(photo);
+        const migrated = currentProfile();
+        migrated.air_ai_account_photo = photo;
+        const { error } = await client.auth.updateUser({ data: migrated });
+        if (error) throw error;
       }
       if (typeof updateNameLanguageFlag === 'function') updateNameLanguageFlag();
       if (typeof updateCountryFlag === 'function') await updateCountryFlag();
       updateFixedIdentity();
     } finally { applyingRemoteProfile = false; }
-    // For a brand-new account, copy any already-entered local profile values into its Supabase profile.
-    if (!hasRemoteProfile) {
-      const profile = currentProfile();
-      if (profile.air_ai_account_name || profile.air_ai_account_country || profile.air_ai_traveler_experience !== null) {
-        try { const { error } = await client.auth.updateUser({ data: profile }); if (error) console.warn('Air-AI profile initial sync failed:', error.message); } catch (e) { console.warn('Air-AI profile initial sync failed:', e); }
-      }
-    }
   }
   async function saveProfileToSupabase() {
     if (!client || !activeProfileUserId || applyingRemoteProfile) return;
@@ -3378,6 +3429,7 @@ try{renderAiSubscriptionAccess();}catch(err){}
     try {
       const { data, error } = await client.auth.updateUser({ data: profile });
       if (error) throw error;
+      if (data?.user) activeProfileUserId = data.user.id;
       updateFixedIdentity();
     } catch (error) {
       console.warn('Air-AI profile cloud save failed:', error?.message || error);
@@ -3396,6 +3448,7 @@ try{renderAiSubscriptionAccess();}catch(err){}
     field.addEventListener('change', scheduleProfileSave);
     field.addEventListener('blur', scheduleProfileSave);
   });
+  document.addEventListener('airai:profile-change', scheduleProfileSave);
   const labels = {
     RU: {title:'Вход в Air-AI Assistant',desc:'Создайте аккаунт или войдите, чтобы пользоваться аккаунтом Air-AI.',email:'Email',password:'Пароль',signin:'Войти',signup:'Зарегистрироваться',switchToSignup:'Нет аккаунта? Зарегистрироваться',switchToSignin:'Уже есть аккаунт? Войти',signout:'Выйти',confirm:'Проверьте почту и подтвердите адрес, затем войдите.',signed:'Вы вошли как',needEmail:'Введите корректный адрес электронной почты.',needPassword:'Пароль должен содержать не менее 6 символов.',missing:'Не удалось загрузить модуль авторизации. Обновите страницу и попробуйте ещё раз.',generic:'Не удалось выполнить запрос. Попробуйте ещё раз позже.',reset:'Письмо для восстановления пароля отправлено, если адрес зарегистрирован.'},
     EN: {title:'Sign in to Air-AI Assistant',desc:'Create an account or sign in to your Air-AI account.',email:'Email',password:'Password',signin:'Sign in',signup:'Create account',switchToSignup:'No account? Create one',switchToSignin:'Already have an account? Sign in',signout:'Sign out',confirm:'Check your inbox and confirm your email, then sign in.',signed:'Signed in as',needEmail:'Enter a valid email address.',needPassword:'Password must contain at least 6 characters.',missing:'Could not load the authentication module. Refresh and try again.',generic:'The request failed. Please try again later.',reset:'If the address is registered, a password reset email has been sent.'},
@@ -3436,7 +3489,11 @@ try{renderAiSubscriptionAccess();}catch(err){}
   } else {
     client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}});
     client.auth.getSession().then(({data,error}) => { if(error) throw error; showSession(data.session?.user || null); }).catch(() => say(lang().generic,'error'));
-    client.auth.onAuthStateChange((_event, session) => showSession(session?.user || null));
+    client.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user || null;
+      // Defer profile network calls outside Supabase's auth callback to avoid lock/deadlock issues.
+      queueMicrotask(() => showSession(user));
+    });
   }
   toggleButton.addEventListener('click', () => { if(busy) return; mode = mode === 'signin' ? 'signup' : 'signin'; say(''); renderMode(); });
   form.addEventListener('submit', async event => {
@@ -3466,7 +3523,7 @@ try{renderAiSubscriptionAccess();}catch(err){}
     window.applyLanguage = function() {
       const result = oldApplyLanguage.apply(this, arguments);
       localize();
-      // Repaint the account identity after translated labels are applied; do not require a second language switch.
+      // Repaint profile UI after translated labels are applied, on the first switch.
       requestAnimationFrame(() => {
         if (typeof updateNameLanguageFlag === 'function') updateNameLanguageFlag();
         if (typeof updateCountryFlag === 'function') updateCountryFlag().then(updateFixedIdentity).catch(updateFixedIdentity);
