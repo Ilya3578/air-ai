@@ -8,10 +8,42 @@ app.use(express.static("."));
 
 app.get("/", async (req, res) => {
   try {
-    const html = await readFile(
-      process.cwd() + "/Air-AI_version7_local_AI.html",
+    let html = await readFile(
+      process.cwd() + "/Air-AI_version7_local_AI-21.html",
       "utf8"
     );
+
+    // TEMPORARY PUBLIC SMART MODE: keep the existing HTML unchanged.
+    // Registration is blocked in the served copy; sign-in for existing accounts remains available.
+    const publicSmartMode = `
+      <style>#airAuthToggle{display:none!important}</style>
+      <script>
+      (function(){
+        try {
+          localStorage.setItem('airAiActivePlan', 'smart');
+          localStorage.setItem('airAiPlanExpiresAt', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+        } catch (error) {}
+        const hideRegistration = function(){
+          const toggle = document.getElementById('airAuthToggle');
+          if (toggle) { toggle.hidden = true; toggle.disabled = true; toggle.style.display = 'none'; }
+        };
+        hideRegistration();
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', hideRegistration, { once: true });
+        }
+        if (typeof renderSubscriptionState === 'function') {
+          try { renderSubscriptionState(); } catch (error) {}
+        }
+      })();
+      </script>
+    `;
+
+    // Prevent the signup branch from running even if its hidden toggle is invoked manually.
+    html = html.replace(
+      "if(mode === 'signup') {\n        const {data,error} = await client.auth.signUp",
+      "if(mode === 'signup') { say('Registration is temporarily disabled.', 'error'); return; }\n      if(false) {\n        const {data,error} = await client.auth.signUp"
+    );
+    html = html.replace('</body>', publicSmartMode + '\n</body>');
 
     // The HTML already contains the current flight-search handler.
     // Do not inject the legacy integrate-search.js: it intercepts the form,
@@ -1017,25 +1049,6 @@ app.get('/api/instagram-feed', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Air-AI Aviationstack API listening on :${PORT}`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
